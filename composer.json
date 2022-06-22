@@ -5,7 +5,7 @@
     "keywords": ["framework", "postgresql", "database", "pomm"],
     "homepage": "http://www.pomm-project.org",
     "license":  "MIT",
-    "authors":  [ { "name": "Grégoire HUBERT", "email": "hubert.greg@gmail.com", "homepage": "http://www.coolkeums.org" } ],
+    "authors":  [ { "name": "Grégoire HUBERT", "email": "hubert.greg@gmail.com" } ],
     "require": {
         "php": ">=8.1",
         "ext-pgsql": "*",
