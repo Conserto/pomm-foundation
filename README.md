@@ -21,7 +21,7 @@ Foundation provides out of the box:
 
 ## Requirements
 
- * PHP 5.4.4
+ * PHP 8.1
     * mod-pgsql (not PDO)
  * Postgresql 9.1
 
