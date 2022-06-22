@@ -63,9 +63,9 @@ class SessionBuilder extends VanillaSessionBuilder
      */
     protected function createSession(Connection $connection, ClientHolder $client_holder, ?string $stamp): Session
     {
-        $this->configuration->setDefaultValue('class:session', \PommProject\Foundation\Session::class);
+        $this->configuration->setDefaultValue('class:session', FoundationSession::class);
 
-        /** @var \PommProject\Foundation\Session $session */
+        /** @var FoundationSession $session */
         $session = parent::createSession($connection, $client_holder, $stamp);
         return $session;
     }

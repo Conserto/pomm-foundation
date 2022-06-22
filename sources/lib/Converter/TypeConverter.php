@@ -7,6 +7,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
@@ -47,11 +48,10 @@ abstract class TypeConverter implements ConverterInterface
      * @access public
      * @param string|null $class_name
      */
-    public function __construct( ?string $class_name = null)
+    public function __construct(?string $class_name = null)
     {
         $this->class_name =
-            $class_name ?? $this->getTypeClassName()
-            ;
+            $class_name ?? $this->getTypeClassName();
     }
 
     /**
@@ -69,9 +69,8 @@ abstract class TypeConverter implements ConverterInterface
 
         return
             $data !== ''
-            ? $this->createObjectFrom($data)
-            : null
-            ;
+                ? $this->createObjectFrom($data)
+                : null;
     }
 
     /**
@@ -82,16 +81,14 @@ abstract class TypeConverter implements ConverterInterface
      */
     public function toPg(mixed $data, string $type, Session $session): string
     {
-        if($data === null)
-        {
+        if ($data === null) {
             return sprintf("NULL::%s", $type);
-        }else{
+        } else {
             $dataObject = $this->checkData($data);
 
-            if( $dataObject instanceof \Stringable )
-            {
+            if ($dataObject instanceof \Stringable) {
                 return sprintf("%s('%s')", $type, $dataObject);
-            }else{
+            } else {
                 throw new ConverterException(
                     sprintf("Unable to transform a '%s' instance to string.", get_class($dataObject)),
                     0
@@ -110,9 +107,8 @@ abstract class TypeConverter implements ConverterInterface
     {
         return
             $data !== null
-            ? sprintf("%s", str_replace('"', '""', (string) $this->checkData($data)))
-            : null
-            ;
+                ? sprintf("%s", str_replace('"', '""', (string)$this->checkData($data)))
+                : null;
     }
 
     /**
@@ -144,7 +140,7 @@ abstract class TypeConverter implements ConverterInterface
      * fails, an exception is thrown.
      *
      * @access protected
-     * @param  mixed $data
+     * @param mixed $data
      * @return BaseRange
      * @throws ConverterException
      */

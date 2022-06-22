@@ -168,7 +168,7 @@ class SessionBuilder
      * @param string $dsn
      * @param string|array $connection_configuration
      * @return Connection
-     * @throws ConnectionException
+     * @throws ConnectionException|FoundationException
      */
     protected function createConnection(string $dsn, string|array $connection_configuration): Connection
     {
@@ -188,7 +188,7 @@ class SessionBuilder
      */
     protected function createSession(Connection $connection, ClientHolder $client_holder, ?string $stamp): Session
     {
-        $session_class = $this->configuration->getParameter('class:session', \PommProject\Foundation\Session\Session::class);
+        $session_class = $this->configuration->getParameter('class:session', Session::class);
 
         return new $session_class($connection, $client_holder, $stamp);
     }

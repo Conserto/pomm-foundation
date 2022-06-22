@@ -371,7 +371,7 @@ class Connection
      * @return string the escaped string.
      * @throws ConnectionException
      */
-    public function escapeIdentifier( ?string $string): string
+    public function escapeIdentifier(?string $string): string
     {
         return \pg_escape_identifier($this->getHandler(), $string ?? '');
     }
@@ -386,7 +386,7 @@ class Connection
      * @return string the escaped string.
      * @throws ConnectionException
      */
-    public function escapeLiteral( ?string $string): string
+    public function escapeLiteral(?string $string): string
     {
         return \pg_escape_literal($this->getHandler(), $string ?? '');
     }
@@ -401,7 +401,7 @@ class Connection
      * @return string
      * @throws ConnectionException
      */
-    public function escapeBytea( ?string $word): string
+    public function escapeBytea(?string $word): string
     {
         return pg_escape_bytea($this->getHandler(), $word ?? '');
     }

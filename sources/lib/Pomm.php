@@ -49,7 +49,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     public function __construct(array $configurations = [])
     {
         foreach ($configurations as $name => $configuration) {
-            $builder_class = \PommProject\Foundation\SessionBuilder::class;
+            $builder_class = SessionBuilder::class;
             if (isset($configuration['class:session_builder'])) {
                 $builder_class = $this->checkSessionBuilderClass($configuration['class:session_builder']);
             }

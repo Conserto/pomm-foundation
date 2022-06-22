@@ -54,6 +54,6 @@ class PgString implements ConverterInterface
      */
     public function fromPg(?string $data, string $type, Session $session): ?string
     {
-        return $data !== null ? $data : null;
+        return $data;
     }
 }
