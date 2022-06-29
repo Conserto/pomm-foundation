@@ -60,7 +60,7 @@ class PgArray extends ArrayTypeConverter
 
             return array_map(function ($val) use ($converter, $type, $session) {
                 if ($val !== "NULL") {
-                    return preg_match('/\\\\/', $val)
+                    return null !== $val && preg_match('/\\\\/', $val)
                         ? $converter->fromPg(stripslashes($val), $type, $session)
                         : $converter->fromPg($val, $type, $session);
                 } else {
