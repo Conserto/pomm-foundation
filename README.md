@@ -1,8 +1,11 @@
 # Foundation
 
-[![Latest Stable Version](https://poser.pugx.org/pomm-project/foundation/v/stable)](https://packagist.org/packages/pomm-project/foundation) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pomm-project/Foundation/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/pomm-project/Foundation/?branch=master) [![Build Status](https://travis-ci.org/pomm-project/Foundation.svg?branch=master)](https://travis-ci.org/pomm-project/Foundation) [![Monthly Downloads](https://poser.pugx.org/pomm-project/foundation/d/monthly.png)](https://packagist.org/packages/pomm-project/foundation) [![License](https://poser.pugx.org/pomm-project/foundation/license.svg)](https://packagist.org/packages/pomm-project/foundation)
+[![Latest Stable Version](https://poser.pugx.org/conserto/pomm-foundation/v/stable)](https://packagist.org/packages/conserto/pomm-foundation)
+![CI Status](https://github.com/conserto/pomm-foundation/actions/workflows/ci.yml/badge.svg)
+[![Monthly Downloads](https://poser.pugx.org/conserto/pomm-foundation/d/monthly.png)](https://packagist.org/packages/conserto/pomm-foundation) 
+[![License](https://poser.pugx.org/conserto/pomm-foundation/license.svg)](https://packagist.org/packages/conserto/pomm-foundation)
 
-This is the foundation component of [Pomm Project](http://www.pomm-project.org).
+This is a fork of the foundation component of [Pomm Project](http://www.pomm-project.org).
 
 ## What is Foundation ?
 
@@ -27,11 +30,11 @@ Foundation provides out of the box:
 
 ## Installation
 
-Pomm components are available on [packagist](https://packagist.org/packages/pomm-project/) using [composer](https://packagist.org/). To install and use Pomm's foundation, add a require line to `"pomm-project/foundation"` in your `composer.json` file.
+Pomm components are available on [packagist](https://packagist.org/packages/pomm-project/) using [composer](https://packagist.org/). To install and use Pomm's foundation, add a require line to `"conserto/pomm-foundation"` in your `composer.json` file.
 
 ## Documentation
 
-Foundation’s documentation is available [either online](https://github.com/pomm-project/Foundation/blob/master/documentation/foundation.rst) or directly in the `documentation` folder of the project.
+Foundation’s documentation is available [either online](https://github.com/conserto/pomm-foundation/blob/master/documentation/foundation.rst) or directly in the `documentation` folder of the project.
 
 ## Tests
 
