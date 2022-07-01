@@ -1,6 +1,9 @@
 # Foundation
 
-[![Latest Stable Version](https://poser.pugx.org/conserto/pomm-foundation/v/stable)](https://packagist.org/packages/conserto/pomm-foundation) [![Build Status](https://travis-ci.org/conserto/pomm-foundation.svg?branch=master)](https://travis-ci.org/conserto/pomm-foundation) [![Monthly Downloads](https://poser.pugx.org/conserto/pomm-foundation/d/monthly.png)](https://packagist.org/packages/conserto/pomm-foundation) [![License](https://poser.pugx.org/conserto/pomm-foundation/license.svg)](https://packagist.org/packages/conserto/pomm-foundation)
+[![Latest Stable Version](https://poser.pugx.org/conserto/pomm-foundation/v/stable)](https://packagist.org/packages/conserto/pomm-foundation)
+![CI Status](https://github.com/conserto/pomm-foundation/actions/workflows/ci.yml/badge.svg)
+[![Monthly Downloads](https://poser.pugx.org/conserto/pomm-foundation/d/monthly.png)](https://packagist.org/packages/conserto/pomm-foundation) 
+[![License](https://poser.pugx.org/conserto/pomm-foundation/license.svg)](https://packagist.org/packages/conserto/pomm-foundation)
 
 This is a fork of the foundation component of [Pomm Project](http://www.pomm-project.org).
 
