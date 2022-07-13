@@ -58,7 +58,6 @@ class ListenerPooler extends ClientPooler
      * of payload). Events sent to 'pika', 'pika:chu' will both notify client
      * 'pika'.
      *
-     * @access public
      * @param string|array $identifiers
      * @param array $data
      * @return ListenerPooler   $this
@@ -91,7 +90,6 @@ class ListenerPooler extends ClientPooler
      *
      * Notify all existing clients.
      *
-     * @access protected
      * @param array $data
      * @return ListenerPooler   $this
      * @throws FoundationException
@@ -112,7 +110,6 @@ class ListenerPooler extends ClientPooler
      *
      * Send a notification to the specified clients.
      *
-     * @access protected
      * @param array $identifiers
      * @param array $data
      * @return ListenerPooler   $this

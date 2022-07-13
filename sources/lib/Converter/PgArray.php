@@ -31,7 +31,6 @@ class PgArray extends ArrayTypeConverter
      * Extract subtype from a formatted string (ie int4[] or _text).
      *
      * @static
-     * @access public
      * @param string $type
      * @return string
      */

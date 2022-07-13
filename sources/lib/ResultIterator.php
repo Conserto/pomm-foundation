@@ -34,7 +34,6 @@ class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \Seeka
      *
      * Constructor
      *
-     * @access public
      * @param  ResultHandler $result
      */
     public function __construct(protected ResultHandler $result)
@@ -247,7 +246,6 @@ class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \Seeka
      * This actually stores all the results in PHP allocated memory.
      * THIS MAY USE A LOT OF MEMORY.
      *
-     * @access public
      */
     public function extract(): array
     {

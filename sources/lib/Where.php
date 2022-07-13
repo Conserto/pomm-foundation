@@ -34,7 +34,6 @@ class Where implements \Stringable
      * A constructor you can chain from.
      *
      * @static
-     * @access public
      * @param string|null $element
      * @param  array  $values
      * @return Where
@@ -49,7 +48,6 @@ class Where implements \Stringable
      *
      * Create an escaped IN clause.
      *
-     * @access public
      * @param string $element
      * @param  array  $values
      * @return Where
@@ -64,7 +62,6 @@ class Where implements \Stringable
      *
      * Create an escaped NOT IN clause.
      *
-     * @access public
      * @param string $element
      * @param  array $values
      * @return Where
@@ -80,7 +77,6 @@ class Where implements \Stringable
      * Create a Where instance with multiple escaped parameters. This is mainly
      * useful for IN or NOT IN clauses.
      *
-     * @access public
      * @param string $element
      * @param string $operation
      * @param  array  $values
@@ -104,7 +100,6 @@ class Where implements \Stringable
      *
      * Extract values with consistent keys.
      *
-     * @access protected
      * @param  array $values
      * @return array
      */
@@ -124,7 +119,6 @@ class Where implements \Stringable
      *
      * Create an array of escaped strings from a value set.
      *
-     * @access protected
      * @param  array $values
      * @return array
      */
@@ -147,7 +141,6 @@ class Where implements \Stringable
     /**
      * __construct
      *
-     * @access public
      * @param string|null $element (optional)
      * @param array  $values  (optional)
      */
@@ -166,7 +159,6 @@ class Where implements \Stringable
      * or something else.
      * XOR can be expressed as "A = !B"
      *
-     * @access public
      * @param string $operator
      * @return Where
      */
@@ -182,7 +174,6 @@ class Where implements \Stringable
      *
      * is it a fresh brand new object ?
      *
-     * @access public
      * @return boolean
      */
     public function isEmpty(): bool
@@ -195,7 +186,6 @@ class Where implements \Stringable
      *
      * Absorbing another Where instance.
      *
-     * @access private
      * @param Where $where
      * @return void $this
      */
@@ -212,7 +202,6 @@ class Where implements \Stringable
      *
      * You can add a new WHERE clause with your own operator.
      *
-     * @access public
      * @param  mixed  $element
      * @param  array  $values
      * @param string $operator
@@ -261,7 +250,6 @@ class Where implements \Stringable
      *
      * Or use a ready to use AND where clause.
      *
-     * @access public
      * @param  mixed $element
      * @param  array $values
      * @return Where
@@ -274,7 +262,6 @@ class Where implements \Stringable
     /**
      * orWhere
      *
-     * @access public
      * @param  mixed $element
      * @return Where
      */
@@ -286,7 +273,6 @@ class Where implements \Stringable
     /**
      * setStack
      *
-     * @access public
      * @param array $stack
      * @return Where
      */
@@ -302,7 +288,6 @@ class Where implements \Stringable
      *
      * where your SQL statement is built.
      *
-     * @access public
      * @return string
      */
     public function __toString(): string
@@ -313,7 +298,6 @@ class Where implements \Stringable
     /**
      * hasElement
      *
-     * @access public
      * @return boolean
      */
     public function hasElement(): bool
@@ -324,7 +308,6 @@ class Where implements \Stringable
     /**
      * getElement
      *
-     * @access public
      * @return string
      */
     public function getElement(): string
@@ -335,7 +318,6 @@ class Where implements \Stringable
     /**
      * parse
      *
-     * @access protected
      * @return string
      */
     protected function parse(): string
@@ -357,7 +339,6 @@ class Where implements \Stringable
      *
      * Get all the values back for the prepared statement.
      *
-     * @access public
      * @return array
      */
     public function getValues(): array

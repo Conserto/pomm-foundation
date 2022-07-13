@@ -40,7 +40,6 @@ class PreparedQuery extends Client
      * Returns a hash for a given sql query.
      *
      * @static
-     * @access public
      * @param string $sql Sql query
      * @return string
      */
@@ -54,7 +53,6 @@ class PreparedQuery extends Client
      *
      * Build the prepared query.
      *
-     * @access public
      * @param string|null $sql SQL query
      * @throws FoundationException
      */
@@ -81,7 +79,6 @@ class PreparedQuery extends Client
      *
      * Return the query identifier.
      *
-     * @access public
      * @return string Query identifier.
      */
     public function getClientIdentifier(): string
@@ -117,7 +114,6 @@ class PreparedQuery extends Client
      *
      * Launch the query with the given parameters.
      *
-     * @access public
      * @param array $values Query parameters
      * @return ResultHandler
      * @throws FoundationException
@@ -164,7 +160,6 @@ class PreparedQuery extends Client
      *
      * Send the query to be prepared by the server.
      *
-     * @access protected
      * @return PreparedQuery $this
      * @throws FoundationException
      */
@@ -187,7 +182,6 @@ class PreparedQuery extends Client
      *
      * Get the original SQL query
      *
-     * @access public
      * @return string SQL query
      */
     public function getSql(): string
@@ -200,7 +194,6 @@ class PreparedQuery extends Client
      *
      * Prepare parameters to be sent.
      *
-     * @access protected
      * @param mixed $sql
      * @param array $values
      * @return array    $prepared_values
@@ -226,7 +219,6 @@ class PreparedQuery extends Client
      *
      * Store converters needed for the query parameters.
      *
-     * @access protected
      * @param mixed $sql
      * @return PreparedQuery    $this
      * @throws FoundationException

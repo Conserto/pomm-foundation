@@ -24,7 +24,6 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * __construct()
      *
-     * @access public
      * @param  array $parameters (optional)
      */
     public function __construct(protected array $parameters = [])
@@ -36,7 +35,6 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * Set a parameter.
      *
-     * @access public
      * @param string $name
      * @param bool|string|array|null $value
      * @return ParameterHolder $this
@@ -53,7 +51,6 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * check if the given parameter exists.
      *
-     * @access public
      * @param  string $name
      * @return bool
      */
@@ -67,7 +64,6 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * Returns the parameter "name" or "default" if not set.
      *
-     * @access public
      * @param  string       $name
      * @param  bool|string|array|null $default Optional default value if name not set.
      * @return bool|string|array|null Parameter's value or default.
@@ -82,7 +78,6 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * Throw an exception if a param is not set
      *
-     * @access public
      * @throws  FoundationException
      * @param  string          $name the parameter's name
      * @return ParameterHolder $this
@@ -101,7 +96,6 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * Sets a default value if the param $name is not set
      *
-     * @access public
      * @param  string          $name  the parameter's name
      * @param  mixed           $value the default value
      * @return ParameterHolder $this
@@ -121,7 +115,6 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
      * Check if the given parameter is one of the values passed as argument. If
      * not, an exception is thrown.
      *
-     * @access public
      * @throws  FoundationException
      * @param  string          $name   the parameter's name
      * @param  array           $values
@@ -139,7 +132,6 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * unsetParameter()
      *
-     * @access public
      * @param  string          $name
      * @return ParameterHolder $this
      */
@@ -165,7 +157,7 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @see ArrayAccess
      */
-    public function offsetGet(mixed $offset): array|string|null
+    public function offsetGet(mixed $offset): bool|array|string|null
     {
         return $this->getParameter($offset);
     }

@@ -30,7 +30,6 @@ class NotificationException extends FoundationException
      *
      * Exception constructor.
      *
-     * @access public
      * @param  array $notification
      */
     public function __construct(array $notification)
@@ -46,7 +45,6 @@ class NotificationException extends FoundationException
      *
      * Return the channel's name.
      *
-     * @access public
      * @return string
      */
     public function getChannel(): string
@@ -59,7 +57,6 @@ class NotificationException extends FoundationException
      *
      * Return the server's PID.
      *
-     * @access public
      * @return string
      */
     public function getPid(): string

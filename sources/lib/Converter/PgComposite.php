@@ -32,7 +32,6 @@ class PgComposite extends ArrayTypeConverter
      * Takes the composite type structure as parameter.
      * The structure is $name => $type.
      *
-     * @access public
      * @param array $structure structure definition.
      */
     public function __construct(protected array $structure)
@@ -42,6 +41,7 @@ class PgComposite extends ArrayTypeConverter
     /**
      * fromPg
      *
+     * @throws FoundationException
      * @see ConverterInterface
      */
     public function fromPg(?string $data, string $type, Session $session): ?array
@@ -58,7 +58,7 @@ class PgComposite extends ArrayTypeConverter
     /**
      * toPg
      *
-     * @throws ConverterException
+     * @throws ConverterException|FoundationException
      * @see ConverterInterface
      */
     public function toPg(mixed $data, string $type, Session $session): string
@@ -79,7 +79,7 @@ class PgComposite extends ArrayTypeConverter
     /**
      * toPgStandardFormat
      *
-     * @throws ConverterException
+     * @throws ConverterException|FoundationException
      * @see ConverterInterface
      */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
@@ -112,7 +112,6 @@ class PgComposite extends ArrayTypeConverter
      *
      * Convert the given array of values.
      *
-     * @access private
      * @param array $data
      * @param Session $session
      * @param string $method

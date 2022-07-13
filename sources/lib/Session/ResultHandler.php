@@ -31,7 +31,6 @@ class ResultHandler
      *
      * Constructor
      *
-     * @access public
      */
     public function __construct(PgSqlResult $result_resource)
     {
@@ -43,7 +42,6 @@ class ResultHandler
      *
      * Call free() if handler is set.
      *
-     * @access public
      * @return void
      */
     public function __destruct()
@@ -56,7 +54,6 @@ class ResultHandler
      *
      * Free a result from memory.
      *
-     * @access public
      * @return ResultHandler $this
      */
     public function free(): ResultHandler
@@ -74,7 +71,6 @@ class ResultHandler
      *
      * Fetch a row as associative array. Index starts from 0.
      *
-     * @access public
      * @param int $index
      * @return array
      * @throws \OutOfBoundsException if $index out of bounds.
@@ -95,7 +91,6 @@ class ResultHandler
      *
      * Return the number of fields of a result.
      *
-     * @access public
      * @return int long
      */
     public function countFields(): int
@@ -108,7 +103,6 @@ class ResultHandler
      *
      * Return the number of rows in a result.
      *
-     * @access public
      * @return int long
      */
     public function countRows(): int
@@ -117,11 +111,23 @@ class ResultHandler
     }
 
     /**
+     * countAffectedRows
+     *
+     * Return the number of affected rows in a result.
+     *
+     * @access public
+     * @return int long
+     */
+    public function countAffectedRows(): int
+    {
+        return pg_affected_rows($this->handler);
+    }
+
+    /**
      * getFieldNames
      *
      * Return an array with the field names of a result.
      *
-     * @access public
      * @return array
      */
     public function getFieldNames(): array
@@ -140,7 +146,6 @@ class ResultHandler
      *
      * Return the associated type of a field.
      *
-     * @access public
      * @param string $name
      * @return string|null
      */
@@ -156,7 +161,6 @@ class ResultHandler
      *
      * Return the name from a field number.
      *
-     * @access public
      * @param int $field_no
      * @return string
      * @throws \InvalidArgumentException
@@ -171,13 +175,12 @@ class ResultHandler
      *
      * Return the field index from its name.
      *
-     * @access protected
      * @param string $name
      * @return int long
      */
     protected function getFieldNumber(string $name): int
     {
-        $no = pg_field_num($this->handler, sprintf('"%s"', $name));
+        $no = pg_field_num($this->handler, "\"$name\"");
 
         if ($no ===  -1) {
             throw new \InvalidArgumentException(sprintf("Could not find field name '%s'. Available fields are {%s}.", $name, join(', ', array_keys(pg_fetch_assoc($this->handler)))));
@@ -191,7 +194,6 @@ class ResultHandler
      *
      * Fetch a column from a result.
      *
-     * @access public
      * @param string $name
      * @return array
      */
@@ -205,7 +207,6 @@ class ResultHandler
      *
      * Check if a field exist or not.
      *
-     * @access public
      * @param  mixed $name
      * @return bool
      */
@@ -219,7 +220,6 @@ class ResultHandler
      *
      * Return the type oid of the given field.
      *
-     * @access public
      * @param int $field
      * @return int|null
      */

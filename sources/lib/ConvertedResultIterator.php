@@ -58,7 +58,6 @@ class ConvertedResultIterator extends ResultIterator
      *
      * Get the result types from the result handler.
      *
-     * @access protected
      */
     protected function initTypes(): ResultIterator
     {
@@ -84,7 +83,6 @@ class ConvertedResultIterator extends ResultIterator
      *
      * Convert values from Pg.
      *
-     * @access protected
      */
     protected function parseRow(array $values): array
     {
@@ -103,7 +101,6 @@ class ConvertedResultIterator extends ResultIterator
      *
      * Return converted value for a result field.
      *
-     * @access protected
      */
     protected function convertField(string $name, ?string $value): mixed
     {

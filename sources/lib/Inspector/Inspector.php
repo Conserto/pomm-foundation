@@ -54,7 +54,6 @@ class Inspector extends Client
      *
      * Return a list of available schemas in the current database.
      *
-     * @access public
      * @return ConvertedResultIterator
      * @throws FoundationException
      */
@@ -85,7 +84,6 @@ SQL;
      * Return the table oid from PostgreSQL catalog. If no table is found, null
      * is returned.
      *
-     * @access public
      * @param string $schema
      * @param string $table
      * @return int|null
@@ -118,7 +116,6 @@ SQL;
      * Get table's field information. If no fields are found, null is
      * returned.
      *
-     * @access public
      * @param int $oid
      * @return ConvertedResultIterator|null
      * @throws FoundationException
@@ -163,7 +160,6 @@ SQL;
      *
      * Return the given schema oid, null if the schema is not found.
      *
-     * @access public
      * @param string $schema
      * @param Where|null $where optional where clause.
      * @return int|null
@@ -194,7 +190,6 @@ SQL;
      *
      * Get relation's primary key if any.
      *
-     * @access public
      * @param int $table_oid
      * @return array|null
      * @throws FoundationException
@@ -232,7 +227,6 @@ SQL;
      * Return information on relations in a given schema. An additional Where
      * condition can be passed to filter against other criteria.
      *
-     * @access public
      * @param int|null $schema_oid
      * @param Where|null $where
      * @return ConvertedResultIterator
@@ -273,7 +267,6 @@ SQL;
      *
      * Return the comment on a table if set. Null otherwise.
      *
-     * @access public
      * @param int $table_oid
      * @return string|null
      * @throws FoundationException
@@ -296,7 +289,6 @@ SQL;
      * Return the Oid of the given type name.
      * It Additionally returns the type category.
      *
-     * @access public
      * @param string $type_name
      * @param string|null $type_schema
      * @return array|null
@@ -332,7 +324,6 @@ SQL;
      *
      * Get type category.
      *
-     * @access public
      * @param int $oid
      * @return array|null
      * @throws FoundationException
@@ -362,7 +353,6 @@ SQL;
      *
      * Return all possible values from an enumerated type in its natural order.
      *
-     * @access public
      * @param int $oid
      * @return array|null
      * @throws FoundationException
@@ -395,7 +385,6 @@ SQL;
      *
      * Return the structure of a composite row.
      *
-     * @access public
      * @param int $oid
      * @return ConvertedResultIterator
      * @throws FoundationException
@@ -423,7 +412,6 @@ SQL;
      *
      * Return server version.
      *
-     * @access public
      * @return string
      * @throws FoundationException
      */
@@ -442,7 +430,6 @@ SQL;
      *
      * Launch query execution.
      *
-     * @access protected
      * @param string $sql
      * @param Where|null $condition
      * @return ConvertedResultIterator

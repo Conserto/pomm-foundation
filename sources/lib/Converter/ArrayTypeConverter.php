@@ -34,7 +34,6 @@ abstract class ArrayTypeConverter implements ConverterInterface
      *
      * Check if the data is an array.
      *
-     * @access protected
      * @param  mixed    $data
      * @throws ConverterException
      * @return array    $data
@@ -59,7 +58,6 @@ abstract class ArrayTypeConverter implements ConverterInterface
      * Since the arrays in PostgreSQL have the same subtype, it is useful to
      * cache it here to avoid summoning the ClientHolder all the time.
      *
-     * @access protected
      * @param string $type
      * @param Session $session
      * @return ConverterInterface

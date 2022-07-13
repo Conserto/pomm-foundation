@@ -32,7 +32,6 @@ class ConverterHolder
      *
      * Declare a converter and assign types to it.
      *
-     * @access public
      * @param string $name
      * @param ConverterInterface $converter
      * @param array $types
@@ -58,7 +57,6 @@ class ConverterHolder
      * converter for this type has already been registered, then it throws and
      * exception.
      *
-     * @access protected
      * @param string $name
      * @param  ConverterInterface $converter
      * @param bool|null $strict (default true)
@@ -89,7 +87,6 @@ class ConverterHolder
      *
      * Tell if the converter exists or not.
      *
-     * @access public
      * @param string $name
      * @return bool
      */
@@ -104,7 +101,6 @@ class ConverterHolder
      * Return the converter associated with this name. If no converters found,
      * NULL is returned.
      *
-     * @access public
      * @param string $name
      * @return ConverterInterface|null
      */
@@ -118,7 +114,6 @@ class ConverterHolder
      *
      * Returns an array with the names of the registered converters.
      *
-     * @access public
      * @return array
      */
     public function getConverterNames(): array
@@ -132,7 +127,6 @@ class ConverterHolder
      * Make the given converter to support a new PostgreSQL type. If the given
      * type is already defined, it is overrided with the new converter.
      *
-     * @access public
      * @param string $name
      * @param string $type
      * @return ConverterHolder $this
@@ -160,7 +154,6 @@ class ConverterHolder
      *
      * Returns the converter instance for the given type.
      *
-     * @access public
      * @param string $type
      * @return ConverterInterface
      *@throws  ConverterException if there are no converters associated.
@@ -185,7 +178,6 @@ class ConverterHolder
      *
      * Does the type exist ?
      *
-     * @access public
      * @param string $type
      * @return bool
      */
@@ -199,7 +191,6 @@ class ConverterHolder
      *
      * Return the list of handled types.
      *
-     * @access public
      * @return array
      */
     public function getTypes(): array
@@ -212,7 +203,7 @@ class ConverterHolder
      *
      * Return the list of types with the related converter name.
      *
-     * @access public
+
      * @return array
      */
     public function getTypesWithConverterName(): array

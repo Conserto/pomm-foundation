@@ -30,33 +30,32 @@ class ConnectionConfigurator
     protected ParameterHolder $configuration;
 
     /**
-     * __construct
-     *
      * Initialize configuration.
      *
-     * @access public
-     * @param string $dsn
      * @throws ConnectionException|FoundationException
      */
-    public function __construct(string $dsn)
+    public function __construct(string $dsn, bool $persist = false)
     {
         $this->configuration = new ParameterHolder(
             [
                 'dsn' => $dsn,
                 'configuration' => $this->getDefaultConfiguration(),
+                'persist' => $persist,
             ]
         );
         $this->parseDsn();
     }
 
     /**
-     * addConfiguration
-     *
+     * Return whether or not to persist the connection to the DB.
+     */
+    public function getPersist(): bool
+    {
+        return $this->configuration['persist'];
+    }
+
+    /**
      * Add configuration settings. If settings exist, they are overridden.
-     *
-     * @access public
-     * @param  array      $configuration
-     * @return ConnectionConfigurator $this
      */
     public function addConfiguration(array $configuration): ConnectionConfigurator
     {
@@ -72,14 +71,7 @@ class ConnectionConfigurator
     }
 
     /**
-     * set
-     *
      * Set a new configuration setting.
-     *
-     * @access public
-     * @param string $name
-     * @param  mixed $value
-     * @return ConnectionConfigurator $this
      */
     public function set(string $name, mixed $value): ConnectionConfigurator
     {
@@ -97,12 +89,8 @@ class ConnectionConfigurator
 
 
     /**
-     * parseDsn()
-     *
      * Sets the different parameters from the DSN.
      *
-     * @access private
-     * @return ConnectionConfigurator $this
      * @throws ConnectionException|FoundationException
      */
     private function parseDsn(): ConnectionConfigurator
@@ -173,13 +161,9 @@ class ConnectionConfigurator
     }
 
     /**
-     * getConnectionString
-     *
      * Return the connection string.
      *
-     * @access public
      * @throws ConnectionException|FoundationException
-     * @return string
      */
     public function getConnectionString(): string
     {
@@ -208,12 +192,7 @@ class ConnectionConfigurator
     }
 
     /**
-     * getDefaultConfiguration
-     *
      * Standalone, default configuration.
-     *
-     * @access protected
-     * @return array
      */
     protected function getDefaultConfiguration(): array
     {
@@ -221,12 +200,8 @@ class ConnectionConfigurator
     }
 
     /**
-     * getConfiguration
-     *
      * Return current configuration settings.
      *
-     * @access public
-     * @return array
      * @throws ConnectionException
      */
     public function getConfiguration(): array

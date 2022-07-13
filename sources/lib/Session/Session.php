@@ -47,7 +47,6 @@ class Session implements LoggerAwareInterface
      * In order to create a physical connection to the database, it requires a
      * 'dsn' parameter from the ParameterHolder.
      *
-     * @access  public
      * @param Connection $connection
      * @param ClientHolder|null $client_holder
      * @param string|null $stamp
@@ -65,7 +64,6 @@ class Session implements LoggerAwareInterface
      *
      * A short description here
      *
-     * @access public
      * @return null
      */
     public function __destruct()
@@ -81,7 +79,6 @@ class Session implements LoggerAwareInterface
      * Gently shutdown all clients when the Session is getting down prior to
      * connection termination.
      *
-     * @access  public
      * @return void
      */
     public function shutdown(): void
@@ -109,7 +106,6 @@ class Session implements LoggerAwareInterface
      *
      * Return the session's stamp if any
      *
-     * @access  public
      * @return  string|null
      */
     public function getStamp(): ?string
@@ -122,7 +118,6 @@ class Session implements LoggerAwareInterface
      *
      * Return the logger if any.
      *
-     * @access  public
      * @return  LoggerInterface|null
      */
     public function getLogger(): ?LoggerInterface
@@ -135,7 +130,6 @@ class Session implements LoggerAwareInterface
      *
      * Return true if a logger is set.
      *
-     * @access  public
      * @return  bool
      */
     public function hasLogger(): bool
@@ -148,7 +142,6 @@ class Session implements LoggerAwareInterface
      *
      * Return the database connection.
      *
-     * @access  public
      * @return  Connection
      */
     public function getConnection(): Connection
@@ -162,7 +155,6 @@ class Session implements LoggerAwareInterface
      * Initialize a connection client with context and register it in the
      * client holder.
      *
-     * @access  public
      * @param ClientInterface $client
      * @return  Session $this
      */
@@ -190,7 +182,6 @@ class Session implements LoggerAwareInterface
      *
      * Return a Client from its type and identifier.
      *
-     * @access  public
      * @param string|null $type
      * @param string $identifier
      * @return ClientInterface|null or null if not found.
@@ -205,7 +196,6 @@ class Session implements LoggerAwareInterface
      *
      * Tell if a client exist or not.
      *
-     * @access  public
      * @param string $type
      * @param string $name
      * @return  bool
@@ -220,7 +210,6 @@ class Session implements LoggerAwareInterface
      *
      * Add or replace a Client pooler for the specified type.
      *
-     * @access  public
      * @param ClientPoolerInterface $client_pooler
      * @return  Session               $this
      */
@@ -249,7 +238,6 @@ class Session implements LoggerAwareInterface
      *
      * Tell if a pooler exist or not.
      *
-     * @access  public
      * @param string $type
      * @return  bool
      */
@@ -263,7 +251,6 @@ class Session implements LoggerAwareInterface
      *
      * Get the registered for the given type.
      *
-     * @access  public
      * @param string $type
      * @return  ClientPoolerInterface
      * @throws  FoundationException if pooler does not exist
@@ -299,7 +286,6 @@ ERROR;
      *
      * Return all instances of clients for a given type.
      *
-     * @access  public
      * @param string $type
      * @return  array
      */
@@ -314,7 +300,6 @@ ERROR;
      * Summon a pooler to retrieve a client. If the pooler does not exist, a
      * FoundationException is thrown.
      *
-     * @access  public
      * @param string $type
      * @param string|null $identifier
      * @return  ClientInterface
@@ -330,7 +315,6 @@ ERROR;
      *
      * Create handy methods to access clients through a pooler.
      *
-     * @access  public
      * @param string $method
      * @param array $arguments
      * @return  ClientInterface
@@ -354,7 +338,6 @@ ERROR;
      *
      * Useful to test & debug.
      *
-     * @access  public
      * @return  array
      */
     public function getRegisterPoolersNames(): array

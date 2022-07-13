@@ -9,9 +9,9 @@
  */
 namespace PommProject\Foundation\Test\Unit\QueryManager;
 
-use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Converter\Type\Circle;
-use PommProject\Foundation\Converter\ConverterPooler;
+use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\FoundationSessionAtoum;
 
 class SimpleQueryManager extends FoundationSessionAtoum
@@ -40,6 +40,19 @@ class SimpleQueryManager extends FoundationSessionAtoum
             ->variable($iterator->current()['TWO'])
             ->isNull()
             ;
+    }
+
+    /**
+     * @throws FoundationException
+     */
+    public function testQueryWithExtraParameter()
+    {
+        $session = $this->buildSession();
+        $this
+            ->exception(function () use ($session) {
+                $iterator = $this->getQueryManager($session)->query('select true', ['extra']);
+            })
+            ->isInstanceOf('\PommProject\Foundation\Exception\SqlException');
     }
 
     public function testParametrizedQuery()
@@ -104,46 +117,5 @@ SQL;
             ->integer($listener_tester->result_count)
             ->isEqualTo(1)
             ;
-    }
-}
-
-class ListenerTester
-{
-    public $is_called = false;
-    public $sql;
-    public $parameters = [];
-    public $session_stamp;
-    public $result_count;
-    public $time_ms;
-
-    public function call($event, array $data, Session $session)
-    {
-        $this->is_called = true;
-
-        if (isset($data['sql'])) {
-            $this->sql = $data['sql'];
-        }
-        if (isset($data['parameters'])) {
-            $this->parameters = $data['parameters'];
-        }
-        if (isset($data['session_stamp'])) {
-            $this->session_stamp = $data['session_stamp'];
-        }
-        if (isset($data['result_count'])) {
-            $this->result_count = $data['result_count'];
-        }
-        if (isset($data['time_ms'])) {
-            $this->time_ms = $data['time_ms'];
-        }
-    }
-
-    public function clear()
-    {
-        $this->is_called = false;
-        $this->sql = null;
-        $this->parameters = null;
-        $this->session_stamp = null;
-        $this->session_stamp = null;
-        $this->time_ms = null;
     }
 }
