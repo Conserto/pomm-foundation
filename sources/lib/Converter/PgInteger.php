@@ -2,7 +2,7 @@
 /*
  * This file is part of Pomm's Foundation package.
  *
- * (c) 2014 - 2015 Grégoire HUBERT <hubert.greg@gmail.com>
+ * (c) 2014 - 2017 Grégoire HUBERT <hubert.greg@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,24 +12,24 @@ namespace PommProject\Foundation\Converter;
 use PommProject\Foundation\Session\Session;
 
 /**
- * PgNumber
+ * PgInteger
  *
  * Converter for numbers.
  *
  * @package   Foundation
- * @copyright 2014 - 2015 Grégoire HUBERT
+ * @copyright 2014 - 2017 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
  * @see       ConverterInterface
  */
-class PgNumber implements ConverterInterface
+class PgInteger implements ConverterInterface
 {
     /**
      * fromPg
      *
      * @see ConverterInterface
      */
-    public function fromPg(?string $data, string $type, Session $session): float|int|null
+    public function fromPg(?string $data, string $type, Session $session): ?int
     {
         if (null === $data) {
             return null;
@@ -40,8 +40,7 @@ class PgNumber implements ConverterInterface
             return null;
         }
 
-        /** @phpstan-ignore-next-line */
-        return $data + 0;
+        return (int)$data;
     }
 
     /**
@@ -52,10 +51,7 @@ class PgNumber implements ConverterInterface
     public function toPg(mixed $data, string $type, Session $session): string
     {
         return
-            $data !== null
-            ? sprintf("%s '%s'", $type, $data + 0)
-            : sprintf("NULL::%s", $type)
-            ;
+            $data !== null ? sprintf("%s '%u'", $type, $data) : sprintf("NULL::%s", $type);
     }
 
     /**
@@ -65,10 +61,6 @@ class PgNumber implements ConverterInterface
      */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
-        return
-            $data !== null
-            ? sprintf("%s", $data + 0)
-            : null
-            ;
+        return $data !== null ? sprintf('%u', $data) : null;
     }
 }

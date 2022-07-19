@@ -9,10 +9,13 @@
  */
 namespace PommProject\Foundation\Test\Unit\Converter;
 
-use PommProject\Foundation\Test\Unit\Converter\BaseConverter;
+use PommProject\Foundation\Exception\FoundationException;
 
 class PgTimestamp extends BaseConverter
 {
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg()
     {
         $session = $this->buildSession();
@@ -24,29 +27,43 @@ class PgTimestamp extends BaseConverter
             ;
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg()
     {
         $session = $this->buildSession();
         $this
             ->string($this->newTestedInstance()->toPg(new \DateTime('2014-09-27 18:51:35.678406+00'), 'timestamptz', $session))
             ->isEqualTo("timestamptz '2014-09-27 18:51:35.678406+00:00'")
+            ->string($this->newTestedInstance()
+                ->toPg(new \DateTimeImmutable('2014-09-27 18:51:35.678406+00'), 'timestamptz', $session))
+            ->isEqualTo("timestamptz '2014-09-27 18:51:35.678406+00:00'")
             ->string($this->newTestedInstance()->toPg(null, 'timestamptz', $session))
             ->isEqualTo("NULL::timestamptz")
             ;
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat()
     {
         $session = $this->buildSession();
         $date_time = new \DateTime('2014-09-27 18:51:35.678406+00');
+        $date_time_immutable = new \DateTimeImmutable('2014-09-27 18:51:35.678406+00');
         $this
             ->string($this->newTestedInstance()->toPgStandardFormat($date_time, 'timestamptz', $session))
+            ->isEqualTo('2014-09-27 18:51:35.678406+00:00')
+            ->string($this->newTestedInstance()->toPgStandardFormat($date_time_immutable, 'timestamptz', $session))
             ->isEqualTo('2014-09-27 18:51:35.678406+00:00')
             ->variable($this->newTestedInstance()->toPgStandardFormat(null, 'timestamptz', $session))
             ->isNull()
             ->object($this->sendToPostgres($date_time, 'timestamptz', $session))
             ->isInstanceof(\DateTime::class)
             ->isEqualTo($date_time)
-            ;
+            ->object($this->sendToPostgres($date_time_immutable, 'timestamptz', $session))
+            ->isInstanceof('\DateTime')
+            ->isEqualTo($date_time_immutable);
     }
 }

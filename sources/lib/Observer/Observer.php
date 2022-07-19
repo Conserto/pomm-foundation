@@ -33,7 +33,6 @@ class Observer extends Client
      *
      * Constructor
      *
-     * @access public
      * @param string $channel
      */
     public function __construct(protected string $channel)
@@ -87,7 +86,6 @@ class Observer extends Client
      * Check if a notification is pending. If so, the payload is returned.
      * Otherwise, null is returned.
      *
-     * @access public
      * @return array|null
      * @throws FoundationException
      */
@@ -107,7 +105,6 @@ class Observer extends Client
      * method but it can be unlisten if the listen command took place in a
      * transaction.
      *
-     * @access public
      * @return Observer $this
      * @throws FoundationException
      */
@@ -124,7 +121,6 @@ class Observer extends Client
      * NOTE: When listen is issued in a transaction it is unlisten when the
      * transaction is committed or rollback.
      *
-     * @access protected
      * @param string $channel
      * @return Observer $this
      * @throws FoundationException
@@ -147,7 +143,6 @@ class Observer extends Client
      *
      * Stop listening to events.
      *
-     * @access protected
      * @param string $channel
      * @return Observer $this
      *
@@ -169,7 +164,6 @@ class Observer extends Client
      *
      * Check if a notification is pending. If so, a NotificationException is thrown.
      *
-     * @access public
      * @return Observer $this
      *@throws  NotificationException|FoundationException
      */
@@ -189,7 +183,6 @@ class Observer extends Client
      *
      * Proxy for Connection::executeAnonymousQuery()
      *
-     * @access protected
      * @param string $sql
      * @return Observer $this
      * @throws FoundationException
@@ -211,7 +204,6 @@ class Observer extends Client
      *
      * Proxy for Connection::escapeIdentifier()
      *
-     * @access protected
      * @param string $string
      * @return string
      * @throws FoundationException

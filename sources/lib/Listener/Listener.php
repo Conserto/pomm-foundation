@@ -34,7 +34,6 @@ class Listener extends Client
      *
      * Take the client identifier as argument.
      *
-     * @access public
      * @param  string $name
      */
     public function __construct(protected string $name)
@@ -66,7 +65,6 @@ class Listener extends Client
      *
      * Attach a new callback to the callback list.
      *
-     * @access public
      * @param  callable $action
      * @return Listener $this
      */
@@ -85,7 +83,6 @@ class Listener extends Client
      * array    $data    event's payload if any
      * Session  $session the current session
      *
-     * @access public
      * @param string $name
      * @param array $data
      * @return Listener $this

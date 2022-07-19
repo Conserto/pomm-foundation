@@ -30,7 +30,6 @@ class ConverterClient extends Client
      *
      * Wrap the given converter.
      *
-     * @access public
      * @param  string    $name
      * @param  ConverterInterface $converter
      */
@@ -63,7 +62,6 @@ class ConverterClient extends Client
      *
      * Trigger converter's toPg conversion method.
      *
-     * @access public
      * @param mixed $value
      * @param string|null $type
      * @return string
@@ -84,7 +82,6 @@ class ConverterClient extends Client
      *
      * Trigger converter's fromPg conversion method.
      *
-     * @access public
      * @param mixed $value
      * @param string|null $type
      * @return mixed
@@ -105,7 +102,6 @@ class ConverterClient extends Client
      *
      * Export data as CSV representation
      *
-     * @access public
      * @param mixed $value
      * @param string|null $type
      * @return string
@@ -126,7 +122,6 @@ class ConverterClient extends Client
      *
      * Return the embedded converter.
      *
-     * @access public
      * @return ConverterInterface
      */
     public function getConverter(): ConverterInterface

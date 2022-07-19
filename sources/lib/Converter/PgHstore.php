@@ -76,7 +76,6 @@ class PgHstore extends ArrayTypeConverter
      *
      * Return an array of HStore elements.
      *
-     * @access   protected
      * @param  array $data
      * @return array
      */
@@ -104,7 +103,6 @@ class PgHstore extends ArrayTypeConverter
      *
      * Escape a string.
      *
-     * @access protected
      * @param string $string
      * @return string
      */

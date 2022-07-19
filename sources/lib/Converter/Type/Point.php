@@ -29,7 +29,6 @@ class Point implements \Stringable
      *
      * Create a point from a string description.
      *
-     * @access public
      * @param  string $description
      */
     public function __construct(string $description)
@@ -54,7 +53,6 @@ class Point implements \Stringable
      *
      * Return a string representation of Point.
      *
-     * @access public
      * @return string
      */
     public function __toString(): string

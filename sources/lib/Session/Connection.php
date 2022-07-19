@@ -43,33 +43,23 @@ class Connection
     private bool $is_closed = false;
 
     /**
-     * __construct
-     *
      * Constructor. Test if the given DSN is valid.
      *
-     * @access public
-     * @param string $dsn
-     * @param array $configuration
      * @throws ConnectionException if pgsql extension is missing
      * @throws FoundationException
      */
-    public function __construct(string $dsn, array $configuration = [])
+    public function __construct(string $dsn, bool $persist = false, array $configuration = [])
     {
         if (!function_exists('pg_connection_status')) {
             throw new ConnectionException("`pgsql` PHP extension's functions are unavailable in your environment, please make sure PostgreSQL support is enabled in PHP.");
         }
 
-        $this->configurator = new ConnectionConfigurator($dsn);
+        $this->configurator = new ConnectionConfigurator($dsn, $persist);
         $this->configurator->addConfiguration($configuration);
     }
 
     /**
-     * close
-     *
      * Close the connection if any.
-     *
-     * @access public
-     * @return Connection $this
      */
     public function close(): Connection
     {
@@ -83,14 +73,9 @@ class Connection
     }
 
     /**
-     * addConfiguration
-     *
      * Add configuration settings. If settings exist, they are overridden.
      *
-     * @access public
-     * @param  array               $configuration
      * @throws  ConnectionException if connection is already up.
-     * @return Connection          $this
      */
     public function addConfiguration(array $configuration): Connection
     {
@@ -102,14 +87,8 @@ class Connection
     }
 
     /**
-     * addConfigurationSetting
-     *
      * Add or override a configuration definition.
      *
-     * @access public
-     * @param string $name
-     * @param string $value
-     * @return Connection
      * @throws ConnectionException
      */
     public function addConfigurationSetting(string $name, string $value): Connection
@@ -121,11 +100,8 @@ class Connection
     }
 
     /**
-     * getHandler
-     *
      * Return the connection handler. If no connection are open, it opens one.
      *
-     * @access protected
      * @throws  ConnectionException|FoundationException if connection is open in a bad state.
      */
     protected function getHandler(): PgSqlConnection
@@ -152,12 +128,7 @@ class Connection
     }
 
     /**
-     * hasHandler
-     *
      * Tell if a handler is set or not.
-     *
-     * @access protected
-     * @return bool
      */
     protected function hasHandler(): bool
     {
@@ -165,12 +136,7 @@ class Connection
     }
 
     /**
-     * getConnectionStatus
-     *
      * Return a connection status.
-     *
-     * @access public
-     * @return int
      */
     public function getConnectionStatus(): int
     {
@@ -190,14 +156,9 @@ class Connection
     }
 
     /**
-     * getTransactionStatus
-     *
      * Return the current transaction status.
      * Return a PHP constant.
      * @see http://fr2.php.net/manual/en/function.pg-transaction-status.php
-     *
-     * @access public
-     * @return int
      */
     public function getTransactionStatus(): int
     {
@@ -205,18 +166,20 @@ class Connection
     }
 
     /**
-     * launch
-     *
      * Open a connection on the database.
      *
-     * @access private
      * @throws  ConnectionException|FoundationException if connection fails.
-     * return  Connection $this
      */
     private function launch(): Connection
     {
         $string = $this->configurator->getConnectionString();
-        $handler = pg_connect($string, \PGSQL_CONNECT_FORCE_NEW);
+        $persist = $this->configurator->getPersist();
+
+        if ($persist) {
+            $handler = pg_connect($string, \PGSQL_CONNECT_FORCE_NEW);
+        } else {
+            $handler = pg_pconnect($string);
+        }
 
         if ($handler === false) {
             throw new ConnectionException(
@@ -241,12 +204,8 @@ class Connection
     }
 
     /**
-     * sendConfiguration
-     *
      * Send the configuration settings to the server.
      *
-     * @access protected
-     * @return Connection $this
      * @throws ConnectionException|FoundationException
      */
     protected function sendConfiguration(): Connection
@@ -275,14 +234,9 @@ class Connection
     }
 
     /**
-     * checkConnectionUp
-     *
      * Check if the handler is set and throw an Exception if yes.
      *
-     * @access private
-     * @param string $error_message
-     * @return Connection $this
-     *@throws ConnectionException
+     * @throws ConnectionException
      */
     private function checkConnectionUp(string $error_message = ''): Connection
     {
@@ -298,12 +252,8 @@ class Connection
     }
 
     /**
-     * executeAnonymousQuery
-     *
      * Performs a raw SQL query
      *
-     * @access public
-     * @param string $sql The sql statement to execute.
      * @throws ConnectionException|SqlException|FoundationException
      */
     public function executeAnonymousQuery(string $sql): ResultHandler|array
@@ -317,17 +267,12 @@ class Connection
     }
 
     /**
-     * getQueryResult
-     *
      * Get an asynchronous query result.
      * The only reason for the SQL query to be passed as parameter is to throw
      * a meaningful exception when an error is raised.
      * Since it is possible to send several queries at a time, This method can
      * return an array of ResultHandler.
      *
-     * @access protected
-     * @param string|null $sql
-     * @return ResultHandler|array
      * @throws ConnectionException if no response are available.
      * @throws FoundationException if the result is an error.
      * @throws SqlException if the result is an error.
@@ -359,17 +304,12 @@ class Connection
     }
 
     /**
-     * escapeIdentifier
-     *
      * Escape database object's names. This is different from value escaping
      * as objects names are surrounded by double quotes. API function does
      * provide a nice escaping with -- hopefully -- UTF8 support.
      *
      * @see http://www.postgresql.org/docs/current/static/sql-syntax-lexical.html
-     * @access public
-     * @param string|null $string $string The string to be escaped.
-     * @return string the escaped string.
-     * @throws ConnectionException
+     * @throws ConnectionException|FoundationException
      */
     public function escapeIdentifier(?string $string): string
     {
@@ -377,14 +317,11 @@ class Connection
     }
 
     /**
-     * escapeLiteral
-     *
      * Escape a text value.
      *
-     * @access public
      * @param string|null $string $string The string to be escaped
      * @return string the escaped string.
-     * @throws ConnectionException
+     * @throws ConnectionException|FoundationException
      */
     public function escapeLiteral(?string $string): string
     {
@@ -392,14 +329,9 @@ class Connection
     }
 
     /**
-     * escapeBytea
-     *
      * Wrap pg_escape_bytea
      *
-     * @access public
-     * @param string|null $word
-     * @return string
-     * @throws ConnectionException
+     * @throws ConnectionException|FoundationException
      */
     public function escapeBytea(?string $word): string
     {
@@ -407,13 +339,7 @@ class Connection
     }
 
     /**
-     * unescapeBytea
-     *
      * Unescape PostgreSQL bytea.
-     *
-     * @access public
-     * @param string $bytea
-     * @return string
      */
     public function unescapeBytea(string $bytea): string
     {
@@ -421,15 +347,12 @@ class Connection
     }
 
     /**
-     * sendQueryWithParameters
-     *
      * Execute a asynchronous query with parameters and send the results.
      *
-     * @access public
      * @param string $query
      * @param  array         $parameters
      * @return ResultHandler query result wrapper
-     *@throws SqlException|ConnectionException
+     *@throws SqlException|ConnectionException|FoundationException
      */
     public function sendQueryWithParameters(string $query, array $parameters = []): ResultHandler
     {
@@ -450,14 +373,8 @@ class Connection
     }
 
     /**
-     * sendPrepareQuery
-     *
      * Send a prepare query statement to the server.
      *
-     * @access public
-     * @param string $identifier
-     * @param string $sql
-     * @return Connection $this
      * @throws ConnectionException|SqlException|FoundationException
      */
     public function sendPrepareQuery(string $identifier, string $sql): Connection
@@ -474,15 +391,9 @@ class Connection
     }
 
     /**
-     * testQueryAndGetResult
-     *
      * Factor method to test query return and summon getQueryResult().
      *
-     * @access protected
-     * @param  mixed      $query_return
-     * @param string $sql
-     * @return Connection $this
-     *@throws ConnectionException
+     * @throws ConnectionException
      */
     protected function testQuery(mixed $query_return, string $sql): Connection
     {
@@ -494,16 +405,9 @@ class Connection
     }
 
     /**
-     * sendExecuteQuery
-     *
      * Execute a prepared statement.
      * The optional SQL parameter is for debugging purposes only.
      *
-     * @access public
-     * @param string $identifier
-     * @param array $parameters
-     * @param string $sql
-     * @return ResultHandler
      * @throws ConnectionException
      * @throws FoundationException
      * @throws SqlException
@@ -522,13 +426,9 @@ class Connection
     }
 
     /**
-     * getClientEncoding
-     *
      * Return the actual client encoding.
      *
-     * @access public
-     * @return string
-     * @throws ConnectionException
+     * @throws ConnectionException|FoundationException
      */
     public function getClientEncoding(): string
     {
@@ -539,14 +439,9 @@ class Connection
     }
 
     /**
-     * setClientEncoding
-     *
      * Set client encoding.
      *
-     * @access public
-     * @param string $encoding
-     * @return Connection $this;
-     * @throws ConnectionException
+     * @throws ConnectionException|FoundationException
      */
     public function setClientEncoding(string $encoding): Connection
     {
@@ -558,14 +453,9 @@ class Connection
     }
 
     /**
-     * getNotification
-     *
      * Get pending notifications. If no notifications are waiting, NULL is
      * returned. Otherwise an associative array containing the optional data
      * and de backend's PID is returned.
-     *
-     * @access public
-     * @return array|null
      */
     public function getNotification(): ?array
     {

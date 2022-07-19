@@ -9,10 +9,13 @@
  */
 namespace PommProject\Foundation\Test\Unit\Converter;
 
-use PommProject\Foundation\Test\Unit\Converter\BaseConverter;
+use PommProject\Foundation\Exception\FoundationException;
 
-class PgNumber extends BaseConverter
+class PgInteger extends BaseConverter
 {
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg()
     {
         $session = $this->buildSession();
@@ -23,19 +26,22 @@ class PgNumber extends BaseConverter
             ->isEqualTo(0)
             ->integer($this->newTestedInstance()->fromPg('2015', 'int4', $session))
             ->isEqualTo(2015)
-            ->float($this->newTestedInstance()->fromPg('3.141596', 'float4', $session))
-            ->isEqualTo(3.141596)
-            ;
+            ->integer($this->newTestedInstance()->fromPg('3.141596', 'int4', $session))
+            ->isEqualTo(3)
+        ;
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg()
     {
         $session = $this->buildSession();
         $this
             ->string($this->newTestedInstance()->toPg(2014, 'int4', $session))
             ->isEqualTo("int4 '2014'")
-            ->string($this->newTestedInstance()->toPg(1.6180339887499, 'float8', $session))
-            ->isEqualTo("float8 '1.6180339887499'")
+            ->string($this->newTestedInstance()->toPg(1.6180339887499, 'int4', $session))
+            ->isEqualTo("int4 '1'")
             ->string($this->newTestedInstance()->toPg(null, 'int4', $session))
             ->isEqualTo("NULL::int4")
             ->string($this->newTestedInstance()->toPg(0, 'int4', $session))
@@ -43,16 +49,19 @@ class PgNumber extends BaseConverter
         ;
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat()
     {
         $session = $this->buildSession();
         $this
             ->string($this->newTestedInstance()->toPgStandardFormat(2014, 'int4', $session))
             ->isEqualTo("2014")
-            ->string($this->newTestedInstance()->toPgStandardFormat(1.6180339887499, 'float8', $session))
-            ->isEqualTo("1.6180339887499")
+            ->string($this->newTestedInstance()->toPgStandardFormat(1.6180339887499, 'int4', $session))
+            ->isEqualTo("1")
             ->variable($this->newTestedInstance()->toPgStandardFormat(null, 'int4', $session))
             ->isNull()
-            ;
+        ;
     }
 }

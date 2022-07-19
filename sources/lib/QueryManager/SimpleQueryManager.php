@@ -35,7 +35,6 @@ class SimpleQueryManager extends QueryManagerClient
      *
      * Perform a simple escaped query and return converted result iterator.
      *
-     * @access public
      * @param string $sql
      * @param array $parameters
      * @return ConvertedResultIterator
@@ -76,7 +75,6 @@ class SimpleQueryManager extends QueryManagerClient
      *
      * Perform the query
      *
-     * @access protected
      * @param string $sql
      * @param array $parameters
      * @return ResultHandler
@@ -99,7 +97,6 @@ class SimpleQueryManager extends QueryManagerClient
      *
      * Prepare and convert $parameters if needed.
      *
-     * @access protected
      * @param string $sql
      * @param array $parameters
      * @return array    $parameters
@@ -110,7 +107,7 @@ class SimpleQueryManager extends QueryManagerClient
         $types = $this->getParametersType($sql);
 
         foreach ($parameters as $index => $value) {
-            if ($types[$index] !== '') {
+            if (isset($types[$index]) && $types[$index] !== '') {
                 /** @var ConverterClient $converterClient */
                 $converterClient = $this
                     ->getSession()

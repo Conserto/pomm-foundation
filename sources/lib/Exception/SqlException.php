@@ -16,7 +16,7 @@ use PgSql\Result;
  *
  * Errors from the rdbms with the result resource.
  *
- * @link      http://www.postgresql.org/docs/9.0/static/errcodes-appendix.html
+ * @link      https://www.postgresql.org/docs/current/errcodes-appendix.html
  * @package   Foundation
  * @uses      FoundationException
  * @copyright 2014 - 2015 Grégoire HUBERT
@@ -93,15 +93,19 @@ class SqlException extends FoundationException
     final const NONSTANDARD_USE_OF_ESCAPE_CHARACTER = '22P06';
     final const INVALID_INDICATOR_PARAMETER_VALUE = '22010';
     final const INVALID_PARAMETER_VALUE = '22023';
+    final const INVALID_PRECEDING_OR_FOLLOWING_SIZE = '22013';
     final const INVALID_REGULAR_EXPRESSION = '2201B';
     final const INVALID_ROW_COUNT_IN_LIMIT_CLAUSE = '2201W';
     final const INVALID_ROW_COUNT_IN_RESULT_OFFSET_CLAUSE = '2201X';
+    final const INVALID_TABLESAMPLE_ARGUMENT = '2202H';
+    final const INVALID_TABLESAMPLE_REPEAT = '2202G';
     final const INVALID_TIME_ZONE_DISPLACEMENT_VALUE = '22009';
     final const INVALID_USE_OF_ESCAPE_CHARACTER = '2200C';
     final const MOST_SPECIFIC_TYPE_MISMATCH = '2200G';
     final const NULL_VALUE_NOT_ALLOWED = '22004';
     final const NULL_VALUE_NO_INDICATOR_PARAMETER = '22002';
     final const NUMERIC_VALUE_OUT_OF_RANGE = '22003';
+    final const SEQUENCE_GENERATOR_LIMIT_EXCEEDED = '2200H';
     final const STRING_DATA_LENGTH_MISMATCH = '22026';
     #const STRING_DATA_RIGHT_TRUNCATION = '22001';
     final const SUBSTRING_ERROR = '22011';
@@ -118,6 +122,22 @@ class SqlException extends FoundationException
     final const INVALID_XML_CONTENT = '2200N';
     final const INVALID_XML_COMMENT = '2200S';
     final const INVALID_XML_PROCESSING_INSTRUCTION = '2200T';
+    final const DUPLICATE_JSON_OBJECT_KEY_VALUE = '22030';
+    final const INVALID_ARGUMENT_FOR_SQL_JSON_DATETIME_FUNCTION = '22031';
+    final const INVALID_JSON_TEXT = '22032';
+    final const INVALID_SQL_JSON_SUBSCRIPT = '22033';
+    final const MORE_THAN_ONE_SQL_JSON_ITEM = '22034';
+    final const NO_SQL_JSON_ITEM = '22035';
+    final const NON_NUMERIC_SQL_JSON_ITEM = '22036';
+    final const NON_UNIQUE_KEYS_IN_A_JSON_OBJECT = '22037';
+    final const SINGLETON_SQL_JSON_ITEM_REQUIRED = '22038';
+    final const SQL_JSON_ARRAY_NOT_FOUND = '22039';
+    final const SQL_JSON_MEMBER_NOT_FOUND = '2203A';
+    final const SQL_JSON_NUMBER_NOT_FOUND = '2203B';
+    final const SQL_JSON_OBJECT_NOT_FOUND = '2203C';
+    final const TOO_MANY_JSON_ARRAY_ELEMENTS = '2203D';
+    final const TOO_MANY_JSON_OBJECT_MEMBERS = '2203E';
+    final const SQL_JSON_SCALAR_REQUIRED = '2203F';
     /* 23 - Integrity Constraint Violation */
     final const INTEGRITY_CONSTRAINT_VIOLATION = '23000';
     final const RESTRICT_VIOLATION = '23001';
@@ -140,6 +160,7 @@ class SqlException extends FoundationException
     final const SCHEMA_AND_DATA_STATEMENT_MIXING_NOT_SUPPORTED = '25007';
     final const NO_ACTIVE_SQL_TRANSACTION = '25P01';
     final const IN_FAILED_SQL_TRANSACTION = '25P02';
+    final const IDLE_IN_TRANSACTION_SESSION_TIMEOUT = '25P03';
     /* 26 - Invalid SQL Statement Name */
     final const INVALID_SQL_STATEMENT_NAME = '26000';
     /* 27 - Triggered Data Change Violation */
@@ -172,6 +193,7 @@ class SqlException extends FoundationException
     #const NULL_VALUE_NOT_ALLOWED = '39004';
     final const TRIGGER_PROTOCOL_VIOLATED = '39P01';
     final const SRF_PROTOCOL_VIOLATED = '39P02';
+    final const EVENT_TRIGGER_PROTOCOL_VIOLATED = '39P03';
     /* 3B - Savepoint Exception */
     final const SAVEPOINT_EXCEPTION = '3B000';
     final const INVALID_SAVEPOINT_SPECIFICATION = '3B001';
@@ -202,6 +224,7 @@ class SqlException extends FoundationException
     final const COLLATION_MISMATCH = '42P21';
     final const INDETERMINATE_COLLATION = '42P22';
     final const WRONG_OBJECT_TYPE = '42809';
+    final const GENERATED_ALWAYS = '428C9';
     final const UNDEFINED_COLUMN = '42703';
     final const UNDEFINED_FUNCTION = '42883';
     final const UNDEFINED_TABLE = '42P01';
@@ -247,6 +270,7 @@ class SqlException extends FoundationException
     final const OBJECT_IN_USE = '55006';
     final const CANT_CHANGE_RUNTIME_PARAM = '55P02';
     final const LOCK_NOT_AVAILABLE = '55P03';
+    final const UNSAFE_NEW_ENUM_VALUE_USAGE = '55P04';
     /* 57 - Operator Intervention */
     final const OPERATOR_INTERVENTION = '57000';
     final const QUERY_CANCELED = '57014';
@@ -295,6 +319,7 @@ class SqlException extends FoundationException
     final const RAISE_EXCEPTION = 'P0001';
     final const NO_DATA_FOUND = 'P0002';
     final const TOO_MANY_ROWS = 'P0003';
+    final const ASSERT_FAILURE = 'P0004';
     /* XX - Internal Error */
     final const INTERNAL_ERROR = 'XX000';
     final const DATA_CORRUPTED = 'XX001';
@@ -304,7 +329,6 @@ class SqlException extends FoundationException
     /**
      * __construct
      *
-     * @access public
      * @param Result $result
      * @param string $sql
      * @param int $code
@@ -331,7 +355,6 @@ class SqlException extends FoundationException
      * Returns the SQLSTATE of the last SQL error.
      *
      * @link http://www.postgresql.org/docs/9.0/interactive/errcodes-appendix.html
-     * @access public
      * @return string
      */
     public function getSQLErrorState(): string
@@ -344,7 +367,6 @@ class SqlException extends FoundationException
      *
      * Returns the severity level of the error.
      *
-     * @access public
      * @return string
      */
     public function getSQLErrorSeverity(): string
@@ -357,7 +379,6 @@ class SqlException extends FoundationException
      *
      * Returns the error message sent by the server.
      *
-     * @access public
      * @return string
      */
 
@@ -369,7 +390,6 @@ class SqlException extends FoundationException
     /**
      * getSQLDetailedErrorMessage
      *
-     * @access public
      * @return string
      */
     public function getSQLDetailedErrorMessage(): string
@@ -382,7 +402,6 @@ class SqlException extends FoundationException
      *
      * Return the associated query.
      *
-     * @access public
      * @return string
      */
     public function getQuery(): string
@@ -395,7 +414,6 @@ class SqlException extends FoundationException
      *
      * Set the query parameters sent with the query.
      *
-     * @access public
      * @param  array    $parameters
      * @return SqlException $this
      */
@@ -411,7 +429,6 @@ class SqlException extends FoundationException
      *
      * Return the query parameters sent with the query.
      *
-     * @access public
      * @return array
      */
     public function getQueryParameters(): array

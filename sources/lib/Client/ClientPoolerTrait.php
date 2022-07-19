@@ -48,7 +48,6 @@ trait ClientPoolerTrait
      * Create a new client.
      *
      * @abstract
-     * @access protected
      * @param  string $identifier
      * @return ClientInterface
      */
@@ -71,7 +70,6 @@ trait ClientPoolerTrait
      *
      * Basic getClient method.
      *
-     * @access public
      * @param string $identifier
      * @return ClientInterface
      * @throws FoundationException
@@ -94,7 +92,6 @@ trait ClientPoolerTrait
      *
      * How the pooler fetch a client from the pool.
      *
-     * @access protected
      * @param string $identifier
      * @return ClientInterface|null
      * @throws FoundationException
@@ -112,7 +109,6 @@ trait ClientPoolerTrait
      *
      * Check if the session is set and return it.
      *
-     * @access protected
      * @return Session
      * @throws FoundationException
      */

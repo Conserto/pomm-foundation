@@ -37,7 +37,6 @@ abstract class BaseConverter extends FoundationSessionAtoum
      *
      * Return true if the server version meets client expectations.
      *
-     * @access public
      * @param  string   $version
      * @param  Session  $session
      * @return bool

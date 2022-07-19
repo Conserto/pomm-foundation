@@ -36,7 +36,6 @@ abstract class VanillaSessionAtoum extends Atoum
      *
      * A short description here
      *
-     * @access protected
      * @param string|null $stamp
      * @return Session
      * @throws FoundationException
@@ -54,7 +53,6 @@ abstract class VanillaSessionAtoum extends Atoum
      *
      * Return a SessionBuilder.
      *
-     * @access protected
      * @return SessionBuilder
      */
     private function getSessionBuilder(): SessionBuilder
@@ -72,7 +70,6 @@ abstract class VanillaSessionAtoum extends Atoum
      * Instantiate a new SessionBuilder. This method is to be overloaded by
      * each package to instantiate their own SessionBuilder if any.
      *
-     * @access protected
      * @param  array $configuration
      * @return SessionBuilder
      */
@@ -87,7 +84,6 @@ abstract class VanillaSessionAtoum extends Atoum
      * If the test needs special poolers and/or client configuration, it goes
      * here.
      *
-     * @access  protected
      * @param   Session $session
      * @return  null
      */

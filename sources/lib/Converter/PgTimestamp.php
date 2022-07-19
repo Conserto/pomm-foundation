@@ -28,8 +28,6 @@ class PgTimestamp implements ConverterInterface
     final const TS_FORMAT = 'Y-m-d H:i:s.uP';
 
     /**
-     * fromPg
-     *
      * @see ConverterInterface
      */
     public function fromPg(?string $data, string $type, Session $session): ?\DateTime
@@ -43,8 +41,6 @@ class PgTimestamp implements ConverterInterface
     }
 
     /**
-     * toPg
-     *
      * @throws ConverterException
      * @see ConverterInterface
      */
@@ -58,8 +54,6 @@ class PgTimestamp implements ConverterInterface
     }
 
     /**
-     * toPgStandardFormat
-     *
      * @throws ConverterException
      * @see ConverterInterface
      */
@@ -73,18 +67,13 @@ class PgTimestamp implements ConverterInterface
     }
 
     /**
-     * checkData
-     *
      * Ensure a DateTime instance.
      *
-     * @access protected
-     * @param  mixed $data
      * @throws ConverterException
-     * @return \DateTime
      */
-    protected function checkData(mixed $data): \DateTime
+    protected function checkData(mixed $data): \DateTimeInterface
     {
-        if (!$data instanceof \DateTime) {
+        if (!$data instanceof \DateTimeInterface) {
             try {
                 $data = new \DateTime($data);
             } catch (\Exception $e) {

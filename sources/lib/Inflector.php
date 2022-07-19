@@ -25,7 +25,6 @@ class Inflector
      * Camelize a string.
      *
      * @static
-     * @access public
      * @param string|null $string
      * @return string|null
      */
@@ -46,7 +45,6 @@ class Inflector
      * Underscore a string.
      *
      * @static
-     * @access public
      * @param string|null $string
      * @return string|null
      */

@@ -75,7 +75,6 @@ class PgInterval implements ConverterInterface
      * Check if Data is a DateInterval. If not, it tries to instantiate a
      * DateInterval with the given data.
      *
-     * @access protected
      * @param  mixed $data
      * @throws ConverterException
      * @return \DateInterval $data
