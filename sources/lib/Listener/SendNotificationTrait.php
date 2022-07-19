@@ -36,7 +36,6 @@ trait SendNotificationTrait
      *
      * Send notification to the listener pooler.
      *
-     * @access protected
      * @param string $name
      * @param array $data
      * @return mixed

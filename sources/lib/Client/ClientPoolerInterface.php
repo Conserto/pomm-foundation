@@ -29,7 +29,6 @@ interface ClientPoolerInterface
      *
      * Return the client type which this pooler is to be associated with.
      *
-     * @access public
      * @return string
      */
     public function getPoolerType(): string;
@@ -42,7 +41,6 @@ interface ClientPoolerInterface
      * way not to care about this is to extends
      * \PommProject\Foundation\Client\ClientPooler.
      *
-     * @access public
      * @param  Session               $session
      * @return ClientPoolerInterface $this
      */
@@ -53,7 +51,6 @@ interface ClientPoolerInterface
      *
      * Retrieve a client from session's ClientHolder.
      *
-     * @access public
      * @param  string          $name
      * @return ClientInterface
      */

@@ -35,7 +35,6 @@ class Session extends VanillaSession
      *
      * Return the prepared query client.
      *
-     * @access  public
      * @param string $query
      * @return  PreparedQuery
      * @throws Exception\FoundationException
@@ -52,7 +51,6 @@ class Session extends VanillaSession
      *
      * Return a query manager (default to QueryManager\SimpleQueryManager)
      *
-     * @access  public
      * @param string|null $query_manager
      * @return  QueryManagerClient
      * @throws Exception\FoundationException
@@ -69,7 +67,6 @@ class Session extends VanillaSession
      *
      * Return a converter client.
      *
-     * @access  public
      * @param string $name
      * @return  ConverterClient
      * @throws Exception\FoundationException
@@ -86,7 +83,6 @@ class Session extends VanillaSession
      *
      * Return an observer client.
      *
-     * @access  public
      * @param string $name
      * @return  Observer
      * @throws Exception\FoundationException
@@ -103,7 +99,6 @@ class Session extends VanillaSession
      *
      * Return the database inspector.
      *
-     * @access  public
      * @param string|null $name (null)
      * @return Inspector
      * @throws Exception\FoundationException
@@ -120,7 +115,6 @@ class Session extends VanillaSession
      *
      * A short description here
      *
-     * @access  public
      * @param string $name
      * @return  Listener
      * @throws Exception\FoundationException

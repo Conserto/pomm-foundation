@@ -35,7 +35,6 @@ abstract class TypeConverter implements ConverterInterface
      *
      * Return the type class name
      *
-     * @access protected
      * @return string
      */
     abstract protected function getTypeClassName(): string;
@@ -45,7 +44,6 @@ abstract class TypeConverter implements ConverterInterface
      *
      * Set the type class name.
      *
-     * @access public
      * @param string|null $class_name
      */
     public function __construct(?string $class_name = null)
@@ -117,7 +115,6 @@ abstract class TypeConverter implements ConverterInterface
      * Check if data is suitable for Pg conversion. If not an attempt is made
      * to build the object from the given definition.
      *
-     * @access public
      * @param mixed $data
      * @return object
      * @throws ConverterException
@@ -139,7 +136,6 @@ abstract class TypeConverter implements ConverterInterface
      * Create a range object from a given definition. If the object creation
      * fails, an exception is thrown.
      *
-     * @access protected
      * @param mixed $data
      * @return BaseRange
      * @throws ConverterException

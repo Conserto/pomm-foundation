@@ -22,7 +22,6 @@ class Pager
     /**
      * __construct
      *
-     * @access public
      * @param ResultIterator $iterator
      * @param int $count        Total number of results.
      * @param int $max_per_page Results per page
@@ -37,7 +36,6 @@ class Pager
      *
      * Return the Pager's iterator.
      *
-     * @access public
      * @return ResultIterator
      */
     public function getIterator(): ResultIterator
@@ -50,12 +48,11 @@ class Pager
      *
      * Get the number of results in this page.
      *
-     * @access public
      * @return int
      */
     public function getResultCount(): int
     {
-        return $this->count;
+        return $this->iterator->count();
     }
 
     /**
@@ -63,7 +60,6 @@ class Pager
      *
      * Get the index of the first element of this page.
      *
-     * @access public
      * @return int
      */
     public function getResultMin(): int
@@ -76,7 +72,6 @@ class Pager
      *
      * Get the index of the last element of this page.
      *
-     * @access public
      * @return int
      */
     public function getResultMax(): int
@@ -89,18 +84,16 @@ class Pager
      *
      * Get the last page index.
      *
-     * @access public
      * @return int
      */
     public function getLastPage(): int
     {
-        return $this->count == 0 ? 1 : ceil($this->count / $this->max_per_page);
+        return $this->count == 0 ? 1 : (int) ceil($this->count / $this->max_per_page);
     }
 
     /**
      * getPage
      *
-     * @access public
      * @return int
      */
     public function getPage(): int
@@ -113,7 +106,6 @@ class Pager
      *
      * True if a next page exists.
      *
-     * @access public
      * @return Boolean
      */
     public function isNextPage(): bool
@@ -126,7 +118,6 @@ class Pager
      *
      * True if a previous page exists.
      *
-     * @access public
      * @return Boolean
      */
     public function isPreviousPage(): bool
@@ -139,7 +130,6 @@ class Pager
      *
      * Get the total number of results in all pages.
      *
-     * @access public
      * @return int
      */
     public function getCount(): int
@@ -152,7 +142,6 @@ class Pager
      *
      * Get maximum result per page.
      *
-     * @access public
      * @return int
      */
     public function getMaxPerPage(): int

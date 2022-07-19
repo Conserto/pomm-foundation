@@ -29,7 +29,6 @@ class RawString implements \Stringable
      *
      * Create a RawString.
      *
-     * @access public
      * @param string $expression
      */
     public function __construct(protected string $expression)
@@ -41,7 +40,6 @@ class RawString implements \Stringable
      *
      * String cast this instance.
      *
-     * @access public
      * @return string
      */
     public function __toString(): string

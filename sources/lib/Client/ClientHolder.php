@@ -30,7 +30,6 @@ class ClientHolder
      *
      * Add a new client or replace existing one.
      *
-     * @access public
      * @param  ClientInterface $client
      * @return ClientHolder    $this
      */
@@ -46,7 +45,6 @@ class ClientHolder
      *
      * Tell if a client is in the pool or not.
      *
-     * @access public
      * @param  string $type
      * @param  string $name
      * @return bool
@@ -61,7 +59,6 @@ class ClientHolder
      *
      * Return a client by its name or null if no client exist for that name.
      *
-     * @access public
      * @param string|null $type
      * @param string $name
      * @return ClientInterface|null
@@ -76,7 +73,6 @@ class ClientHolder
      *
      * Return all clients for a given type.
      *
-     * @access public
      * @param  string $type
      * @return array
      */
@@ -95,7 +91,6 @@ class ClientHolder
      * Call shutdown and remove a client from the pool. If the client does not
      * exist, nothing is done.
      *
-     * @access public
      * @param  string       $type
      * @param  string       $name
      * @return ClientHolder $this
@@ -119,15 +114,14 @@ class ClientHolder
      * built'in iterators hence the double foreach recursion.
      * see http://fr2.php.net/manual/en/class.recursivearrayiterator.php#106519
      *
-     * @access public
      * @return array exceptions caught during the shutdown
      */
     public function shutdown(): array
     {
         $exceptions = [];
 
-        foreach ($this->clients as $type => $names) {
-            foreach ($names as $name => $client) {
+        foreach ($this->clients as $names) {
+            foreach ($names as $client) {
                 try {
                     $client->shutdown();
                 } catch (PommException $e) {

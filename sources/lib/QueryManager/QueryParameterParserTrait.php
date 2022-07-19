@@ -31,7 +31,6 @@ trait QueryParameterParserTrait
      *
      * Transform an ordered parameters list with $1, $2 to $* parameters.
      *
-     * @access public
      * @param string $string
      * @return string
      */
@@ -45,7 +44,6 @@ trait QueryParameterParserTrait
      *
      * Transform an unordered parameters list $* to ordered $1, $2 parameters.
      *
-     * @access public
      * @param string $string
      * @return string
      */
@@ -71,7 +69,6 @@ trait QueryParameterParserTrait
      * given parameter is a timestamp. Pomm uses these type hints to convert
      * PHP representation to PostgreSQL data value.
      *
-     * @access  public
      * @param   mixed $string SQL query.
      * @return  array
      */

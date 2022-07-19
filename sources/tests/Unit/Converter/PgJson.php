@@ -9,10 +9,13 @@
  */
 namespace PommProject\Foundation\Test\Unit\Converter;
 
-use PommProject\Foundation\Test\Unit\Converter\BaseConverter;
+use PommProject\Foundation\Exception\FoundationException;
 
 class PgJson extends BaseConverter
 {
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg()
     {
         $session = $this->buildSession();
@@ -61,6 +64,9 @@ JSON;
             ;
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat()
     {
         $session = $this->buildSession();
@@ -90,5 +96,66 @@ JSON;
             ->array($this->sendToPostgres($data, 'json', $session))
             ->isIdenticalTo($data)
             ;
+    }
+
+    /**
+     * @throws FoundationException
+     */
+    public function testFromPgWithBooleanPrimitive()
+    {
+        $session = $this->buildSession();
+        $converter = $this->newTestedInstance();
+        $this
+            ->boolean(
+                $converter
+                    ->fromPg(
+                        'false',
+                        'json',
+                        $session
+                    )
+            )
+            ->isFalse()
+
+            ->boolean(
+                $converter
+                    ->fromPg(
+                        'true',
+                        'json',
+                        $session
+                    )
+            )
+            ->isTrue()
+        ;
+
+    }
+
+    /**
+     * @throws FoundationException
+     */
+    public function testFromPgWithNull()
+    {
+        $session = $this->buildSession();
+        $converter = $this->newTestedInstance();
+        $this
+            ->variable(
+                $converter
+                    ->fromPg(
+                        'null',
+                        'json',
+                        $session
+                    )
+            )
+            ->isIdenticalTo(null)
+
+            ->variable(
+                $converter
+                    ->fromPg(
+                        null,
+                        'json',
+                        $session
+                    )
+            )
+            ->isIdenticalTo(null)
+        ;
     }
 }

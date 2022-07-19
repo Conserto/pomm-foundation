@@ -33,7 +33,6 @@ class PgJson implements ConverterInterface
      * Configure the JSON converter to decode JSON as StdObject instances or
      * arrays (default).
      *
-     * @access public
      * @param boolean|null $is_array
      */
     public function __construct(bool $is_array = null)
@@ -49,19 +48,16 @@ class PgJson implements ConverterInterface
      */
     public function fromPg(?string $data, string $type, Session $session): mixed
     {
-        if (null === $data) {
-            return null;
-        }
-        if (trim($data) === '') {
+        if (null === $data || trim($data) === '') {
             return null;
         }
 
         $return = json_decode($data, $this->is_array);
 
-        if ($return === false) {
+        if (JSON_ERROR_NONE !== json_last_error()) {
             throw new ConverterException(
                 sprintf(
-                    "Could not convert Json to PHP %s, driver said '%s'.\n%s",
+                    "Could not convert Json to PHP %s, json_last_error() returned '%d'.\n%s",
                     $this->is_array ? 'array' : 'object',
                     json_last_error(),
                     $data
@@ -107,7 +103,6 @@ class PgJson implements ConverterInterface
      *
      * Encode data to Json. Throw an exception if an error occurs.
      *
-     * @access protected
      * @param  mixed $data
      * @throws  ConverterException
      * @return string

@@ -29,7 +29,6 @@ interface ClientInterface
      * This makes clients able to get Session environment hence perform
      * queries. Also useful to perform sanity checks.
      *
-     * @access public
      * @param  Session $session
      * @return void
      */
@@ -42,7 +41,6 @@ interface ClientInterface
      * Most of the time, instances are removed from the pool before the
      * Session is closed, you may have things to clean before it happens.
      *
-     * @access public
      * @return void
      */
     public function shutdown(): void;
@@ -53,7 +51,6 @@ interface ClientInterface
      * Must return the type of the session client. You may have several
      * classes for each type of client.
      *
-     * @access public
      * @return string
      */
     public function getClientType(): string;
@@ -64,7 +61,6 @@ interface ClientInterface
      * Each client must have a unique identifier so it will be pooled in by the
      * Session
      *
-     * @access public
      * @return string
      */
     public function getClientIdentifier(): string;

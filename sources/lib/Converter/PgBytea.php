@@ -69,7 +69,6 @@ class PgBytea implements ConverterInterface
      *
      * Escape a binary string to postgres.
      *
-     * @access protected
      * @param Session $session
      * @param mixed $string
      * @return string

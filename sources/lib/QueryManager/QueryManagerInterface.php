@@ -27,7 +27,6 @@ interface QueryManagerInterface
      *
      * Perform a query and return an iterator.
      *
-     * @access public
      * @param  string   $sql
      * @param  array    $parameters
      * @return \Iterator

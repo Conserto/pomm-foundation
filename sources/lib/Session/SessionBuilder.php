@@ -41,7 +41,6 @@ class SessionBuilder
      * dsn:  connection parameters
      * name: database logical name
      *
-     * @access public
      * @param array $configuration
      * @param ConverterHolder|null $converter_holder
      */
@@ -65,7 +64,6 @@ class SessionBuilder
      *
      * Add a configuration parameter.
      *
-     * @access public
      * @param string $name
      * @param  mixed $value
      * @return SessionBuilder $this
@@ -82,7 +80,6 @@ class SessionBuilder
      *
      * Return the converter holder.
      *
-     * @access public
      * @return ConverterHolder
      */
     public function getConverterHolder(): ConverterHolder
@@ -96,7 +93,6 @@ class SessionBuilder
      * Build a new session.
      *
      * @final
-     * @access public
      * @param string|null $stamp
      * @return Session
      * @throws FoundationException
@@ -111,8 +107,15 @@ class SessionBuilder
             ->mustHave('connection:configuration')
             ->getParameter('connection:configuration')
             ;
+
+        $persist =
+            $this->configuration
+                ->mustHave('connection:persist')
+                ->getParameter('connection:persist')
+        ;
+
         $session = $this->createSession(
-            $this->createConnection($dsn, $connection_configuration),
+            $this->createConnection($dsn, $persist, $connection_configuration),
             $this->createClientHolder(),
             $stamp
         );
@@ -128,7 +131,6 @@ class SessionBuilder
      * parameters are overrided by the configuration passed as parameter to
      * this builder.
      *
-     * @access protected
      * @return array
      */
     protected function getDefaultConfiguration(): array
@@ -141,7 +143,9 @@ class SessionBuilder
                     'intervalstyle' => 'ISO_8601',
                     'datestyle'     => 'ISO',
                     'standard_conforming_strings' => 'true',
-                ]
+                    'timezone' => date_default_timezone_get()
+                ],
+                'connection:persist' => false,
             ];
     }
 
@@ -151,7 +155,6 @@ class SessionBuilder
      * If any computation to the configuration must be done before each session
      * creation, it goes here.
      *
-     * @access protected
      * @return SessionBuilder $this
      */
     protected function preConfigure(): SessionBuilder
@@ -164,15 +167,16 @@ class SessionBuilder
      *
      * Connection instantiation.
      *
-     * @access protected
      * @param string $dsn
+     * @param bool $persist
      * @param string|array $connection_configuration
      * @return Connection
-     * @throws ConnectionException|FoundationException
+     * @throws ConnectionException
+     * @throws FoundationException
      */
-    protected function createConnection(string $dsn, string|array $connection_configuration): Connection
+    protected function createConnection(string $dsn, bool $persist, string|array $connection_configuration): Connection
     {
-        return new Connection($dsn, $connection_configuration);
+        return new Connection($dsn, $persist, $connection_configuration);
     }
 
     /**
@@ -180,7 +184,6 @@ class SessionBuilder
      *
      * Session instantiation.
      *
-     * @access protected
      * @param  Connection   $connection
      * @param  ClientHolder $client_holder
      * @param string|null $stamp
@@ -198,7 +201,6 @@ class SessionBuilder
      *
      * Instantiate ClientHolder.
      *
-     * @access protected
      * @return ClientHolder
      */
     protected function createClientHolder(): ClientHolder
@@ -212,7 +214,6 @@ class SessionBuilder
      * Session configuration once created.
      * All pooler registration stuff goes here.
      *
-     * @access protected
      * @param  Session          $session
      * @return SessionBuilder   $this
      */
@@ -227,7 +228,6 @@ class SessionBuilder
      * Converter initialization at startup.
      * If new converters are to be registered, it goes here.
      *
-     * @access protected
      * @param  ConverterHolder  $converter_holder
      * @return SessionBuilder   $this
      */

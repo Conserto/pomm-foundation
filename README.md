@@ -26,11 +26,15 @@ Foundation provides out of the box:
 
  * PHP 8.1
     * mod-pgsql (not PDO)
- * Postgresql 9.1
+ * Postgresql 9.4
+
+Pomm might work with older versions of PHP or Postgres but this is not tested and can be broken any time.
 
 ## Installation
 
 Pomm components are available on [packagist](https://packagist.org/packages/pomm-project/) using [composer](https://packagist.org/). To install and use Pomm's foundation, add a require line to `"conserto/pomm-foundation"` in your `composer.json` file.
+
+**Note:** It is important the PHP configuration file defines the correct [timezone](http://php.net/manual/en/datetime.configuration.php) setting. Pomm also sets the PostgreSQL connection to this timezone to prevent time shifts between the application and the database.
 
 ## Documentation
 
@@ -44,3 +48,8 @@ This package uses [Atoum](https://github.com/atoum/atoum) as unit test framework
  * `PommProject\Foundation\Tester\FoundationSessionAtoum`
 
 Making your test class to extend one of these will grant them with a `buildSession` method that returns a newly created session. Clients of these classes must implement a `initializeSession(Session $session)` method (even a blank one). It is often a good idea to provide a fixture class as a session client, this method is the right place to register it.
+
+## Known bugs
+
+Unfortunately there is a bug we can not fix easily or without degrading performances of the whole stack:
+* The `ConvertedResultIterator` can not recognize custom composite types when they are defined in schemas other than `public`. This is because the `pg_type` function does not return the schema the type belongs to. There are not turns around unless the schema is inspected manually by issuing a lot of queries. (see #53)

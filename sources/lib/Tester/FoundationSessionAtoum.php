@@ -30,7 +30,6 @@ abstract class FoundationSessionAtoum extends VanillaSessionAtoum
      *
      * Override VanillaSessionAtoum to return a Foundation Session builder.
      *
-     * @access  protected
      * @param   array $configuration
      * @return  SessionBuilder
      */

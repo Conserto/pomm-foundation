@@ -44,7 +44,6 @@ abstract class BaseRange implements \Stringable
      * - right element
      * - right bracket style
      *
-     * @access protected
      * @return string
      */
     abstract protected function getRegexp(): string;
@@ -54,7 +53,6 @@ abstract class BaseRange implements \Stringable
      *
      * Return the representation for each element.
      *
-     * @access protected
      * @param  string $element
      * @return mixed
      */
@@ -66,7 +64,6 @@ abstract class BaseRange implements \Stringable
      * Create an instance from a string definition. This string definition
      * matches PostgreSQL range definition.
      *
-     * @access public
      * @param  string $description
      * @throws \InvalidArgumentException
      */
@@ -101,7 +98,6 @@ abstract class BaseRange implements \Stringable
      *
      * Text representation of a range.
      *
-     * @access public
      * @return string
      */
     public function __toString(): string

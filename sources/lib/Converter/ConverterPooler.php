@@ -31,7 +31,6 @@ class ConverterPooler extends ClientPooler
      *
      * Instantiate converter pooler.
      *
-     * @access public
      * @param  ConverterHolder $converter_holder
      */
     public function __construct(protected ConverterHolder $converter_holder)
@@ -93,7 +92,6 @@ class ConverterPooler extends ClientPooler
      *
      * Expose converter holder so one can add new converters on the fly.
      *
-     * @access public
      * @return ConverterHolder
      */
     public function getConverterHolder(): ConverterHolder

@@ -90,16 +90,23 @@ class SessionBuilder extends VanillaSessionBuilder
                 false
             )
             ->registerConverter(
-                'Number',
-                new Converter\PgNumber(),
+                'Integer',
+                new Converter\PgInteger(),
+            [
+                'int2', 'pg_catalog.int2',
+                'int4', 'pg_catalog.int4', 'int', 'integer',
+                'int8', 'pg_catalog.int8',
+                'oid', 'pg_catalog.oid',
+            ],
+            false
+            )
+            ->registerConverter(
+                'Float',
+                new Converter\PgFloat(),
                 [
-                    'int2', 'pg_catalog.int2',
-                    'int4', 'pg_catalog.int4', 'int', 'integer',
-                    'int8', 'pg_catalog.int8',
                     'numeric', 'pg_catalog.numeric',
                     'float4', 'pg_catalog.float4', 'float',
                     'float8', 'pg_catalog.float8',
-                    'oid', 'pg_catalog.oid',
                 ],
                 false
             )
@@ -110,6 +117,7 @@ class SessionBuilder extends VanillaSessionBuilder
                     'varchar', 'pg_catalog.varchar',
                     'char', 'pg_catalog.char',
                     'text', 'pg_catalog.text',
+                    'citext', 'public.citext',
                     'uuid', 'pg_catalog.uuid',
                     'tsvector', 'pg_catalog.tsvector',
                     'xml', 'pg_catalog.xml',
@@ -147,6 +155,7 @@ class SessionBuilder extends VanillaSessionBuilder
             ->registerConverter('Binary', new Converter\PgBytea(), ['bytea', 'pg_catalog.bytea'], false)
             ->registerConverter('Point', new Converter\Geometry\PgPoint(), ['point', 'pg_catalog.point'], false)
             ->registerConverter('Circle', new Converter\Geometry\PgCircle(), ['circle', 'pg_catalog.circle'], false)
+            ->registerConverter('Box', new Converter\Geometry\PgBox(), ['box', 'pg_catalog.box'], false)
             ->registerConverter(
                 'JSON',
                 new Converter\PgJson(),
