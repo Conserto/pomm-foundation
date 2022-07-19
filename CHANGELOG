@@ -1,3 +1,26 @@
+== VERSION 3.1.0
+
+ * fix GC problem when freeing resources on PHP8
+ * fix warning when no PK
+ * Add a bunch of new error codes that got added to recent versions of PostgreSQL
+ * Enhenced typehinting
+ * Allow passing an option to persist connections.
+ * Postgres12 compat: remove dependency on pg_attrdef.adsrc
+ * Have separate converters to int and float.
+ * enhance result iterator performances
+ * Change \DateTime to \DateTimeInterface in PgTimestamp converter
+ * ResultHandler->getFieldNumber optimization
+ * add countAffectedRows
+ * use default timezone settings instead of INI value
+ * Fix a bug where a json boolean false was not converted from a valid json string
+ * Added geometry box type
+ * add citext type to string converter. Fix #84
+ * set the PG connection time at the same time PHP is
+ * add a result iterator interface
+ * add object identifier type support
+ * Removed unnecessary if in PgJson converter
+ * fix error in PgJson exception if data not a string
+
 == VERSION 3.0.0
 
  * Support PHP >= 8.1 and remove old versions support
