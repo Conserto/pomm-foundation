@@ -30,7 +30,7 @@ class PreparedQuery extends Client
     use SendNotificationTrait;
 
     protected string $sql;
-    private bool $is_prepared = false;
+    private PreparationEnum $preparationStatus = PreparationEnum::NOT_PREPARED;
     private string $identifier;
     private ?array $converters = null;
 
@@ -96,7 +96,7 @@ class PreparedQuery extends Client
      */
     public function shutdown(): void
     {
-        if ($this->is_prepared === true) {
+        if ($this->preparationStatus === PreparationEnum::PREPARED) {
             $this
                 ->getSession()
                 ->getConnection()
@@ -105,7 +105,7 @@ class PreparedQuery extends Client
                     $this->getSession()->getConnection()->escapeIdentifier($this->getClientIdentifier())
                 ));
 
-            $this->is_prepared = false;
+            $this->preparationStatus = PreparationEnum::NOT_PREPARED;
         }
     }
 
@@ -120,7 +120,7 @@ class PreparedQuery extends Client
      */
     public function execute(array $values = []): ResultHandler
     {
-        if ($this->is_prepared === false) {
+        if ($this->preparationStatus === PreparationEnum::NOT_PREPARED) {
             $this->prepare();
         }
 
@@ -165,6 +165,8 @@ class PreparedQuery extends Client
      */
     protected function prepare(): PreparedQuery
     {
+        $this->preparationStatus = PreparationEnum::IN_PREPARATION;
+
         $this
             ->getSession()
             ->getConnection()
@@ -172,7 +174,8 @@ class PreparedQuery extends Client
                 $this->getClientIdentifier(),
                 $this->orderParameters($this->sql)
             );
-        $this->is_prepared = true;
+
+        $this->preparationStatus = PreparationEnum::PREPARED;
 
         return $this;
     }
