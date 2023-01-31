@@ -2,7 +2,7 @@
 
 namespace PommProject\Foundation\Test\Unit\Converter;
 
-use PommProject\Foundation\Converter\PgEnum as PommEnum;
+use PommProject\Foundation\Converter\PgBackedEnum as PommEnum;
 use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Test\Unit\Enum\BackedEnum;
 
