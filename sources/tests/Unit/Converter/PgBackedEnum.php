@@ -57,6 +57,6 @@ class PgBackedEnum extends BaseConverter
 
         // Success
         $this->string($converterBackedEnum->toPg(BackedEnum::A, 'test_type_1', $session))->isEqualTo('a');
-        $this->string($converterBackedEnum->toPg(null, 'test_type_1', $session))->isEqualTo('NULL::test_type_2');
+        $this->string($converterBackedEnum->toPg(null, 'test_type_1', $session))->isEqualTo('NULL::test_type_1');
     }
 }
