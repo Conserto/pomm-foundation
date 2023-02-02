@@ -116,7 +116,7 @@ class ConnectionConfigurator
 
         $adapter = $matches[1];
 
-        if ($matches[2] === null) {
+        if ($matches[2] === '') {
             throw new ConnectionException(
                 sprintf(
                     "No user information in dsn '%s'.",
@@ -128,7 +128,7 @@ class ConnectionConfigurator
         $user = $matches[2];
         $pass = $matches[3];
 
-        if (preg_match('/!(.*)!/', (string) $matches[4], $host_matches)) {
+        if (preg_match('/!(.*)!/', $matches[4], $host_matches)) {
             $host = $host_matches[1];
         } else {
             $host = $matches[4];
@@ -136,7 +136,7 @@ class ConnectionConfigurator
 
         $port = $matches[5];
 
-        if ($matches[6] === null) {
+        if ($matches[6] === '') {
             throw new ConnectionException(
                 sprintf(
                     "No database name in dsn '%s'.",

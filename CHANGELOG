@@ -1,3 +1,7 @@
+== VERSION 3.1.2
+
+ * Add new PgBackedEnum converter
+
 == VERSION 3.1.0
 
  * fix GC problem when freeing resources on PHP8
