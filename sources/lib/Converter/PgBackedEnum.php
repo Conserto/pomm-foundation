@@ -6,7 +6,7 @@ use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Session\Session;
 
 /**
- * PgEnum
+ * PgBackedEnum
  *
  * Converter for BackedEnum types (>= PHP 8.1).
  *
