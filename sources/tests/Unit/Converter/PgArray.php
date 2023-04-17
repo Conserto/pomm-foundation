@@ -7,19 +7,20 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit\Converter;
 
-use PommProject\Foundation\Test\Unit\Converter\BaseConverter;
+use PommProject\Foundation\Exception\FoundationException;
 
 class PgArray extends BaseConverter
 {
-    public function testFromPg()
+    /** @throws FoundationException */
+    public function testFromPg(): void
     {
-        $converter  = $this->newTestedInstance();
-        $session    = $this->buildSession();
+        $converter = $this->newTestedInstance();
+        $session = $this->buildSession();
 
-        $this
-            ->variable($converter->fromPg(null, 'int4', $session))
+        $this->variable($converter->fromPg(null, 'int4', $session))
             ->isNull()
             ->array($converter->fromPg('{}', 'int4', $session))
             ->isIdenticalTo([])
@@ -42,16 +43,15 @@ class PgArray extends BaseConverter
                 new \DateTime('2014-09-29 18:24:54.591767'),
                 new \DateTime('2014-07-29 14:50:01'),
                 new \DateTime('2012-12-14 04:17:09.063948'),
-            ])
-            ;
+            ]);
     }
 
-    public function testToPg()
+    /** @throws FoundationException */
+    public function testToPg(): void
     {
-        $converter  = $this->newTestedInstance();
-        $session    = $this->buildSession();
-        $this
-            ->string($converter->toPg(null, 'int4', $session))
+        $converter = $this->newTestedInstance();
+        $session = $this->buildSession();
+        $this->string($converter->toPg(null, 'int4', $session))
             ->isEqualTo('NULL::int4[]')
             ->string($converter->toPg([null], 'int4', $session))
             ->isEqualTo('ARRAY[NULL::int4]::int4[]')
@@ -73,16 +73,15 @@ class PgArray extends BaseConverter
                     'timestamp',
                     $session
                 )
-            )
-        ;
+            );
     }
 
-    public function testToPgStandardFormat()
+    /** @throws FoundationException */
+    public function testToPgStandardFormat(): void
     {
-        $converter  = $this->newTestedInstance();
-        $session    = $this->buildSession();
-        $this
-            ->variable($converter->toPgStandardFormat(null, 'int4', $session))
+        $converter = $this->newTestedInstance();
+        $session = $this->buildSession();
+        $this->variable($converter->toPgStandardFormat(null, 'int4', $session))
             ->isNull()
             ->string($converter->toPgStandardFormat([null], 'int4', $session))
             ->isEqualTo('{NULL}')
@@ -108,8 +107,9 @@ class PgArray extends BaseConverter
             ->isEqualTo('{"2014-09-29 18:24:54.591767+02:00","2014-07-29 14:50:01.000000+02:00","2012-12-14 04:17:09.063948+01:00"}')
             ->array($this->sendToPostgres([true, null, false], 'bool[]', $session))
             ->isIdenticalTo([true, null, false])
-            ->array($this->sendToPostgres([' a varchar ', 'another one with "\\quotes\\"', null], 'varchar[]', $session))
-            ->isIdenticalTo([' a varchar ', 'another one with "\\quotes\\"', null])
-        ;
+            ->array($this->sendToPostgres([
+                ' a varchar ', 'another one with "\\quotes\\"', null
+            ], 'varchar[]', $session))
+            ->isIdenticalTo([' a varchar ', 'another one with "\\quotes\\"', null]);
     }
 }

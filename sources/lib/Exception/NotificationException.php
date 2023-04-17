@@ -10,11 +10,8 @@
 namespace PommProject\Foundation\Exception;
 
 /**
- * NotificationException
- *
  * Notification exception.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -25,13 +22,7 @@ class NotificationException extends FoundationException
     protected string $channel;
     protected string $pid;
 
-    /**
-     * __construct
-     *
-     * Exception constructor.
-     *
-     * @param  array $notification
-     */
+    /** @param array{message: string, pid: string, payload: string} $notification */
     public function __construct(array $notification)
     {
         parent::__construct();
@@ -40,25 +31,13 @@ class NotificationException extends FoundationException
         $this->message = $notification['payload'];
     }
 
-    /**
-     * getChannel
-     *
-     * Return the channel's name.
-     *
-     * @return string
-     */
+    /** Return the channel's name. */
     public function getChannel(): string
     {
         return $this->channel;
     }
 
-    /**
-     * getPid
-     *
-     * Return the server's PID.
-     *
-     * @return string
-     */
+    /** Return the server's PID. */
     public function getPid(): string
     {
         return $this->pid;

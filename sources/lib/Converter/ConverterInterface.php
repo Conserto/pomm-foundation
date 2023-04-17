@@ -7,13 +7,12 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Session\Session;
 
 /**
- * ConverterInterface
- *
  * Interface for converters.
  *
  * NOTE: Here is the coding convention for value conversion TO postgres:
@@ -29,7 +28,6 @@ use PommProject\Foundation\Session\Session;
  * Complex types with an existing constructor must use it.
  * Example: circle(point(1.23,2.34), 5.67), hstore('"a" => "b"')
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT <hubert.greg@gmail.com>
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -37,37 +35,29 @@ use PommProject\Foundation\Session\Session;
 interface ConverterInterface
 {
     /**
-     * fromPg
-     *
-     * Parse the output string from PostgreSQL and returns the converted value
-     * into an according PHP representation.
+     * Parse the output string from PostgreSQL and returns the converted value into an according PHP representation.
      *
      * @param string|null $data Input string from Pg row result.
      * @param string $type
      * @param Session $session
-     * @return mixed   PHP representation of the data.
+     * @return mixed PHP representation of the data.
      */
     public function fromPg(?string $data, string $type, Session $session): mixed;
 
     /**
-     * toPg
-     *
      * Convert a PHP representation into the according Pg formatted string.
      *
-     * @param  mixed   $data    PHP representation.
-     * @param  string  $type
-     * @param  Session $session
+     * @param mixed $data PHP representation.
+     * @param string $type
+     * @param Session $session
      * @return string  Pg converted string for input.
      */
     public function toPg(mixed $data, string $type, Session $session): string;
 
     /**
-     * toPgStandardFormat
+     * Convert a PHP representation into short PostgreSQL format like used in COPY values list.
      *
-     * Convert a PHP representation into short PostgreSQL format like used in
-     * COPY values list.
-     *
-     * @param mixed $data
+     * @param mixed $data PHP representation.
      * @param string $type
      * @param Session $session
      * @return string|null PostgreSQL standard representation.

@@ -16,11 +16,8 @@ use PommProject\Foundation\Client\ClientPoolerInterface;
 use PommProject\Foundation\Exception\FoundationException;
 
 /**
- * InspectorPooler
- *
  * Pooler for Inspector client.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -28,21 +25,13 @@ use PommProject\Foundation\Exception\FoundationException;
  */
 class InspectorPooler extends ClientPooler
 {
-    /**
-     * getPoolerType
-     *
-     * @see ClientPoolerInterface
-     */
+    /** @see ClientPoolerInterface */
     public function getPoolerType(): string
     {
         return 'inspector';
     }
 
     /**
-     * getClient
-     *
-     * @param null|string $identifier
-     * @return ClientInterface
      * @throws FoundationException
      * @see     ClientPooler
      */
@@ -56,10 +45,6 @@ class InspectorPooler extends ClientPooler
     }
 
     /**
-     * createClient
-     *
-     * @param string $identifier
-     * @return Client
      * @throws FoundationException
      * @see    ClientPooler
      */

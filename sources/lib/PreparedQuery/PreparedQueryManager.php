@@ -14,11 +14,8 @@ use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\QueryManager\QueryManagerClient;
 
 /**
- * PreparedQueryManager
- *
  * Query manager using the prepared_statement client.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -27,23 +24,21 @@ use PommProject\Foundation\QueryManager\QueryManagerClient;
 class PreparedQueryManager extends QueryManagerClient
 {
     /**
-     * query
-     *
      * @throws FoundationException
      * @see QueryManagerInterface
+     *
+     * @param string $sql
+     * @param array<int, mixed> $parameters
+     * @return ConvertedResultIterator
      */
     public function query(string $sql, array $parameters = []): ConvertedResultIterator
     {
         /** @var PreparedQuery $prepareQuery */
-        $prepareQuery = $this
-            ->getSession()
+        $prepareQuery = $this->getSession()
             ->getClientUsingPooler('prepared_query', $sql);
 
         $resource = $prepareQuery->execute($parameters);
 
-        return new ConvertedResultIterator(
-            $resource,
-            $this->getSession()
-        );
+        return new ConvertedResultIterator($resource, $this->getSession());
     }
 }

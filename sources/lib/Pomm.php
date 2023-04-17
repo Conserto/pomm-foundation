@@ -16,11 +16,8 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 
 /**
- * Pomm
- *
  * The Pomm service manager.
  *
- * @package     Foundation
  * @copyright   2014 - 2015 Grégoire HUBERT
  * @author      Grégoire HUBERT
  * @license     X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -28,18 +25,15 @@ use Psr\Log\LoggerAwareTrait;
 class Pomm implements \ArrayAccess, LoggerAwareInterface
 {
     protected array $builders = [];
-    protected array $post_configurations = [];
+    protected array $postConfigurations = [];
     protected array $sessions = [];
     protected ?string $default = null;
 
     use LoggerAwareTrait;
 
     /**
-     * __construct
-     *
-     * Instantiate a new Pomm Service class. It takes an array of
-     * configurations as parameter. Following configuration settings are
-     * supported by this service for each configuration:
+     * Instantiate a new Pomm Service class. It takes an array of configurations as parameter.
+     * Following configuration settings are supported by this service for each configuration:
      *
      * class_name   name of the DatabaseConfiguration class to instantiate.
      *
@@ -48,12 +42,12 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     public function __construct(array $configurations = [])
     {
         foreach ($configurations as $name => $configuration) {
-            $builder_class = SessionBuilder::class;
+            $builderClass = SessionBuilder::class;
             if (isset($configuration['class:session_builder'])) {
-                $builder_class = $this->checkSessionBuilderClass($configuration['class:session_builder']);
+                $builderClass = $this->checkSessionBuilderClass($configuration['class:session_builder']);
             }
 
-            $this->addBuilder($name, new $builder_class($configuration));
+            $this->addBuilder($name, new $builderClass($configuration));
 
             if (isset($configuration['pomm:default']) && $configuration['pomm:default'] === true) {
                 $this->setDefaultBuilder($name);
@@ -62,42 +56,35 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     }
 
     /**
-     * checkSessionBuilderClass
-     *
      * Check if the given builder class is valid.
      *
      * @throws  FoundationException if not valid
      */
-    private function checkSessionBuilderClass(string $builder_class): string
+    private function checkSessionBuilderClass(string $builderClass): string
     {
         try {
-            $reflection = new \ReflectionClass($builder_class);
+            $reflection = new \ReflectionClass($builderClass);
 
             if (!$reflection->isSubclassOf(VanillaSessionBuilder::class)) {
                 throw new FoundationException(
                     sprintf(
                         "Class '%s' is not a subclass of \PommProject\Foundation\Session\SessionBuilder.",
-                        $builder_class
+                        $builderClass
                     )
                 );
             }
         } catch (\ReflectionException $e) {
             throw new FoundationException(
-                sprintf(
-                    "Could not instantiate class '%s'.",
-                    $builder_class
-                ),
+                sprintf("Could not instantiate class '%s'.", $builderClass),
                 0,
                 $e
             );
         }
 
-        return $builder_class;
+        return $builderClass;
     }
 
     /**
-     * setDefaultBuilder
-     *
      * Set the name for the default session builder.
      *
      * @throws FoundationException
@@ -105,12 +92,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     public function setDefaultBuilder(string $name): Pomm
     {
         if (!$this->hasBuilder($name)) {
-            throw new FoundationException(
-                sprintf(
-                    "No such builder '%s'.",
-                    $name
-                )
-            );
+            throw new FoundationException(sprintf("No such builder '%s'.", $name));
         }
 
         $this->default = $name;
@@ -119,8 +101,6 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     }
 
     /**
-     * getDefaultSession
-     *
      * Return a session built by the default session builder.
      *
      * @throws FoundationException
@@ -128,77 +108,54 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     public function getDefaultSession(): BaseSession
     {
         if ($this->default === null) {
-            throw new FoundationException(
-                "No default session builder set."
-            )
-            ;
+            throw new FoundationException("No default session builder set.");
         }
 
         return $this->getSession($this->default);
     }
 
-    /**
-     * isDefaultSession
-     *
-     * Check if $name is a default session builder
-     */
+    /** Check if $name is a default session builder */
     public function isDefaultSession(string $name): bool
     {
         return $this->default == $name;
     }
 
     /**
-     * addBuilder
-     *
-     * Add a new session builder. Override any previously existing builder with
-     * the same name.
+     * Add a new session builder. Override any previously existing builder with the same name.
      *
      * @throws FoundationException
      */
-    public function addBuilder(string $builder_name, VanillaSessionBuilder $builder): Pomm
+    public function addBuilder(string $builderName, VanillaSessionBuilder $builder): Pomm
     {
-        $this->builders[$builder_name] = $builder;
-        $this->post_configurations[$builder_name] = [];
+        $this->builders[$builderName] = $builder;
+        $this->postConfigurations[$builderName] = [];
 
         if ($this->default === null) {
-            $this->setDefaultBuilder($builder_name);
+            $this->setDefaultBuilder($builderName);
         }
 
         return $this;
     }
 
     /**
-     * addPostConfiguration
-     *
-     * Add an environment dependent post configuration callable that will be run
-     * once after the session creation.
+     * Add an environment dependent post configuration callable that will be run once after the session creation.
      *
      * @throws FoundationException
      */
     public function addPostConfiguration(string $name, callable $callable): Pomm
     {
-        $this
-            ->builderMustExist($name)
-            ->post_configurations[$name][] = $callable
-            ;
+        $this->builderMustExist($name)->postConfigurations[$name][] = $callable;
 
         return $this;
     }
 
-    /**
-     * hasBuilder
-     *
-     * Return if true or false the given builder exists.
-     *
-     */
+    /** Return if true or false the given builder exists. */
     public function hasBuilder(string $name): bool
     {
         return isset($this->builders[$name]);
     }
 
     /**
-     * removeBuilder
-     *
      * Remove the builder with the given name.
      *
      * @throws  FoundationException if name does not exist.
@@ -207,15 +164,13 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     {
         unset(
             $this->builderMustExist($name)->builders[$name],
-            $this->post_configurations[$name]
+            $this->postConfigurations[$name]
         );
 
         return $this;
     }
 
     /**
-     * getBuilder
-     *
      * Return the given builder.
      *
      * @throws FoundationException
@@ -226,8 +181,6 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     }
 
     /**
-     * getSession
-     *
      * Return a session from the pool. If no session exists, an attempt is made
      * to create one.
      *
@@ -243,10 +196,8 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     }
 
     /**
-     * createSession
-     *
-     * Create a new session using a session_builder and set it to the pool. Any
-     * previous session for this name is overrided.
+     * Create a new session using a session_builder and set it to the pool. Any previous session for this name is
+     * overrided.
      *
      * @throws  FoundationException if builder does not exist.
      */
@@ -255,12 +206,11 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
         $this->sessions[$name] = $this
             ->builderMustExist($name)
             ->builders[$name]
-            ->buildSession($name)
-            ;
+            ->buildSession($name);
 
         $session = $this->sessions[$name];
 
-        foreach ($this->post_configurations[$name] as $callable) {
+        foreach ($this->postConfigurations[$name] as $callable) {
             call_user_func($callable, $session);
         }
 
@@ -271,22 +221,13 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
         return $session;
     }
 
-    /**
-     * hasSession
-     *
-     * Does a given session exist in the pool ?
-     *
-     * @param string $name
-     * @return  bool
-     */
+    /** Does a given session exist in the pool ? */
     public function hasSession(string $name): bool
     {
         return isset($this->sessions[$name]);
     }
 
     /**
-     * removeSession
-     *
      * Remove a session from the pool if it exists.
      *
      * @throws  FoundationException if no builders with that name exist
@@ -300,19 +241,13 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
         return $this;
     }
 
-    /**
-     * getSessionBuilders
-     *
-     * Return the builders. This is mainly done for testing
-     * purposes.
-     *
-     */
+    /** Return the builders. This is mainly done for testing purposes. */
     public function getSessionBuilders(): array
     {
         return $this->builders;
     }
 
-    /**
+    /** @throws FoundationException
      * @see ArrayAccess
      */
     public function offsetGet(mixed $offset): BaseSession
@@ -321,6 +256,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     }
 
     /**
+     * @throws FoundationException
      * @see ArrayAccess
      */
     public function offsetSet(mixed $offset, mixed $value): void
@@ -329,6 +265,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     }
 
     /**
+     * @throws FoundationException
      * @see ArrayAccess
      */
     public function offsetUnset(mixed $offset): void
@@ -336,33 +273,25 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
         $this->removeBuilder($offset);
     }
 
-    /**
-     * @see ArrayAccess
-     */
+    /** @see ArrayAccess */
     public function offsetExists(mixed $offset): bool
     {
         return $this->hasBuilder($offset);
     }
 
     /**
-     * shutdown
-     *
-     * Shutdown and remove sessions from the service. If no arguments are
-     * given, all the instantiated sessions are shutdown. Otherwise, only given
-     * sessions are shutdown.
+     * Shutdown and remove sessions from the service. If no arguments are given, all the instantiated sessions are
+     * shutdown. Otherwise, only given sessions are shutdown.
      *
      * @throws FoundationException
      */
-    public function shutdown(array $session_names = []): Pomm
+    public function shutdown(array $sessionNames = []): Pomm
     {
-        if (empty($session_names)) {
+        if (empty($sessionNames)) {
             $sessions = array_keys($this->sessions);
         } else {
-            array_map([ $this, 'builderMustExist' ], $session_names);
-            $sessions = array_intersect(
-                array_keys($this->sessions),
-                $session_names
-            );
+            array_map([ $this, 'builderMustExist' ], $sessionNames);
+            $sessions = array_intersect(array_keys($this->sessions), $sessionNames);
         }
 
         foreach ($sessions as $session_name) {
@@ -374,13 +303,9 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     }
 
     /**
-     * builderMustExist
-     *
      * Throw a FoundationException if the given builder does not exist.
      *
-     * @param string $name
-     * @return  Pomm      $this
-     *@throws  FoundationException
+     * @throws  FoundationException
      */
     private function builderMustExist(string $name): Pomm
     {

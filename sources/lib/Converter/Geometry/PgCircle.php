@@ -18,11 +18,8 @@ use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Session\Session;
 
 /**
- * PgCircle
- *
  * Converter for PostgreSQL Circle type.
  *
- * @package Foundation
  * @copyright 2014 Grégoire HUBERT
  * @author Grégoire HUBERT
  * @license X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -30,11 +27,9 @@ use PommProject\Foundation\Session\Session;
  */
 class PgCircle extends TypeConverter
 {
-    protected ?ConverterClient $point_converter = null;
+    protected ?ConverterClient $pointConverter = null;
 
     /**
-     * getTypeClassName
-     *
      * Circle class name
      *
      * @see TypeConverter
@@ -45,8 +40,6 @@ class PgCircle extends TypeConverter
     }
 
     /**
-     * toPg
-     *
      * @throws FoundationException
      * @see ConverterInterface
      */
@@ -62,30 +55,25 @@ class PgCircle extends TypeConverter
             sprintf(
                 "%s(%s,%s)",
                 $type,
-                $this
-                    ->getPointConverter($session)
+                $this->getPointConverter($session)
                     ->toPg($data->center, 'point'),
                 $data->radius
             );
     }
 
     /**
-     * getPointConverter
-     *
      * Cache the point converter.
      *
-     * @param Session $session
-     * @return ConverterClient
      * @throws FoundationException
      */
     protected function getPointConverter(Session $session): ConverterClient
     {
-        if ($this->point_converter === null) {
+        if ($this->pointConverter === null) {
             /** @var ConverterClient $converterClient */
             $converterClient = $session->getClientUsingPooler('converter', 'point');
-            $this->point_converter = $converterClient;
+            $this->pointConverter = $converterClient;
         }
 
-        return $this->point_converter;
+        return $this->pointConverter;
     }
 }

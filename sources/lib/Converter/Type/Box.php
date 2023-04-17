@@ -10,11 +10,8 @@
 namespace PommProject\Foundation\Converter\Type;
 
 /**
- * Box
- *
  * PHP type for PostgreSQL's box type.
  *
- * @package Foundation
  * @copyright 2017 Grégoire HUBERT
  * @author Miha Vrhovnik
  * @license X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -26,13 +23,7 @@ class Box
     public float $bottomX;
     public float $bottomY;
 
-    /**
-     * __construct
-     *
-     * Create a box from a string description.
-     *
-     * @param string $description
-     */
+    /** Create a box from a string description. */
     public function __construct(string $description)
     {
         $description = trim($description, ' ()');
@@ -40,10 +31,7 @@ class Box
 
         if (!preg_match($regex, $description, $matches)) {
             throw new \InvalidArgumentException(
-                sprintf(
-                    "Could not parse box representation '%s'.",
-                    $description
-                )
+                sprintf("Could not parse box representation '%s'.", $description)
             );
         }
 
@@ -54,13 +42,7 @@ class Box
 
     }
 
-    /**
-     * __toString
-     *
-     * Return a string representation of Box.
-     *
-     * @return string
-     */
+    /** Return a string representation of Box. */
     public function __toString()
     {
         return sprintf(

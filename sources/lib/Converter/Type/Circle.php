@@ -10,11 +10,8 @@
 namespace PommProject\Foundation\Converter\Type;
 
 /**
- * Circle
- *
  * PHP representation of PostgreSQL circle type.
  *
- * @package Foundation
  * @copyright 2014 Grégoire HUBERT
  * @author Grégoire HUBERT
  * @license X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -25,8 +22,6 @@ class Circle implements \Stringable
     public float $radius;
 
     /**
-     * __construct
-     *
      * Create a circle from a description string.
      *
      * @param  string $description
@@ -44,10 +39,7 @@ class Circle implements \Stringable
 
         if ((is_countable($elts) ? count($elts) : 0) !== 2) {
             throw new \InvalidArgumentException(
-                sprintf(
-                    "Could not parse circle description '%s'.",
-                    $description
-                )
+                sprintf("Could not parse circle description '%s'.", $description)
             );
         }
 
@@ -55,33 +47,15 @@ class Circle implements \Stringable
         $this->radius = (float) $elts[1];
     }
 
-    /**
-     * createPointFrom
-     *
-     * Create a point from a description.
-     *
-     * @param  string $description
-     * @return Point
-     */
+    /** Create a point from a description. */
     protected function createPointFrom(string $description): Point
     {
         return new Point($description);
     }
 
-    /**
-     * __toString
-     *
-     * Create a string representation of the Circle.
-     * Actually, it dumps a SQL compatible circle representation.
-     *
-     * @return string
-     */
+    /** Create a string representation of the Circle. Actually, it dumps a SQL compatible circle representation. */
     public function __toString(): string
     {
-        return sprintf(
-            "<%s,%s>",
-            (string) $this->center,
-            $this->radius
-        );
+        return sprintf("<%s,%s>", $this->center, $this->radius );
     }
 }

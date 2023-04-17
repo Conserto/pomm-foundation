@@ -15,11 +15,8 @@ use PommProject\Foundation\Client\ClientInterface;
 use PommProject\Foundation\Exception\FoundationException;
 
 /**
- * QueryManagerPooler
- *
  * Pooler for the query_manager clients type.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -27,22 +24,13 @@ use PommProject\Foundation\Exception\FoundationException;
  */
 class QueryManagerPooler extends ClientPooler
 {
-    protected array $listeners = [];
-    /**
-     * getPoolerType
-     *
-     * @see ClientPoolerInterface
-     */
+    /** @see ClientPoolerInterface */
     public function getPoolerType(): string
     {
         return 'query_manager';
     }
 
     /**
-     * getClientFromPool
-     *
-     * @param string $identifier
-     * @return ClientInterface|null
      * @throws FoundationException
      * @see    ClientPooler
      */
@@ -50,15 +38,10 @@ class QueryManagerPooler extends ClientPooler
     {
         return $this
             ->getSession()
-            ->getClient($this->getPoolerType(), trim($identifier, "\\"))
-            ;
+            ->getClient($this->getPoolerType(), trim($identifier, "\\"));
     }
 
     /**
-     * createClient
-     *
-     * @param string $identifier
-     * @return ClientInterface
      * @throws FoundationException
      * @see    ClientPooler
      */
@@ -74,10 +57,6 @@ class QueryManagerPooler extends ClientPooler
     }
 
     /**
-     * getPoolerType
-     *
-     * @param null|string $identifier
-     * @return Client
      * @throws FoundationException
      * @see ClientPooler
      */

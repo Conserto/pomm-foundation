@@ -12,32 +12,21 @@ namespace PommProject\Foundation\QueryManager;
 use PommProject\Foundation\Client\Client;
 
 /**
- * SimpleQueryManager
- *
  * Query system as a client.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
  */
 abstract class QueryManagerClient extends Client implements QueryManagerInterface
 {
-    /**
-     * getClientType
-     *
-     * @see ClientInterface
-     */
+    /** @see ClientInterface */
     public function getClientType(): string
     {
         return 'query_manager';
     }
 
-    /**
-     * getClientIdentifier
-     *
-     * @see ClientInterface
-     */
+    /** @see ClientInterface */
     public function getClientIdentifier(): string
     {
         return $this::class;

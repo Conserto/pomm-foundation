@@ -7,15 +7,12 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\QueryManager;
 
 /**
- * QueryManagerInterface
+ * A Query Manager is a Client able to perform a query and return an iterator on results.
  *
- * A Query Manager is a Client able to perform a query and return an iterator
- * on results.
- *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -23,12 +20,10 @@ namespace PommProject\Foundation\QueryManager;
 interface QueryManagerInterface
 {
     /**
-     * query
-     *
      * Perform a query and return an iterator.
      *
-     * @param  string   $sql
-     * @param  array    $parameters
+     * @param string $sql
+     * @param array<int, mixed> $parameters
      * @return \Iterator
      */
     public function query(string $sql, array $parameters = []): \Iterator;

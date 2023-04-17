@@ -14,11 +14,8 @@ use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Session\Session;
 
 /**
- * PgComposite
+ * Composite type converter.
  *
- *  Composite type converter.
- *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -27,10 +24,7 @@ use PommProject\Foundation\Session\Session;
 class PgComposite extends ArrayTypeConverter
 {
     /**
-     * __construct
-     *
-     * Takes the composite type structure as parameter.
-     * The structure is $name => $type.
+     * Takes the composite type structure as parameter. The structure is $name => $type.
      *
      * @param array $structure structure definition.
      */
@@ -39,8 +33,6 @@ class PgComposite extends ArrayTypeConverter
     }
 
     /**
-     * fromPg
-     *
      * @throws FoundationException
      * @see ConverterInterface
      */
@@ -56,8 +48,6 @@ class PgComposite extends ArrayTypeConverter
     }
 
     /**
-     * toPg
-     *
      * @throws ConverterException|FoundationException
      * @see ConverterInterface
      */
@@ -77,8 +67,6 @@ class PgComposite extends ArrayTypeConverter
     }
 
     /**
-     * toPgStandardFormat
-     *
      * @throws ConverterException|FoundationException
      * @see ConverterInterface
      */
@@ -93,29 +81,25 @@ class PgComposite extends ArrayTypeConverter
         return
             sprintf("(%s)",
                 join(',', array_map(function ($val) {
+                    $returned = $val;
+
                     if ($val === null) {
-                        return '';
+                        $returned = '';
                     } elseif ($val === '') {
-                        return '""';
+                        $returned = '""';
                     } elseif (preg_match('/[,\s()]/', $val)) {
-                        return sprintf('"%s"', str_replace('"', '""', $val));
-                    } else {
-                        return $val;
+                        $returned = sprintf('"%s"', str_replace('"', '""', $val));
                     }
+
+                    return $returned;
                 }, $this->convertArray($data, $session, 'toPgStandardFormat')
                 ))
             );
     }
 
     /**
-     * convertArray
-     *
      * Convert the given array of values.
      *
-     * @param array $data
-     * @param Session $session
-     * @param string $method
-     * @return array
      * @throws FoundationException
      */
     private function convertArray(array $data, Session $session, string $method): array
@@ -124,11 +108,8 @@ class PgComposite extends ArrayTypeConverter
 
         foreach ($this->structure as $name => $subtype) {
             $values[$name] = isset($data[$name])
-                ? $this->getSubtypeConverter($subtype, $session)
-                    ->$method($data[$name], $subtype, $session)
-                : $this->getSubtypeConverter($subtype, $session)
-                    ->$method(null, $subtype, $session)
-                ;
+                ? $this->getSubtypeConverter($subtype, $session)->$method($data[$name], $subtype, $session)
+                : $this->getSubtypeConverter($subtype, $session)->$method(null, $subtype, $session);
         }
 
         return $values;

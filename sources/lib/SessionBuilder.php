@@ -9,6 +9,7 @@
  */
 namespace PommProject\Foundation;
 
+use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Session as FoundationSession;
 use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Session\Connection;
@@ -23,11 +24,8 @@ use PommProject\Foundation\QueryManager\QueryManagerPooler;
 use PommProject\Foundation\PreparedQuery\PreparedQueryPooler;
 
 /**
- * FoundationSessionBuilder
+ * Pre-configured session builder.
  *
- * Pre configured session builder.
- *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -35,49 +33,37 @@ use PommProject\Foundation\PreparedQuery\PreparedQueryPooler;
  */
 class SessionBuilder extends VanillaSessionBuilder
 {
-    /**
-     * postConfigure
-     *
-     * @see SessionBuilder
-     */
+    /** @see SessionBuilder */
     protected function postConfigure(Session $session): SessionBuilder
     {
         $session
             ->registerClientPooler(new PreparedQueryPooler)
             ->registerClientPooler(new QueryManagerPooler)
-            ->registerClientPooler(new ConverterPooler(clone $this->converter_holder))
+            ->registerClientPooler(new ConverterPooler(clone $this->converterHolder))
             ->registerClientPooler(new ObserverPooler)
             ->registerClientPooler(new InspectorPooler)
-            ->registerClientPooler(new ListenerPooler)
-            ;
+            ->registerClientPooler(new ListenerPooler);
 
         return $this;
     }
 
-
-    /**
-     * createSession
-     *
-     * @return  FoundationSession
-     * @see     VanillaSessionBuilder
-     */
-    protected function createSession(Connection $connection, ClientHolder $client_holder, ?string $stamp): Session
+    /** @see VanillaSessionBuilder */
+    protected function createSession(Connection $connection, ClientHolder $clientHolder, ?string $stamp): Session
     {
         $this->configuration->setDefaultValue('class:session', FoundationSession::class);
 
         /** @var FoundationSession $session */
-        $session = parent::createSession($connection, $client_holder, $stamp);
+        $session = parent::createSession($connection, $clientHolder, $stamp);
         return $session;
     }
 
     /**
-     * initializeConverterHolder
-     *
-     * @see SessionBuilder
+     * @throws ConverterException
+     * @see VanillaSessionBuilder
      */
-    protected function initializeConverterHolder(ConverterHolder $converter_holder): SessionBuilder
+    protected function initializeConverterHolder(ConverterHolder $converterHolder): SessionBuilder
     {
-        $converter_holder
+        $converterHolder
             ->registerConverter('Array', new Converter\PgArray(), ['array'], false)
             ->registerConverter(
                 'Boolean',
@@ -189,8 +175,7 @@ class SessionBuilder extends VanillaSessionBuilder
                     'pg_catalog.tstzrange',
                 ],
                 false
-            )
-            ;
+            );
 
         return $this;
     }

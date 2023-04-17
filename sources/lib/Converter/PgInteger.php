@@ -12,11 +12,8 @@ namespace PommProject\Foundation\Converter;
 use PommProject\Foundation\Session\Session;
 
 /**
- * PgInteger
- *
  * Converter for numbers.
  *
- * @package   Foundation
  * @copyright 2014 - 2017 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -24,11 +21,7 @@ use PommProject\Foundation\Session\Session;
  */
 class PgInteger implements ConverterInterface
 {
-    /**
-     * fromPg
-     *
-     * @see ConverterInterface
-     */
+    /** @see ConverterInterface */
     public function fromPg(?string $data, string $type, Session $session): ?int
     {
         if (null === $data) {
@@ -43,22 +36,13 @@ class PgInteger implements ConverterInterface
         return (int)$data;
     }
 
-    /**
-     * toPg
-     *
-     * @see ConverterInterface
-     */
+    /** @see ConverterInterface */
     public function toPg(mixed $data, string $type, Session $session): string
     {
-        return
-            $data !== null ? sprintf("%s '%u'", $type, $data) : sprintf("NULL::%s", $type);
+        return $data !== null ? sprintf("%s '%u'", $type, $data) : sprintf("NULL::%s", $type);
     }
 
-    /**
-     * toPgStandardFormat
-     *
-     * @see ConverterInterface
-     */
+    /** @see ConverterInterface */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
         return $data !== null ? sprintf('%u', $data) : null;

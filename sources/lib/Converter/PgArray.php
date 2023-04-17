@@ -13,11 +13,8 @@ use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Session\Session;
 
 /**
- * PgArray
- *
  * Converter for arrays.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -25,15 +22,7 @@ use PommProject\Foundation\Session\Session;
  */
 class PgArray extends ArrayTypeConverter
 {
-    /**
-     * getSubType
-     *
-     * Extract subtype from a formatted string (ie int4[] or _text).
-     *
-     * @static
-     * @param string $type
-     * @return string
-     */
+    /** Extract subtype from a formatted string (ie int4[] or _text). */
     public static function getSubType(string $type): string
     {
         if (preg_match('/^(.+)\[\]$/', $type, $matches) || preg_match('/^_(.+)$/', $type, $matches)) {
@@ -44,6 +33,7 @@ class PgArray extends ArrayTypeConverter
     }
 
     /**
+     * @throws FoundationException
      * @see ConverterInterface
      */
     public function fromPg(?string $data, string $type, Session $session): ?array
@@ -86,7 +76,11 @@ class PgArray extends ArrayTypeConverter
         $converter = $this->getSubtypeConverter($type, $session);
         $data = $this->checkArray($data);
 
-        return sprintf('ARRAY[%s]::%s[]', join(',', array_map(fn($val) => $converter->toPg($val, $type, $session), $data)), $type);
+        return sprintf(
+            'ARRAY[%s]::%s[]',
+            join(',', array_map(fn($val) => $converter->toPg($val, $type, $session), $data)),
+            $type
+        );
     }
 
     /**

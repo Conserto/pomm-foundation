@@ -7,17 +7,29 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit\QueryManager;
 
+use PommProject\Foundation\ConvertedResultIterator;
 use PommProject\Foundation\Converter\Type\Circle;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\FoundationSessionAtoum;
 
 class SimpleQueryManager extends FoundationSessionAtoum
 {
-    protected function initializeSession(Session $session)
+    /** @throws FoundationException */
+    public function testSimpleQuery(): void
     {
+        $session = $this->buildSession();
+        $iterator = $this->getQueryManager($session)->query('select true as "one one", null::int4 as "TWO"');
+        $this->object($iterator)
+            ->isInstanceOf(ConvertedResultIterator::class)
+            ->boolean($iterator->current()['one one'])
+            ->isTrue()
+            ->variable($iterator->current()['TWO'])
+            ->isNull();
     }
 
     protected function getQueryManager(Session $session)
@@ -28,34 +40,18 @@ class SimpleQueryManager extends FoundationSessionAtoum
         return $query_manager;
     }
 
-    public function testSimpleQuery()
+    /** @throws FoundationException */
+    public function testQueryWithExtraParameter(): void
     {
         $session = $this->buildSession();
-        $iterator = $this->getQueryManager($session)->query('select true as "one one", null::int4 as "TWO"');
-        $this
-            ->object($iterator)
-            ->isInstanceOf(\PommProject\Foundation\ConvertedResultIterator::class)
-            ->boolean($iterator->current()['one one'])
-            ->isTrue()
-            ->variable($iterator->current()['TWO'])
-            ->isNull()
-            ;
+        $this->exception(function () use ($session) {
+            $this->getQueryManager($session)->query('select true', ['extra']);
+        })
+            ->isInstanceOf(SqlException::class);
     }
 
-    /**
-     * @throws FoundationException
-     */
-    public function testQueryWithExtraParameter()
-    {
-        $session = $this->buildSession();
-        $this
-            ->exception(function () use ($session) {
-                $iterator = $this->getQueryManager($session)->query('select true', ['extra']);
-            })
-            ->isInstanceOf('\PommProject\Foundation\Exception\SqlException');
-    }
-
-    public function testParametrizedQuery()
+    /** @throws FoundationException */
+    public function testParametrizedQuery(): void
     {
         $session = $this->buildSession();
         $sql = <<<SQL
@@ -69,8 +65,7 @@ from (values
 ) p (id, pika, a_timestamp, a_point, a_bool)
 where {condition}
 SQL;
-        $iterator = $this
-            ->getQueryManager($session)
+        $iterator = $this->getQueryManager($session)
             ->query(
                 strtr(
                     $sql,
@@ -78,35 +73,29 @@ SQL;
                 ),
                 [2, ['chu', 'three'], new \DateTime('2000-01-01'), new Circle('<(1.5,1.5), 0.3>')]
             );
-        $this
-            ->array($iterator->slice('id'))
-            ->isIdenticalTo([2, 3])
-            ;
-        $iterator = $this
-            ->getQueryManager($session)
+        $this->array($iterator->slice('id'))
+            ->isIdenticalTo([2, 3]);
+
+        $iterator = $this->getQueryManager($session)
             ->query(
-                strtr(
-                    $sql,
-                    ['{condition}' => 'a_bool = $*::bool']
-                ),
+                strtr($sql, ['{condition}' => 'a_bool = $*::bool']),
                 [false]
             );
-        $this
-            ->array($iterator->slice('id'))
-            ->isIdenticalTo([2, 3])
-            ;
+        $this->array($iterator->slice('id'))
+            ->isIdenticalTo([2, 3]);
     }
 
-    public function testSendNotification()
+    /** @throws FoundationException */
+    public function testSendNotification(): void
     {
         $session = $this->buildSession('test session');
         $listener_tester = new ListenerTester();
         $session->getClientUsingPooler('listener', 'query')
-            ->attachAction([$listener_tester, 'call'])
-            ;
-        $iterator = $this->getQueryManager($session)->query('select $*::bool as one', [true]);
-        $this
-            ->boolean($listener_tester->is_called)
+            ->attachAction([$listener_tester, 'call']);
+
+        $this->getQueryManager($session)->query('select $*::bool as one', [true]);
+
+        $this->boolean($listener_tester->is_called)
             ->isTrue()
             ->string($listener_tester->sql)
             ->isEqualTo('select $*::bool as one')
@@ -115,7 +104,10 @@ SQL;
             ->string($listener_tester->session_stamp)
             ->isEqualTo('test session')
             ->integer($listener_tester->result_count)
-            ->isEqualTo(1)
-            ;
+            ->isEqualTo(1);
+    }
+
+    protected function initializeSession(Session $session): void
+    {
     }
 }

@@ -7,18 +7,15 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Exception;
 
 use PgSql\Result;
 
 /**
- * SqlException
- *
  * Errors from the rdbms with the result resource.
  *
  * @link      https://www.postgresql.org/docs/current/errcodes-appendix.html
- * @package   Foundation
- * @uses      FoundationException
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT <hubert.greg@gmail.com>
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -324,16 +321,10 @@ class SqlException extends FoundationException
     final const INTERNAL_ERROR = 'XX000';
     final const DATA_CORRUPTED = 'XX001';
     final const INDEX_CORRUPTED = 'XX002';
-    protected array $query_parameters = [];
 
-    /**
-     * __construct
-     *
-     * @param Result $result
-     * @param string $sql
-     * @param int $code
-     * @param \Exception|null $e
-     */
+    /** @var array<int, string> */
+    protected array $queryParameters = [];
+
     public function __construct(protected Result $result, protected string $sql, int $code = 0, \Exception $e = null)
     {
         parent::__construct(
@@ -350,89 +341,63 @@ class SqlException extends FoundationException
     }
 
     /**
-     * getSQLErrorState
-     *
      * Returns the SQLSTATE of the last SQL error.
      *
      * @link http://www.postgresql.org/docs/9.0/interactive/errcodes-appendix.html
-     * @return string
      */
     public function getSQLErrorState(): string
     {
         return pg_result_error_field($this->result, \PGSQL_DIAG_SQLSTATE);
     }
 
-    /**
-     * getSQLErrorSeverity
-     *
-     * Returns the severity level of the error.
-     *
-     * @return string
-     */
+    /** Returns the severity level of the error. */
     public function getSQLErrorSeverity(): string
     {
         return pg_result_error_field($this->result, \PGSQL_DIAG_SEVERITY);
     }
 
-    /**
-     * getSqlErrorMessage
-     *
-     * Returns the error message sent by the server.
-     *
-     * @return string
-     */
-
+    /** Returns the error message sent by the server. */
     public function getSqlErrorMessage(): string
     {
         return pg_result_error($this->result);
     }
 
-    /**
-     * getSQLDetailedErrorMessage
-     *
-     * @return string
-     */
     public function getSQLDetailedErrorMessage(): string
     {
-        return sprintf("«%s»\n%s\n(%s)", pg_result_error_field($this->result, \PGSQL_DIAG_MESSAGE_PRIMARY), pg_result_error_field($this->result, \PGSQL_DIAG_MESSAGE_DETAIL), pg_result_error_field($this->result, \PGSQL_DIAG_MESSAGE_HINT));
+        return sprintf(
+            "«%s»\n%s\n(%s)",
+            pg_result_error_field($this->result, \PGSQL_DIAG_MESSAGE_PRIMARY),
+            pg_result_error_field($this->result, \PGSQL_DIAG_MESSAGE_DETAIL),
+            pg_result_error_field($this->result, \PGSQL_DIAG_MESSAGE_HINT)
+        );
     }
 
-    /**
-     * getQuery
-     *
-     * Return the associated query.
-     *
-     * @return string
-     */
+    /** Return the associated query. */
     public function getQuery(): string
     {
         return $this->sql;
     }
 
     /**
-     * setQueryParameters
+     * Return the query parameters sent with the query.
      *
+     * @return array<int, string>
+     */
+    public function getQueryParameters(): array
+    {
+        return $this->queryParameters;
+    }
+
+    /**
      * Set the query parameters sent with the query.
      *
-     * @param  array    $parameters
+     * @param array<int, string> $parameters
      * @return SqlException $this
      */
     public function setQueryParameters(array $parameters): SqlException
     {
-        $this->query_parameters = $parameters;
+        $this->queryParameters = $parameters;
 
         return $this;
-    }
-
-    /**
-     * getQueryParameters
-     *
-     * Return the query parameters sent with the query.
-     *
-     * @return array
-     */
-    public function getQueryParameters(): array
-    {
-        return $this->query_parameters;
     }
 }

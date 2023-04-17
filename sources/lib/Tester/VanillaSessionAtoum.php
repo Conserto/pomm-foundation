@@ -15,29 +15,20 @@ use PommProject\Foundation\Session\SessionBuilder;
 use Atoum;
 
 /**
- * VanillaSessionAtoum
+ * This is a Session aware Atoum class. It uses the vanilla session builder hence produce session with no poolers nor
+ * clients. It is intended to be overloaded by each package to add their own poolers.
  *
- * This is a Session aware Atoum class. It uses the vanilla session builder
- * hence produce session with no poolers nor clients.
- * It is intended to be overloaded by each package to add their own poolers.
- *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
- * @abstract
  */
 abstract class VanillaSessionAtoum extends Atoum
 {
-    private ?SessionBuilder $session_builder = null;
+    private ?SessionBuilder $sessionBuilder = null;
 
     /**
-     * buildSession
-     *
      * A short description here
      *
-     * @param string|null $stamp
-     * @return Session
      * @throws FoundationException
      */
     protected function buildSession(?string $stamp = null): Session
@@ -48,44 +39,24 @@ abstract class VanillaSessionAtoum extends Atoum
         return $session;
     }
 
-    /**
-     * getSessionBuilder
-     *
-     * Return a SessionBuilder.
-     *
-     * @return SessionBuilder
-     */
     private function getSessionBuilder(): SessionBuilder
     {
-        if ($this->session_builder === null) {
-            $this->session_builder = $this->createSessionBuilder($GLOBALS['pomm_db1']);
+        if ($this->sessionBuilder === null) {
+            $this->sessionBuilder = $this->createSessionBuilder($GLOBALS['pomm_db1']);
         }
 
-        return $this->session_builder;
+        return $this->sessionBuilder;
     }
 
     /**
-     * createSessionBuilder
-     *
-     * Instantiate a new SessionBuilder. This method is to be overloaded by
-     * each package to instantiate their own SessionBuilder if any.
-     *
-     * @param  array $configuration
-     * @return SessionBuilder
+     * Instantiate a new SessionBuilder. This method is to be overloaded by each package to instantiate their own
+     * SessionBuilder if any.
      */
     protected function createSessionBuilder(array $configuration): SessionBuilder
     {
         return new SessionBuilder($configuration);
     }
 
-    /**
-     * initializeSession
-     *
-     * If the test needs special poolers and/or client configuration, it goes
-     * here.
-     *
-     * @param   Session $session
-     * @return  null
-     */
-    abstract protected function initializeSession(Session $session);
+    /** If the test needs special poolers and/or client configuration, it goes here. */
+    abstract protected function initializeSession(Session $session): void;
 }

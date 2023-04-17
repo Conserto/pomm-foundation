@@ -7,43 +7,44 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit\Listener;
 
-use PommProject\Foundation\Tester\FoundationSessionAtoum;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Session\Session;
+use PommProject\Foundation\Tester\FoundationSessionAtoum;
 
 class Listener extends FoundationSessionAtoum
 {
-    protected function initializeSession(Session $session)
-    {
-    }
-
-    public function testAttachAction()
+    /** @throws FoundationException */
+    public function testAttachAction(): void
     {
         $listener = $this->newTestedInstance('pika');
         $this->buildSession()->registerClient($listener);
-        $this
-            ->object($listener->attachAction(fn($name, $data, $session) => true))
+        $this->object($listener->attachAction(fn($name, $data, $session) => true))
             ->isInstanceOf(\PommProject\Foundation\Listener\Listener::class)
-            ->object($listener->attachAction(array($this, 'testAttachAction')))
-            ;
+            ->object($listener->attachAction([$this, 'testAttachAction']));
     }
 
-    public function testNotify()
+    /** @throws FoundationException */
+    public function testNotify(): void
     {
         $listener = $this->newTestedInstance('pika');
         $this->buildSession()->registerClient($listener);
         $flag = null;
         $listener
             ->attachAction(fn($name, $data, $session) => true)
-            ->attachAction(function ($name, $data, $session) use (&$flag) { $flag = $name; })
-            ;
+            ->attachAction(function ($name, $data, $session) use (&$flag) {
+                $flag = $name;
+            });
 
-        $this
-            ->object($listener->notify('pika', ['chu' => true ], null))
+        $this->object($listener->notify('pika', ['chu' => true], null))
             ->isInstanceOf(\PommProject\Foundation\Listener\Listener::class)
             ->string($flag)
-            ->isEqualTo('pika')
-            ;
+            ->isEqualTo('pika');
+    }
+
+    protected function initializeSession(Session $session): void
+    {
     }
 }
