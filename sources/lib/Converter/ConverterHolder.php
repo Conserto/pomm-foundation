@@ -32,7 +32,7 @@ class ConverterHolder
      * @throws ConverterException
      * @param ConverterInterface $converter
      * @param array<int, string> $types
-     * @param bool|null $strict
+     * @param bool $strict
      * @return ConverterHolder
      * @param string $name
      */
@@ -40,7 +40,7 @@ class ConverterHolder
         string $name,
         ConverterInterface $converter,
         array $types,
-        bool $strict = null
+        bool $strict = true
     ): ConverterHolder {
         $this->addConverter($name, $converter, $strict);
 
