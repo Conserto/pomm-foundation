@@ -28,8 +28,12 @@ trait SendNotificationTrait
      * Send notification to the listener pooler.
      *
      * @throws FoundationException
+     *
+     * @param string $name
+     * @param array<mixed, mixed> $data
+     * @return static
      */
-    protected function sendNotification(string $name, array $data): mixed
+    protected function sendNotification(string $name, array $data): static
     {
         /** @var Listener $listener */
         $listener = $this->getSession()->getPoolerForType('listener');

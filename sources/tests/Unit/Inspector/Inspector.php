@@ -131,6 +131,7 @@ class Inspector extends FoundationSessionAtoum
     public function testGetTableFieldInformation(): void
     {
         $fields_info = $this->getInspector()->getTableFieldInformation($this->getTableOid('with_complex_pk'));
+
         $this->object($fields_info)
             ->isInstanceOf(ResultIterator::class)
             ->array($fields_info->slice('name'))

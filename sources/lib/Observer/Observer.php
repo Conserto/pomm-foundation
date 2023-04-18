@@ -60,6 +60,7 @@ class Observer extends Client
      * Check if a notification is pending. If so, the payload is returned. Otherwise, null is returned.
      *
      * @throws FoundationException
+     * @return array{message: string, pid: int, payload: string}|null
      */
     public function getNotification(): ?array
     {

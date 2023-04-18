@@ -20,16 +20,19 @@ use PommProject\Foundation\Session\Session;
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
  * @see       ConverterInterface
- * @abstract
  */
 abstract class ArrayTypeConverter implements ConverterInterface
 {
+    /** @var array<string,ConverterClient> */
     protected array $converters = [];
 
     /**
      * Check if the data is an array.
      *
      * @throws ConverterException
+     *
+     * @param mixed $data
+     * @return array<int|string, mixed>
      */
     protected function checkArray(mixed $data): array
     {

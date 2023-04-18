@@ -28,6 +28,10 @@ class Where implements \Stringable
     public array $values = [];
     public ?string $operator = null;
 
+    /**
+     * @param string|null $element
+     * @param array<int, mixed> $values
+     */
     public function __construct(public ?string $element = null, array $values = [])
     {
         if ($element !== null) {
@@ -214,7 +218,7 @@ class Where implements \Stringable
     }
 
     /**
-     * @param array $stack
+     * @param array<int, Where> $stack
      * @return Where
      */
     public function setStack(array $stack): Where

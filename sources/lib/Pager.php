@@ -14,11 +14,13 @@ namespace PommProject\Foundation;
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT <hubert.greg@gmail.com>
  * @license   MIT/X11 {@link http://opensource.org/licenses/mit-license.php}
+ *
+ * @template T
  */
 class Pager
 {
     /**
-     * @param ResultIterator $iterator
+     * @param ResultIterator<T> $iterator
      * @param int $count Total number of results.
      * @param int $maxPerPage Results per page
      * @param int $page Page index.
@@ -31,7 +33,11 @@ class Pager
     ) {
     }
 
-    /** Return the Pager's iterator. */
+    /**
+     * Return the Pager's iterator.
+     *
+     * @return ResultIterator<T>
+     */
     public function getIterator(): ResultIterator
     {
         return $this->iterator;

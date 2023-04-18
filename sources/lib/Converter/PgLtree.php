@@ -22,7 +22,11 @@ use PommProject\Foundation\Session\Session;
  */
 class PgLtree extends ArrayTypeConverter
 {
-    /** @see ConverterInterface */
+    /**
+     * @see ConverterInterface
+     *
+     * @return array<int,string>|bool|null
+     */
     public function fromPg(?string $data, string $type, Session $session): array|bool|null
     {
         if (null === $data) {

@@ -31,7 +31,7 @@ class ListenerPooler extends ClientPooler
      * Events sent to 'pika', 'pika:chu' will both notify client 'pika'.
      *
      * @throws FoundationException
-     * @param array $data
+     * @param array<mixed, mixed> $data
      * @return ListenerPooler   $this
      * @param string|array<int, string> $identifiers
      */
@@ -59,6 +59,9 @@ class ListenerPooler extends ClientPooler
      * Notify all existing clients.
      *
      * @throws FoundationException
+     *
+     * @param array<mixed, mixed> $data
+     * @return ListenerPooler
      */
     protected function notifyAll(array $data): ListenerPooler
     {
@@ -81,7 +84,7 @@ class ListenerPooler extends ClientPooler
      *
      * @throws FoundationException
      * @param array<int, string> $identifiers
-     * @param array $data
+     * @param array<mixed, mixed> $data
      * @return ListenerPooler   $this
      */
     protected function notifyClients(array $identifiers, array $data): ListenerPooler

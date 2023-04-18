@@ -161,8 +161,12 @@ class Session implements LoggerAwareInterface
      *
      * @throws  FoundationException      if no poolers found
      * @throws  \BadFunctionCallException if unknown method
+     *
+     * @param string $method
+     * @param array<int, mixed> $arguments
+     * @return ClientInterface
      */
-    public function __call(string $method, array $arguments)
+    public function __call(string $method, array $arguments): ClientInterface
     {
         if (!preg_match('/get([A-Z][A-Za-z]+)/', $method, $matches)) {
             throw new \BadFunctionCallException(sprintf("Unknown method 'Session::%s()'.", $method));

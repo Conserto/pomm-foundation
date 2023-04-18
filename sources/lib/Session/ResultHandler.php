@@ -135,7 +135,7 @@ class ResultHandler
      * Fetch a column from a result.
      *
      * @param string $name
-     * @return array
+     * @return array<int,mixed>
      */
     public function fetchColumn(string $name): array
     {

@@ -42,6 +42,10 @@ class Connection
     /**
      * @throws ConnectionException if pgsql extension is missing
      * @throws FoundationException
+     *
+     * @param string $dsn
+     * @param bool $persist
+     * @param array<string,mixed> $configuration
      */
     public function __construct(string $dsn, bool $persist = false, array $configuration = [])
     {
@@ -72,6 +76,7 @@ class Connection
      * Add configuration settings. If settings exist, they are overridden.
      *
      * @throws  ConnectionException if connection is already up.
+     * @param array<string,mixed> $configuration
      */
     public function addConfiguration(array $configuration): Connection
     {
@@ -245,6 +250,8 @@ class Connection
      * Performs a raw SQL query
      *
      * @throws ConnectionException|SqlException|FoundationException
+     *
+     * @return ResultHandler|array<int,ResultHandler>
      */
     public function executeAnonymousQuery(string $sql): ResultHandler|array
     {
@@ -264,6 +271,9 @@ class Connection
      * @throws ConnectionException if no response are available.
      * @throws FoundationException if the result is an error.
      * @throws SqlException if the result is an error.
+     *
+     * @param string|null $sql
+     * @return ResultHandler|array<int,ResultHandler>
      */
     protected function getQueryResult(string $sql = null): ResultHandler|array
     {
@@ -383,6 +393,12 @@ class Connection
      * @throws ConnectionException
      * @throws FoundationException
      * @throws SqlException
+     *
+     * @param string $identifier
+     * @param array<int, mixed> $parameters
+     * @param string $sql
+     *
+     * @return ResultHandler
      */
     public function sendExecuteQuery(string $identifier, array $parameters = [], string $sql = ''): ResultHandler
     {

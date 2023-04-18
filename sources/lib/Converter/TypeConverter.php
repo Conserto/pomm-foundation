@@ -91,9 +91,9 @@ abstract class TypeConverter implements ConverterInterface
      */
     public function checkData(mixed $data): object
     {
-        $class_name = $this->getTypeClassName();
+        $className = $this->getTypeClassName();
 
-        if (!$data instanceof $class_name) {
+        if (!$data instanceof $className) {
             $data = $this->createObjectFrom($data);
         }
 

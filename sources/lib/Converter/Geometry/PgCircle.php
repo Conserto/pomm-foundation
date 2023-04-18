@@ -49,6 +49,7 @@ class PgCircle extends TypeConverter
             return sprintf("NULL::%s", $type);
         }
 
+        /** @var Circle $data */
         $data = $this->checkData($data);
 
         return

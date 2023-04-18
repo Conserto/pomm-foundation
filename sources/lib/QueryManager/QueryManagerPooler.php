@@ -60,7 +60,7 @@ class QueryManagerPooler extends ClientPooler
      * @throws FoundationException
      * @see ClientPooler
      */
-    public function getClient($identifier = null): Client
+    public function getClient(?string $identifier = null): Client
     {
         if ($identifier === null) {
             $identifier = SimpleQueryManager::class;

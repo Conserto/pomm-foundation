@@ -32,9 +32,10 @@ class SimpleQueryManager extends QueryManagerClient
      * Perform a simple escaped query and return converted result iterator.
      *
      * @throws FoundationException
-     * @param array<int, mixed> $parameters
-     * @return ConvertedResultIterator
+     *
      * @param string $sql
+     * @param array<int, mixed> $parameters
+     * @return ConvertedResultIterator<array<string,mixed>>
      */
     public function query(string $sql, array $parameters = []): ConvertedResultIterator
     {

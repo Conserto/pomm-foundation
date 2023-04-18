@@ -21,12 +21,20 @@ use Psr\Log\LoggerAwareTrait;
  * @copyright   2014 - 2015 Grégoire HUBERT
  * @author      Grégoire HUBERT
  * @license     X11 {@link http://opensource.org/licenses/mit-license.php}
+ *
+ * @implements \ArrayAccess<string,BaseSession|VanillaSessionBuilder>
  */
 class Pomm implements \ArrayAccess, LoggerAwareInterface
 {
+    /** @var array<string,VanillaSessionBuilder> */
     protected array $builders = [];
+
+    /** @var array<string,array<int,callable>> */
     protected array $postConfigurations = [];
+
+    /** @var array<string,BaseSession>  */
     protected array $sessions = [];
+
     protected ?string $default = null;
 
     use LoggerAwareTrait;
@@ -38,6 +46,8 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
      * class_name   name of the DatabaseConfiguration class to instantiate.
      *
      * @throws FoundationException
+     *
+     * @param array<string,mixed> $configurations
      */
     public function __construct(array $configurations = [])
     {
@@ -241,13 +251,18 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
         return $this;
     }
 
-    /** Return the builders. This is mainly done for testing purposes. */
+    /**
+     * Return the builders. This is mainly done for testing purposes.
+     *
+     * @return VanillaSessionBuilder[]
+     */
     public function getSessionBuilders(): array
     {
         return $this->builders;
     }
 
-    /** @throws FoundationException
+    /**
+     * @throws FoundationException
      * @see ArrayAccess
      */
     public function offsetGet(mixed $offset): BaseSession
@@ -284,6 +299,9 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
      * shutdown. Otherwise, only given sessions are shutdown.
      *
      * @throws FoundationException
+     *
+     * @param array<int, string> $sessionNames
+     * @return $this
      */
     public function shutdown(array $sessionNames = []): Pomm
     {

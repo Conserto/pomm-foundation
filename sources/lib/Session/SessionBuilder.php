@@ -36,7 +36,7 @@ class SessionBuilder
      * dsn:  connection parameters
      * name: database logical name
      *
-     * @param array $configuration
+     * @param array<string,mixed> $configuration
      * @param ConverterHolder|null $converterHolder
      */
     public function __construct(array $configuration, ConverterHolder $converterHolder = null)
@@ -100,7 +100,7 @@ class SessionBuilder
      * This must return the default configuration for new sessions. Default parameters are overrided by the
      * configuration passed as parameter to this builder.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     protected function getDefaultConfiguration(): array
     {
@@ -129,8 +129,13 @@ class SessionBuilder
      *
      * @throws ConnectionException
      * @throws FoundationException
+     *
+     * @param string $dsn
+     * @param bool $persist
+     * @param array<string,mixed> $connectionConfiguration
+     * @return Connection
      */
-    protected function createConnection(string $dsn, bool $persist, string|array $connectionConfiguration): Connection
+    protected function createConnection(string $dsn, bool $persist, array $connectionConfiguration): Connection
     {
         return new Connection($dsn, $persist, $connectionConfiguration);
     }

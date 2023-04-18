@@ -60,6 +60,10 @@ class Listener extends Client
      * Session  $session the current session
      *
      * @throws FoundationException
+     *
+     * @param string $name
+     * @param array<mixed, mixed> $data
+     * @return Listener
      */
     public function notify(string $name, array $data): Listener
     {

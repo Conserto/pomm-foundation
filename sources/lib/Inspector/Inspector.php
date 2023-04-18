@@ -41,6 +41,8 @@ class Inspector extends Client
      * Return a list of available schemas in the current database.
      *
      * @throws FoundationException
+     *
+     * @return ConvertedResultIterator<array{name: string, oid: int, comment: ?string, relations: int}>
      */
     public function getSchemas(): ConvertedResultIterator
     {
@@ -92,6 +94,8 @@ SQL;
      * Get table's field information. If no fields are found, null is returned.
      *
      * @throws FoundationException
+     *
+     * @return ConvertedResultIterator<array{name: string, type: string, default: mixed, is_notnull: bool, comment: ?string, is_primary: bool}>
      */
     public function getTableFieldInformation(int $oid): ?ConvertedResultIterator
     {
@@ -159,8 +163,11 @@ SQL;
      * Get relation's primary key if any.
      *
      * @throws FoundationException
+     *
+     * @param int $tableOid
+     * @return array<int,string>
      */
-    public function getPrimaryKey(int $tableOid): ?array
+    public function getPrimaryKey(int $tableOid): array
     {
         $sql = <<<SQL
 with
@@ -191,6 +198,8 @@ SQL;
      * other criteria.
      *
      * @throws FoundationException
+     *
+     * @return ConvertedResultIterator<array{name: string ,type: string, oid: int, comment: ?string}>
      */
     public function getSchemaRelations(?int $schemaOid, Where $where = null): ConvertedResultIterator
     {
@@ -243,6 +252,8 @@ SQL;
      * Return the Oid of the given type name. It Additionally returns the type category.
      *
      * @throws FoundationException
+     *
+     * @return null|array{oid: int, category: string}
      */
     public function getTypeInformation(string $typeName, string $typeSchema = null): ?array
     {
@@ -273,6 +284,8 @@ SQL;
      * Get type category.
      *
      * @throws FoundationException
+     *
+     * @return null|array{name: string, category: string}
      */
     public function getTypeCategory(int $oid): ?array
     {
@@ -298,6 +311,8 @@ SQL;
      * Return all possible values from an enumerated type in its natural order.
      *
      * @throws FoundationException
+     *
+     * @return null|array<int,string>
      */
     public function getTypeEnumValues(int $oid): ?array
     {
@@ -325,6 +340,8 @@ SQL;
      * Return the structure of a composite row.
      *
      * @throws FoundationException
+     *
+     * @return ConvertedResultIterator<array{name: string, type: string}>
      */
     public function getCompositeInformation(int $oid): ConvertedResultIterator
     {
@@ -360,6 +377,10 @@ SQL;
      * Launch query execution.
      *
      * @throws FoundationException
+     *
+     * @param Where|null $condition
+     * @param string $sql
+     * @return ConvertedResultIterator<mixed>
      */
     protected function executeSql(string $sql, Where $condition = null): ConvertedResultIterator
     {

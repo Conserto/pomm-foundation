@@ -35,6 +35,12 @@ class PgArray extends ArrayTypeConverter
     /**
      * @throws FoundationException
      * @see ConverterInterface
+     *
+     * @param string $type
+     * @param Session $session
+     * @param string|null $data
+     *
+     * @return null|array<int,null|mixed>
      */
     public function fromPg(?string $data, string $type, Session $session): ?array
     {

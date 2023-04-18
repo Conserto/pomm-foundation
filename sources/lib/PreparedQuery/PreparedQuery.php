@@ -29,6 +29,7 @@ class PreparedQuery extends Client
     protected string $sql;
     private PreparationEnum $preparationStatus = PreparationEnum::NOT_PREPARED;
     private string $identifier;
+    /** @var array<int,?callable>|null  */
     private ?array $converters = null;
 
     /** Returns a hash for a given sql query. */

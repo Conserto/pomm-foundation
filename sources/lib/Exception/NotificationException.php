@@ -20,9 +20,9 @@ namespace PommProject\Foundation\Exception;
 class NotificationException extends FoundationException
 {
     protected string $channel;
-    protected string $pid;
+    protected int $pid;
 
-    /** @param array{message: string, pid: string, payload: string} $notification */
+    /** @param array{message: string, pid: int, payload: string} $notification */
     public function __construct(array $notification)
     {
         parent::__construct();
@@ -38,7 +38,7 @@ class NotificationException extends FoundationException
     }
 
     /** Return the server's PID. */
-    public function getPid(): string
+    public function getPid(): int
     {
         return $this->pid;
     }

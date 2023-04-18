@@ -23,6 +23,7 @@ use PommProject\Foundation\Session\ResultHandler;
  *
  * @template-covariant T
  * @template-implements \Iterator<int,T>
+ * @template-implements \SeekableIterator<int,T>
  */
 class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \SeekableIterator
 {
@@ -157,7 +158,12 @@ class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \Seeka
         return $this->position % 2 === 1 ? 'odd' : 'even';
     }
 
-    /** Extract an array of values for one column. */
+    /**
+     * Extract an array of values for one column.
+     *
+     * @param string $field
+     * @return array<int,mixed>
+     */
     public function slice(string $field): array
     {
         if ($this->isEmpty()) {
@@ -170,6 +176,8 @@ class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \Seeka
     /**
      * Dump an iterator. This actually stores all the results in PHP allocated memory.
      * THIS MAY USE A LOT OF MEMORY.
+     *
+     * @return array<int,array<string,mixed>>
      */
     public function extract(): array
     {
@@ -182,7 +190,11 @@ class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \Seeka
         return $results;
     }
 
-    /** @see \JsonSerializable */
+    /**
+     * @see \JsonSerializable
+     *
+     * @return array<int,array<string,mixed>>
+     */
     public function jsonSerialize(): array
     {
         return $this->extract();

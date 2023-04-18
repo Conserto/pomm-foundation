@@ -46,7 +46,11 @@ class ConnectionConfigurator
         return $this->configuration['persist'];
     }
 
-    /** Add configuration settings. If settings exist, they are overridden. */
+    /**
+     * Add configuration settings. If settings exist, they are overridden.
+     *
+     * @param array<string,mixed> $configuration
+     */
     public function addConfiguration(array $configuration): ConnectionConfigurator
     {
         $this ->configuration->setParameter(
@@ -174,7 +178,11 @@ class ConnectionConfigurator
         return join(' ', $connectParameters);
     }
 
-    /** Standalone, default configuration. */
+    /**
+     * Standalone, default configuration.
+     *
+     * @return array<string, mixed>
+     */
     protected function getDefaultConfiguration(): array
     {
         return [];
@@ -184,6 +192,7 @@ class ConnectionConfigurator
      * Return current configuration settings.
      *
      * @throws ConnectionException
+     * @return array<string, mixed>
      */
     public function getConfiguration(): array
     {

@@ -43,6 +43,7 @@ class PgPoint extends TypeConverter
             return sprintf("NULL::%s", $type);
         }
 
+        /** @var Point $data */
         $data = $this->checkData($data);
 
         return sprintf("point(%s,%s)", $data->x, $data->y);

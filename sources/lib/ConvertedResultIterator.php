@@ -9,6 +9,7 @@
  */
 namespace PommProject\Foundation;
 
+use PommProject\Foundation\Converter\ConverterClient;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Session\ResultHandler;
 use PommProject\Foundation\Session\Session as BaseSession;
@@ -20,12 +21,19 @@ use PommProject\Foundation\Session\Session as BaseSession;
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
  * @see       ResultIterator
+ *
+ * @template T
+ * @extends ResultIterator<T>
  */
 class ConvertedResultIterator extends ResultIterator
 {
+    /** @var array<string,string> */
     protected array $types = [];
+
+    /** @var array<string,ConverterClient> */
     protected array $converters = [];
 
+    /** @throws FoundationException */
     public function __construct(ResultHandler $result, protected BaseSession $session)
     {
         parent::__construct($result);
@@ -47,6 +55,8 @@ class ConvertedResultIterator extends ResultIterator
     /**
      * Get the result types from the result handler.
      * @throws FoundationException
+     *
+     * @return ResultIterator<T>
      */
     protected function initTypes(): ResultIterator
     {
@@ -58,7 +68,10 @@ class ConvertedResultIterator extends ResultIterator
             }
 
             $this->types[$name] = $type;
-            $this->converters[$name] = $this->session->getClientUsingPooler('converter', $type);
+
+            /** @var ConverterClient $converter */
+            $converter = $this->session->getClientUsingPooler('converter', $type);
+            $this->converters[$name] = $converter;
         }
 
         return $this;
@@ -67,6 +80,7 @@ class ConvertedResultIterator extends ResultIterator
     /**
      * Convert values from Pg.
      *
+     * @param array<string, ?string> $values
      * @return array<string, mixed>
      */
     protected function parseRow(array $values): array
@@ -86,7 +100,11 @@ class ConvertedResultIterator extends ResultIterator
         return $this->converters[$name]->fromPg($value, $this->types[$name]);
     }
 
-    /** see @ResultIterator */
+    /**
+     * see @ResultIterator
+     *
+     * @return array<int, mixed>
+     */
     public function slice(string $field): array
     {
         $values = [];

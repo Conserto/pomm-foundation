@@ -39,7 +39,7 @@ class ConverterPooler extends ClientPooler
      * @throws FoundationException
      * @see ClientPoolerInterface
      */
-    public function getClient($identifier): ClientInterface
+    public function getClient(string $identifier): ClientInterface
     {
         $clientIdentifier = $identifier !== PgArray::getSubType($identifier) ? 'array' : $identifier;
         return parent::getClient($clientIdentifier);

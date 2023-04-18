@@ -29,7 +29,7 @@ class PreparedQueryManager extends QueryManagerClient
      *
      * @param string $sql
      * @param array<int, mixed> $parameters
-     * @return ConvertedResultIterator
+     * @return ConvertedResultIterator<array<string, mixed>>
      */
     public function query(string $sql, array $parameters = []): ConvertedResultIterator
     {
