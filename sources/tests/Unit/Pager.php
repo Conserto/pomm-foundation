@@ -24,7 +24,7 @@ class Pager extends FoundationSessionAtoum
             ->and()
             ->given($pager = $this->newTestedInstance($iterator, 100, 10, 1))
             ->object($pager->getIterator())
-            ->isInstanceOf(ConvertedResultIterator::class)
+            ->isInstanceOf(\PommProject\Foundation\ConvertedResultIterator::class)
             ->isIdenticalTo($iterator)
             ->assert("The getCount method returns the total count given in the constructor.")
             ->integer($pager->getCount())

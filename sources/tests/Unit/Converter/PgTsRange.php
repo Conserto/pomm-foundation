@@ -28,13 +28,13 @@ class PgTsRange extends BaseConverter
             ->given($instance = $this->newTestedInstance()->fromPg($data['text_range'], 'tstzrange', $session))
             ->object($instance)
             ->isInstanceOf(TsRange::class)
-            ->variable($instance->start_limit)
+            ->variable($instance->startLimit)
             ->isEqualTo($data['expected_start_limit'])
-            ->variable($instance->end_limit)
+            ->variable($instance->endLimit)
             ->isEqualTo($data['expected_end_limit'])
-            ->variable($instance->start_incl)
+            ->variable($instance->startIncl)
             ->isEqualTo($data['expected_start_incl'])
-            ->variable($instance->end_incl)
+            ->variable($instance->endIncl)
             ->isEqualTo($data['expected_end_incl']);
     }
 
@@ -52,12 +52,12 @@ class PgTsRange extends BaseConverter
             ->isNull();
 
         $range = $this->newTestedInstance()->fromPg($text_range, 'tstzrange', $session);
-        $this->object($range->start_limit)
+        $this->object($range->startLimit)
             ->isInstanceOf(\DateTime::class);
 
         $range_without_double_quote = $this->newTestedInstance()
             ->fromPg($text_range_without_double_quote, 'tstzrange', $session);
-        $this->object($range_without_double_quote->start_limit)
+        $this->object($range_without_double_quote->startLimit)
             ->isInstanceOf(\DateTime::class);
     }
 

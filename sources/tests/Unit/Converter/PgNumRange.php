@@ -28,13 +28,13 @@ class PgNumRange extends BaseConverter
             ->given($instance = $this->newTestedInstance()->fromPg($data['text_range'], 'tstzrange', $session))
             ->object($instance)
             ->isInstanceOf(NumRange::class)
-            ->variable($instance->start_limit)
+            ->variable($instance->startLimit)
             ->isEqualTo($data['expected_start_limit'])
-            ->variable($instance->end_limit)
+            ->variable($instance->endLimit)
             ->isEqualTo($data['expected_end_limit'])
-            ->variable($instance->start_incl)
+            ->variable($instance->startIncl)
             ->isEqualTo($data['expected_start_incl'])
-            ->variable($instance->end_incl)
+            ->variable($instance->endIncl)
             ->isEqualTo($data['expected_end_incl']);
     }
 
@@ -47,22 +47,22 @@ class PgNumRange extends BaseConverter
             ->variable($this->newTestedInstance()->fromPg(null, 'point', $session))
             ->isNull();
         $range = $this->newTestedInstance()->fromPg('[1,3)', 'int4range', $session);
-        $this->integer($range->start_limit)
+        $this->integer($range->startLimit)
             ->isEqualTo(1)
-            ->integer($range->end_limit)
+            ->integer($range->endLimit)
             ->isEqualTo(3)
-            ->boolean($range->start_incl)
+            ->boolean($range->startIncl)
             ->isTrue()
-            ->boolean($range->end_incl)
+            ->boolean($range->endIncl)
             ->isFalse();
         $range = $this->newTestedInstance()->fromPg('(-3.1415, -1.6180]', 'numrange', $session);
-        $this->float($range->start_limit)
+        $this->float($range->startLimit)
             ->isEqualTo(-3.1415)
-            ->float($range->end_limit)
+            ->float($range->endLimit)
             ->isEqualTo(-1.618)
-            ->boolean($range->start_incl)
+            ->boolean($range->startIncl)
             ->isFalse()
-            ->boolean($range->end_incl)
+            ->boolean($range->endIncl)
             ->isTrue();
     }
 
