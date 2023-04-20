@@ -86,17 +86,14 @@ class PgComposite extends ArrayTypeConverter
         return
             sprintf("(%s)",
                 join(',', array_map(function ($val) {
-                    $returned = $val;
-
-                    if ($val === null) {
-                        $returned = '';
-                    } elseif ($val === '') {
-                        $returned = '""';
-                    } elseif (preg_match('/[,\s()]/', $val)) {
-                        $returned = sprintf('"%s"', str_replace('"', '""', $val));
-                    }
-
-                    return $returned;
+                    return match (true)
+                    {
+                        (null === $val) => '',
+                        ('' === $val) => '""',
+                        (bool) preg_match('/[,\s()]/', $val) =>
+                            sprintf('"%s"', str_replace('"', '""', $val)),
+                        default => $val,
+                    };
                 }, $this->convertArray($data, $session, 'toPgStandardFormat')
                 ))
             );
