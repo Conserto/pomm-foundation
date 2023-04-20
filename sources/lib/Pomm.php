@@ -22,17 +22,17 @@ use Psr\Log\LoggerAwareTrait;
  * @author      Grégoire HUBERT
  * @license     X11 {@link http://opensource.org/licenses/mit-license.php}
  *
- * @implements \ArrayAccess<string,BaseSession|VanillaSessionBuilder>
+ * @implements \ArrayAccess<string, BaseSession|VanillaSessionBuilder>
  */
 class Pomm implements \ArrayAccess, LoggerAwareInterface
 {
-    /** @var array<string,VanillaSessionBuilder> */
+    /** @var array<string, VanillaSessionBuilder> */
     protected array $builders = [];
 
-    /** @var array<string,array<int,callable>> */
+    /** @var array<string, array<int, callable>> */
     protected array $postConfigurations = [];
 
-    /** @var array<string,BaseSession>  */
+    /** @var array<string, BaseSession>  */
     protected array $sessions = [];
 
     protected ?string $default = null;
@@ -47,7 +47,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
      *
      * @throws FoundationException
      *
-     * @param array<string,mixed> $configurations
+     * @param array<string, mixed> $configurations
      */
     public function __construct(array $configurations = [])
     {
@@ -68,7 +68,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     /**
      * Check if the given builder class is valid.
      *
-     * @throws  FoundationException if not valid
+     * @throws FoundationException if not valid
      */
     private function checkSessionBuilderClass(string $builderClass): string
     {
@@ -168,7 +168,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     /**
      * Remove the builder with the given name.
      *
-     * @throws  FoundationException if name does not exist.
+     * @throws FoundationException if name does not exist.
      */
     public function removeBuilder(string $name): Pomm
     {
@@ -209,7 +209,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
      * Create a new session using a session_builder and set it to the pool. Any previous session for this name is
      * overrided.
      *
-     * @throws  FoundationException if builder does not exist.
+     * @throws FoundationException if builder does not exist.
      */
     public function createSession(string $name): BaseSession
     {
@@ -240,7 +240,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     /**
      * Remove a session from the pool if it exists.
      *
-     * @throws  FoundationException if no builders with that name exist
+     * @throws FoundationException if no builders with that name exist
      */
     public function removeSession(string $name): Pomm
     {
@@ -323,7 +323,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     /**
      * Throw a FoundationException if the given builder does not exist.
      *
-     * @throws  FoundationException
+     * @throws FoundationException
      */
     private function builderMustExist(string $name): Pomm
     {

@@ -23,7 +23,7 @@ use PommProject\Foundation\Session\Session;
  */
 abstract class ArrayTypeConverter implements ConverterInterface
 {
-    /** @var array<string,ConverterClient> */
+    /** @var array<string, ConverterClient> */
     protected array $converters = [];
 
     /**

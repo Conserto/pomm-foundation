@@ -77,7 +77,7 @@ class PgJson implements ConverterInterface
     /**
      * Encode data to Json. Throw an exception if an error occurs.
      *
-     * @throws  ConverterException
+     * @throws ConverterException
      */
     protected function jsonEncode(mixed $data): string
     {

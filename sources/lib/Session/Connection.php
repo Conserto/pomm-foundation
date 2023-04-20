@@ -6,8 +6,7 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- */
-namespace PommProject\Foundation\Session;
+ */namespace PommProject\Foundation\Session;
 
 use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\FoundationException;
@@ -45,7 +44,7 @@ class Connection
      *
      * @param string $dsn
      * @param bool $persist
-     * @param array<string,mixed> $configuration
+     * @param array<string, mixed> $configuration
      */
     public function __construct(string $dsn, bool $persist = false, array $configuration = [])
     {
@@ -75,8 +74,8 @@ class Connection
     /**
      * Add configuration settings. If settings exist, they are overridden.
      *
-     * @throws  ConnectionException if connection is already up.
-     * @param array<string,mixed> $configuration
+     * @throws ConnectionException if connection is already up.
+     * @param array<string, mixed> $configuration
      */
     public function addConfiguration(array $configuration): Connection
     {
@@ -103,7 +102,7 @@ class Connection
     /**
      * Return the connection handler. If no connection are open, it opens one.
      *
-     * @throws  ConnectionException|FoundationException if connection is open in a bad state.
+     * @throws ConnectionException|FoundationException if connection is open in a bad state.
      */
     protected function getHandler(): PgSqlConnection
     {
@@ -161,7 +160,7 @@ class Connection
     /**
      * Open a connection on the database.
      *
-     * @throws  ConnectionException|FoundationException if connection fails.
+     * @throws ConnectionException|FoundationException if connection fails.
      */
     private function launch(): Connection
     {
@@ -251,7 +250,7 @@ class Connection
      *
      * @throws ConnectionException|SqlException|FoundationException
      *
-     * @return ResultHandler|array<int,ResultHandler>
+     * @return ResultHandler|array<int, ResultHandler>
      */
     public function executeAnonymousQuery(string $sql): ResultHandler|array
     {
@@ -273,7 +272,7 @@ class Connection
      * @throws SqlException if the result is an error.
      *
      * @param string|null $sql
-     * @return ResultHandler|array<int,ResultHandler>
+     * @return ResultHandler|array<int, ResultHandler>
      */
     protected function getQueryResult(string $sql = null): ResultHandler|array
     {

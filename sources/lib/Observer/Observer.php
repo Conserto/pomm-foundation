@@ -6,8 +6,7 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- */
-namespace PommProject\Foundation\Observer;
+ */namespace PommProject\Foundation\Observer;
 
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Exception\NotificationException;
@@ -111,7 +110,7 @@ class Observer extends Client
     /**
      * Check if a notification is pending. If so, a NotificationException is thrown.
      *
-     * @throws  NotificationException|FoundationException
+     * @throws NotificationException|FoundationException
      */
     public function throwNotification(): Observer
     {

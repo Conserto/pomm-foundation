@@ -6,8 +6,7 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- */
-namespace PommProject\Foundation\Session;
+ */namespace PommProject\Foundation\Session;
 
 use PgSql\Result as PgSqlResult;
 
@@ -30,7 +29,7 @@ class ResultHandler
     /** Call free() if handler is set. */
     public function __destruct()
     {
-            $this->free();
+        $this->free();
     }
 
     /** Free a result from memory. */
@@ -135,7 +134,7 @@ class ResultHandler
      * Fetch a column from a result.
      *
      * @param string $name
-     * @return array<int,mixed>
+     * @return array<int, mixed>
      */
     public function fetchColumn(string $name): array
     {

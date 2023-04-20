@@ -165,7 +165,7 @@ SQL;
      * @throws FoundationException
      *
      * @param int $tableOid
-     * @return array<int,string>
+     * @return array<int, string>
      */
     public function getPrimaryKey(int $tableOid): array
     {
@@ -312,7 +312,7 @@ SQL;
      *
      * @throws FoundationException
      *
-     * @return null|array<int,string>
+     * @return null|array<int, string>
      */
     public function getTypeEnumValues(int $oid): ?array
     {

@@ -6,8 +6,7 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- */
-namespace PommProject\Foundation\Client;
+ */namespace PommProject\Foundation\Client;
 
 use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Exception\FoundationException;
@@ -42,7 +41,7 @@ trait ClientTrait
     /**
      * All subclasses of Client have to use this method to access the session.
      *
-     * @throws  FoundationException if Session is not set.
+     * @throws FoundationException if Session is not set.
      */
     protected function getSession(): Session
     {

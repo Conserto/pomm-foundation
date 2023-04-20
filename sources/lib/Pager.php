@@ -7,7 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PommProject\Foundation;
 
 /**
@@ -75,7 +74,7 @@ class Pager
     /** Get the last page index. */
     public function getLastPage(): int
     {
-        return $this->count == 0 ? 1 : (int)ceil($this->count / $this->maxPerPage);
+        return $this->count == 0 ? 1 : (int) ceil($this->count / $this->maxPerPage);
     }
 
     /** True if a previous page exists. */

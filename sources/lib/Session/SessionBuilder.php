@@ -6,8 +6,7 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- */
-namespace PommProject\Foundation\Session;
+ */namespace PommProject\Foundation\Session;
 
 use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\FoundationException;
@@ -36,7 +35,7 @@ class SessionBuilder
      * dsn:  connection parameters
      * name: database logical name
      *
-     * @param array<string,mixed> $configuration
+     * @param array<string, mixed> $configuration
      * @param ConverterHolder|null $converterHolder
      */
     public function __construct(array $configuration, ConverterHolder $converterHolder = null)
@@ -132,7 +131,7 @@ class SessionBuilder
      *
      * @param string $dsn
      * @param bool $persist
-     * @param array<string,mixed> $connectionConfiguration
+     * @param array<string, mixed> $connectionConfiguration
      * @return Connection
      */
     protected function createConnection(string $dsn, bool $persist, array $connectionConfiguration): Connection

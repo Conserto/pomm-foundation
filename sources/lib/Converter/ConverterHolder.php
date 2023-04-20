@@ -100,7 +100,7 @@ class ConverterHolder
      * Make the given converter to support a new PostgreSQL type. If the given type is already defined, it is overrided
      * with the new converter.
      *
-     * @throws  ConverterException if $name does not exist.
+     * @throws ConverterException if $name does not exist.
      */
     public function addTypeToConverter(string $name, string $type): ConverterHolder
     {
@@ -122,7 +122,7 @@ class ConverterHolder
     /**
      * Returns the converter instance for the given type.
      *
-     * @throws  ConverterException if there are no converters associated.
+     * @throws ConverterException if there are no converters associated.
      */
     public function getConverterForType(string $type): ConverterInterface
     {

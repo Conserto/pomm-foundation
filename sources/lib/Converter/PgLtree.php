@@ -25,7 +25,7 @@ class PgLtree extends ArrayTypeConverter
     /**
      * @see ConverterInterface
      *
-     * @return array<int,string>|bool|null
+     * @return array<int, string>|bool|null
      */
     public function fromPg(?string $data, string $type, Session $session): array|bool|null
     {

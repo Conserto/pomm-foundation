@@ -52,7 +52,7 @@ abstract class VanillaSessionAtoum extends Atoum
      * Instantiate a new SessionBuilder. This method is to be overloaded by each package to instantiate their own
      * SessionBuilder if any.
      *
-     * @param array<string,mixed> $configuration
+     * @param array<string, mixed> $configuration
      * @return SessionBuilder
      */
     protected function createSessionBuilder(array $configuration): SessionBuilder

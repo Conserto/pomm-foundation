@@ -40,7 +40,7 @@ class PgArray extends ArrayTypeConverter
      * @param Session $session
      * @param string|null $data
      *
-     * @return null|array<int,null|mixed>
+     * @return null|array<int, null|mixed>
      */
     public function fromPg(?string $data, string $type, Session $session): ?array
     {

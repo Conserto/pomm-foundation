@@ -7,7 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PommProject\Foundation;
 
 use PommProject\Foundation\Exception\FoundationException;
@@ -17,12 +16,12 @@ use PommProject\Foundation\Exception\FoundationException;
  * @author    Grégoire HUBERT <hubert.greg@gmail.com>
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
  *
- * @implements \ArrayAccess<string,bool|string|array|null>
- * @implements \IteratorAggregate<string,bool|string|array|null>
+ * @implements \ArrayAccess<string, bool|string|array|null>
+ * @implements \IteratorAggregate<string, bool|string|array|null>
  */
 class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
 {
-    /** @param array<string,bool|string|array<mixed,mixed>> $parameters */
+    /** @param array<string, bool|string|array<mixed, mixed>> $parameters */
     public function __construct(protected array $parameters = [])
     {
     }
@@ -32,7 +31,7 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @param string $name the parameter's name
      * @return ParameterHolder $this
-     * @throws  FoundationException
+     * @throws FoundationException
      */
     public function mustHave(string $name): ParameterHolder
     {
@@ -66,7 +65,7 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
 
     /**
      * @param string $name
-     * @param bool|string|array<mixed,mixed>|null $value
+     * @param bool|string|array<mixed, mixed>|null $value
      * @return $this
      */
     public function setParameter(string $name, bool|string|array|null $value): ParameterHolder
@@ -79,9 +78,9 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * Check if the given parameter is one of the values passed as argument. If not, an exception is thrown.
      *
-     * @throws  FoundationException
+     * @throws FoundationException
      * @param string $name the parameter's name
-     * @param array<mixed,mixed> $values
+     * @param array<mixed, mixed> $values
      * @return ParameterHolder $this
      */
     public function mustBeOneOf(string $name, array $values): ParameterHolder
@@ -105,7 +104,7 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
      * @see ArrayAccess
      *
      * @param mixed $offset
-     * @return bool|array<mixed,mixed>|string|null
+     * @return bool|array<mixed, mixed>|string|null
      */
     public function offsetGet(mixed $offset): bool|array|string|null
     {
@@ -115,8 +114,8 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     /** Returns the parameter "name" or "default" if not set.
      *
      * @param string $name
-     * @param bool|string|array<mixed,mixed>|null $default Optional default value if name not set.
-     * @return bool|string|array<mixed,mixed>|null Parameter's value or default.
+     * @param bool|string|array<mixed, mixed>|null $default Optional default value if name not set.
+     * @return bool|string|array<mixed, mixed>|null Parameter's value or default.
      */
     public function getParameter(string $name, bool|string|array|null $default = null): bool|string|array|null
     {
@@ -127,7 +126,7 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
      * @see ArrayAccess
      *
      * @param mixed $offset
-     * @param bool|string|array<mixed,mixed>|null $value
+     * @param bool|string|array<mixed, mixed>|null $value
      * @return void
      */
     public function offsetSet(mixed $offset, mixed $value): void
@@ -157,7 +156,7 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * @see \IteratorAggregate
      *
-     * @return \ArrayIterator<string,bool|string|array<mixed,mixed>>
+     * @return \ArrayIterator<string, bool|string|array<mixed, mixed>>
      */
     public function getIterator(): \ArrayIterator
     {

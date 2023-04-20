@@ -6,8 +6,7 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- */
-namespace PommProject\Foundation;
+ */namespace PommProject\Foundation;
 
 use PommProject\Foundation\Converter\ConverterClient;
 use PommProject\Foundation\Exception\FoundationException;
@@ -27,10 +26,10 @@ use PommProject\Foundation\Session\Session as BaseSession;
  */
 class ConvertedResultIterator extends ResultIterator
 {
-    /** @var array<string,string> */
+    /** @var array<string, string> */
     protected array $types = [];
 
-    /** @var array<string,ConverterClient> */
+    /** @var array<string, ConverterClient> */
     protected array $converters = [];
 
     /** @throws FoundationException */

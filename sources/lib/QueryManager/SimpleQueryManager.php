@@ -7,7 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PommProject\Foundation\QueryManager;
 
 use PommProject\Foundation\ConvertedResultIterator;
@@ -35,7 +34,7 @@ class SimpleQueryManager extends QueryManagerClient
      *
      * @param string $sql
      * @param array<int, mixed> $parameters
-     * @return ConvertedResultIterator<array<string,mixed>>
+     * @return ConvertedResultIterator<array<string, mixed>>
      */
     public function query(string $sql, array $parameters = []): ConvertedResultIterator
     {

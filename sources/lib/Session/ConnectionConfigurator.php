@@ -6,8 +6,7 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- */
-namespace PommProject\Foundation\Session;
+ */namespace PommProject\Foundation\Session;
 
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\ParameterHolder;
@@ -49,7 +48,7 @@ class ConnectionConfigurator
     /**
      * Add configuration settings. If settings exist, they are overridden.
      *
-     * @param array<string,mixed> $configuration
+     * @param array<string, mixed> $configuration
      */
     public function addConfiguration(array $configuration): ConnectionConfigurator
     {

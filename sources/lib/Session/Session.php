@@ -7,7 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PommProject\Foundation\Session;
 
 use PommProject\Foundation\Client\ClientHolder;
@@ -159,8 +158,8 @@ class Session implements LoggerAwareInterface
     /**
      * Create handy methods to access clients through a pooler.
      *
-     * @throws  FoundationException      if no poolers found
-     * @throws  \BadFunctionCallException if unknown method
+     * @throws FoundationException      if no poolers found
+     * @throws \BadFunctionCallException if unknown method
      *
      * @param string $method
      * @param array<int, mixed> $arguments
@@ -196,7 +195,7 @@ class Session implements LoggerAwareInterface
 
     /**
      * Get the registered for the given type.
-     * @throws  FoundationException if pooler does not exist
+     * @throws FoundationException if pooler does not exist
      */
     public function getPoolerForType(string $type): ClientPoolerInterface
     {
@@ -233,7 +232,7 @@ ERROR;
     /**
      * Useful to test & debug.
      *
-     * @return  array<int,string>
+     * @return  array<int, string>
      */
     public function getRegisterPoolersNames(): array
     {
