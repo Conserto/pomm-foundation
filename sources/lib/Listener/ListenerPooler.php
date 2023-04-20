@@ -89,8 +89,8 @@ class ListenerPooler extends ClientPooler
     protected function notifyClients(array $identifiers, array $data): ListenerPooler
     {
         foreach ($identifiers as $identifier) {
-            $clientName = str_contains((string)$identifier, ':')
-                ? substr((string)$identifier, 0, strpos((string)$identifier, ':'))
+            $clientName = str_contains((string) $identifier, ':')
+                ? substr((string) $identifier, 0, strpos((string) $identifier, ':'))
                 : $identifier;
 
             /** @var ?Listener $client */

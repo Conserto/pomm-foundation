@@ -82,7 +82,7 @@ class Session implements LoggerAwareInterface
     /** Return the session's stamp if any */
     public function getStamp(): ?string
     {
-        return $this->stamp === null ? null : (string)$this->stamp;
+        return $this->stamp === null ? null : (string) $this->stamp;
     }
 
     /** Return the database connection. */

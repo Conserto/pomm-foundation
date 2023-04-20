@@ -7,7 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
@@ -79,7 +78,7 @@ abstract class TypeConverter implements ConverterInterface
     {
         return
             $data !== null
-                ? sprintf("%s", str_replace('"', '""', (string)$this->checkData($data)))
+                ? sprintf("%s", str_replace('"', '""', (string) $this->checkData($data)))
                 : null;
     }
 

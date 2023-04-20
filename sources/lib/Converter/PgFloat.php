@@ -7,7 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Session\Session;
@@ -34,7 +33,7 @@ class PgFloat implements ConverterInterface
             return null;
         }
 
-        return (float)$data;
+        return (float) $data;
     }
 
     /** @see ConverterInterface */

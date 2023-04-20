@@ -33,7 +33,7 @@ class PgInteger implements ConverterInterface
             return null;
         }
 
-        return (int)$data;
+        return (int) $data;
     }
 
     /** @see ConverterInterface */
