@@ -18,8 +18,8 @@ class PgJson extends BaseConverter
     {
         $session = $this->buildSession();
         $json = <<<JSON
-{"az": {"b": [" c ", "d\\\\\\":"], "e": {"fé": "gù:\\"pika\\""}}, "h": ["'i'", "j"]}
-JSON;
+          {"az": {"b": [" c ", "d\\\\\\":"], "e": {"fé": "gù:\\"pika\\""}}, "h": ["'i'", "j"]}
+        JSON;
         $converter = $this->newTestedInstance();
         $this->array(
             $converter->fromPg($json, 'json', $session)

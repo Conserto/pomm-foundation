@@ -18,8 +18,8 @@ class PgString extends BaseConverter
     {
         $session = $this->buildSession();
         $string = <<<_
-\\" ''\r
-_;
+        \\" ''\r
+        _;
         $this->string($this->newTestedInstance()->fromPg($string, 'text', $session))
             ->isEqualTo("\\\" ''\r")
             ->variable($this->newTestedInstance()->fromPg(null, 'text', $session))
@@ -35,8 +35,8 @@ _;
     {
         $session = $this->buildSession();
         $string = <<<_
-\\"	!'
-_;
+        \\"	!'
+        _;
         $this->string($this->newTestedInstance()->toPg($string, 'varchar', $session))
             ->isEqualTo("varchar  E'\\\\\"\t!'''")
             ->string($this->newTestedInstance()->toPg(null, 'varchar', $session))
@@ -52,8 +52,8 @@ _;
     {
         $session = $this->buildSession();
         $string = <<<_
-\\"\t!'\n
-_;
+        \\"\t!'\n
+        _;
         $this->string($this->newTestedInstance()->toPgStandardFormat($string, 'varchar', $session))
             ->isEqualTo($string)
             ->variable($this->newTestedInstance()->toPgStandardFormat(null, 'varchar', $session))

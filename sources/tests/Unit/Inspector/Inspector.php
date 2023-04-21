@@ -182,22 +182,22 @@ class Inspector extends FoundationSessionAtoum
     /** @throws FoundationException */
     public function testGetSchemaRelations(): void
     {
-        $tables_info = $this->getInspector()
+        $tablesInfo = $this->getInspector()
             ->getSchemaRelations($this->getInspector()
                 ->getSchemaOid('inspector_test')
             );
 
-        $this->object($tables_info)
+        $this->object($tablesInfo)
             ->isInstanceOf(ResultIterator::class)
-            ->array($tables_info->slice('name'))
+            ->array($tablesInfo->slice('name'))
             ->isIdenticalTo(['no_pk', 'with_complex_pk', 'with_simple_pk'])
             ->boolean($this->getInspector()->getSchemaRelations(null)->isEmpty())
             ->isTrue()
-            ->array($tables_info->current())
+            ->array($tablesInfo->current())
             ->hasKeys(['name', 'type', 'oid', 'comment'])
-            ->string($tables_info->get(0)['comment'])
+            ->string($tablesInfo->get(0)['comment'])
             ->isEqualTo('This table has no primary key')
-            ->variable($tables_info->get(1)['comment'])
+            ->variable($tablesInfo->get(1)['comment'])
             ->isNull();
     }
 

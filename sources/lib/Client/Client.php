@@ -6,7 +6,8 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- */namespace PommProject\Foundation\Client;
+ */
+namespace PommProject\Foundation\Client;
 
 /**
  * Abstract class for Session clients.
@@ -15,7 +16,6 @@
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
  * @see       ClientInterface
- * @abstract
  */
 abstract class Client implements ClientInterface
 {

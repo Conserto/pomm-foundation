@@ -71,17 +71,17 @@ class ResultIterator extends VanillaSessionAtoum
     protected function getPikaSql(): string
     {
         return <<<SQL
-select
-    p.id,
-    p.pika
-from
-  (values
-    (1::int4, 'a'::text),
-    (2, 'b'),
-    (3, 'c'),
-    (4, 'd')
-  ) p (id, pika)
-SQL;
+            select
+                p.id,
+                p.pika
+            from
+              (values
+                (1::int4, 'a'::text),
+                (2, 'b'),
+                (3, 'c'),
+                (4, 'd')
+              ) p (id, pika)
+        SQL;
     }
 
     /**

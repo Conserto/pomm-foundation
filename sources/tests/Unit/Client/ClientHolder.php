@@ -17,11 +17,11 @@ class ClientHolder extends Atoum
 {
     public function testGet(): void
     {
-        $client_holder = $this->getClientHolder();
+        $clientHolder = $this->getClientHolder();
         $client_1 = $this->getClientMock('one');
-        $this->variable($client_holder->get('no_type', 'no_name'))
+        $this->variable($clientHolder->get('no_type', 'no_name'))
             ->isNull()
-            ->object($client_holder->add($client_1)->get('test', 'one'))
+            ->object($clientHolder->add($client_1)->get('test', 'one'))
             ->isIdenticalTo($client_1);
     }
 
@@ -41,32 +41,32 @@ class ClientHolder extends Atoum
 
     public function testHas(): void
     {
-        $client_holder = $this->getClientHolder();
+        $clientHolder = $this->getClientHolder();
         $client_1 = $this->getClientMock('one');
-        $this->boolean($client_holder->has('test', 'one'))
+        $this->boolean($clientHolder->has('test', 'one'))
             ->isFalse()
-            ->boolean($client_holder->add($client_1)->has('test', 'one'))
+            ->boolean($clientHolder->add($client_1)->has('test', 'one'))
             ->isTrue();
     }
 
     public function testClear(): void
     {
-        $client_holder = $this->getClientHolder();
+        $clientHolder = $this->getClientHolder();
         $client_1 = $this->getClientMock('one');
         $client_2 = $this->getClientMock('two');
 
         $this->object(
-            $client_holder->add($client_1)
+            $clientHolder->add($client_1)
                 ->add($client_2)
                 ->clear('test', 'one')
         )
             ->isInstanceOf(\PommProject\Foundation\Client\ClientHolder::class)
-            ->boolean($client_holder->has('test', 'one'))
+            ->boolean($clientHolder->has('test', 'one'))
             ->isFalse()
             ->mock($client_1)
             ->call('shutdown')
             ->once()
-            ->boolean($client_holder->has('test', 'two'))
+            ->boolean($clientHolder->has('test', 'two'))
             ->isTrue();
     }
 
@@ -78,11 +78,11 @@ class ClientHolder extends Atoum
         $this->calling($client_3)->shutdown = function (): never {
             throw new FoundationException("plop");
         };
-        $client_holder = $this->getClientHolder()
+        $clientHolder = $this->getClientHolder()
             ->add($client_3)
             ->add($client_1)
             ->add($client_2);
-        $this->object($exception = ($client_holder->shutdown()[0]))
+        $this->object($exception = ($clientHolder->shutdown()[0]))
             ->isInstanceOf(\PommProject\Foundation\Exception\FoundationException::class)
             ->string($exception->getMessage())->contains('plop')
             ->mock($client_1)
@@ -95,13 +95,13 @@ class ClientHolder extends Atoum
 
     public function testGetAllFor(): void
     {
-        $client_holder = $this->getClientHolder()
+        $clientHolder = $this->getClientHolder()
             ->add($this->getClientMock('one'))
             ->add($this->getClientMock('two'));
 
-        $this->array($client_holder->getAllFor('whatever'))
+        $this->array($clientHolder->getAllFor('whatever'))
             ->isEmpty()
-            ->array($client_holder->getAllFor('test'))
+            ->array($clientHolder->getAllFor('test'))
             ->hasSize(2);
     }
 }

@@ -12,6 +12,7 @@ namespace PommProject\Foundation\Test\Unit\Session;
 use Atoum;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Exception\SqlException;
+use PommProject\Foundation\Session\ResultHandler;
 
 class Connection extends Atoum
 {
@@ -19,7 +20,7 @@ class Connection extends Atoum
     {
         $connection = $this->getConnection($this->getDsn());
         $this->object($connection->executeAnonymousQuery('select true'))
-            ->isInstanceOf(\PommProject\Foundation\Session\ResultHandler::class)
+            ->isInstanceOf(ResultHandler::class)
             ->exception(function () use ($connection) {
                 $connection->executeAnonymousQuery('bad query');
             })
@@ -49,14 +50,14 @@ class Connection extends Atoum
     /** @throws FoundationException */
     public function testSendQueryWithParameters(): void
     {
-        $bad_query = 'select n where true = $1';
+        $badQuery = 'select n where true = $1';
         $parameters = [true];
 
         $connection = $this->getConnection($this->getDsn());
         $this->object($connection->sendQueryWithParameters('select true where true = $1', $parameters))
-            ->isInstanceOf(\PommProject\Foundation\Session\ResultHandler::class)
-            ->exception(function () use ($connection, $bad_query, $parameters) {
-                $connection->sendQueryWithParameters($bad_query, $parameters);
+            ->isInstanceOf(ResultHandler::class)
+            ->exception(function () use ($connection, $badQuery, $parameters) {
+                $connection->sendQueryWithParameters($badQuery, $parameters);
             })
             ->isInstanceOf(SqlException::class)
             ->string($this->exception->getSQLErrorState())
@@ -66,6 +67,6 @@ class Connection extends Atoum
             ->isIdenticalTo($parameters)
             ->and
             ->string($this->exception->getQuery())
-            ->isIdenticalTo($bad_query);
+            ->isIdenticalTo($badQuery);
     }
 }

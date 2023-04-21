@@ -40,19 +40,19 @@ class PgTimestamp extends BaseConverter
     public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();
-        $date_time = new \DateTime('2014-09-27 18:51:35.678406+00');
-        $date_time_immutable = new \DateTimeImmutable('2014-09-27 18:51:35.678406+00');
-        $this->string($this->newTestedInstance()->toPgStandardFormat($date_time, 'timestamptz', $session))
+        $dateTime = new \DateTime('2014-09-27 18:51:35.678406+00');
+        $dateTimeImmutable = new \DateTimeImmutable('2014-09-27 18:51:35.678406+00');
+        $this->string($this->newTestedInstance()->toPgStandardFormat($dateTime, 'timestamptz', $session))
             ->isEqualTo('2014-09-27 18:51:35.678406+00:00')
-            ->string($this->newTestedInstance()->toPgStandardFormat($date_time_immutable, 'timestamptz', $session))
+            ->string($this->newTestedInstance()->toPgStandardFormat($dateTimeImmutable, 'timestamptz', $session))
             ->isEqualTo('2014-09-27 18:51:35.678406+00:00')
             ->variable($this->newTestedInstance()->toPgStandardFormat(null, 'timestamptz', $session))
             ->isNull()
-            ->object($this->sendToPostgres($date_time, 'timestamptz', $session))
+            ->object($this->sendToPostgres($dateTime, 'timestamptz', $session))
             ->isInstanceof(\DateTime::class)
-            ->isEqualTo($date_time)
-            ->object($this->sendToPostgres($date_time_immutable, 'timestamptz', $session))
+            ->isEqualTo($dateTime)
+            ->object($this->sendToPostgres($dateTimeImmutable, 'timestamptz', $session))
             ->isInstanceof(\DateTime::class)
-            ->isEqualTo($date_time_immutable);
+            ->isEqualTo($dateTimeImmutable);
     }
 }

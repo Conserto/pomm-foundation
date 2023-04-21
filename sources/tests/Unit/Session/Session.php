@@ -67,13 +67,13 @@ class Session extends VanillaSessionAtoum
     public function testRegisterClient(): void
     {
         $session = $this->buildSession();
-        $client_mock = $this->getClientInterfaceMock('one');
+        $clientMock = $this->getClientInterfaceMock('one');
 
         $this->variable($session->getClient('test', 'one'))
             ->isNull()
-            ->object($session->registerClient($client_mock))
+            ->object($session->registerClient($clientMock))
             ->isInstanceOf(VanillaSession::class)
-            ->mock($client_mock)
+            ->mock($clientMock)
             ->call('getClientIdentifier')
             ->once()
             ->call('getClientType')
@@ -81,23 +81,23 @@ class Session extends VanillaSessionAtoum
             ->call('initialize')
             ->once()
             ->object($session->getClient('test', 'one'))
-            ->isIdenticalTo($client_mock);
+            ->isIdenticalTo($clientMock);
     }
 
     /** @throws FoundationException */
     public function testRegisterPooler(): void
     {
         $session = $this->buildSession();
-        $client_pooler_mock = $this->getClientPoolerInterfaceMock('test');
+        $clientPoolerMock = $this->getClientPoolerInterfaceMock('test');
 
         $this->boolean($session->hasPoolerForType('test'))
             ->isFalse()
             ->assert('Testing client pooler registration.')
-            ->object($session->registerClientPooler($client_pooler_mock))
+            ->object($session->registerClientPooler($clientPoolerMock))
             ->isInstanceOf(VanillaSession::class)
             ->boolean($session->hasPoolerForType('test'))
             ->isTrue()
-            ->mock($client_pooler_mock)
+            ->mock($clientPoolerMock)
             ->call('getPoolerType')
             ->atLeastOnce()
             ->call('register')
@@ -107,18 +107,18 @@ class Session extends VanillaSessionAtoum
     /** @return ClientPoolerInterfaceMock&ClientPoolerInterface */
     protected function getClientPoolerInterfaceMock($type): ClientPoolerInterfaceMock
     {
-        $client_pooler = new ClientPoolerInterfaceMock();
-        $client_pooler->getMockController()->getPoolerType = $type;
-        $client_pooler->getMockController()->getClient = $this->getClientInterfaceMock('ok');
+        $clientPooler = new ClientPoolerInterfaceMock();
+        $clientPooler->getMockController()->getPoolerType = $type;
+        $clientPooler->getMockController()->getClient = $this->getClientInterfaceMock('ok');
 
-        return $client_pooler;
+        return $clientPooler;
     }
 
     /** @throws FoundationException */
     public function testGetPoolerForType(): void
     {
         $session = $this->buildSession();
-        $client_pooler_mock = $this->getClientPoolerInterfaceMock('test');
+        $clientPoolerMock = $this->getClientPoolerInterfaceMock('test');
 
         $this->exception(function () use ($session) {
             $session->getPoolerForType('test');
@@ -126,17 +126,17 @@ class Session extends VanillaSessionAtoum
             ->isInstanceOf(FoundationException::class)
             ->message->contains('No pooler registered for type')
             ->object($session
-                ->registerClientPooler($client_pooler_mock)
+                ->registerClientPooler($clientPoolerMock)
                 ->getPoolerForType('test')
             )
-            ->isIdenticalTo($client_pooler_mock);
+            ->isIdenticalTo($clientPoolerMock);
     }
 
     /** @throws FoundationException */
     public function testGetClientUsingPooler(): void
     {
-        $client_pooler_mock = $this->getClientPoolerInterfaceMock('test');
-        $session = $this->buildSession()->registerClientPooler($client_pooler_mock);
+        $clientPoolerMock = $this->getClientPoolerInterfaceMock('test');
+        $session = $this->buildSession()->registerClientPooler($clientPoolerMock);
 
         $this->object($session->getClientUsingPooler('test', 'ok'))
             ->isInstanceOf(ClientInterface::class)
@@ -150,8 +150,8 @@ class Session extends VanillaSessionAtoum
     /** @throws FoundationException */
     public function testUnderscoreCall(): void
     {
-        $client_pooler_mock = $this->getClientPoolerInterfaceMock('test');
-        $session = $this->buildSession()->registerClientPooler($client_pooler_mock);
+        $clientPoolerMock = $this->getClientPoolerInterfaceMock('test');
+        $session = $this->buildSession()->registerClientPooler($clientPoolerMock);
 
         $this->exception(
                 function () use ($session) {
@@ -167,7 +167,7 @@ class Session extends VanillaSessionAtoum
             ->message->contains('No pooler registered for type')
             ->object($session->getTest('ok'))
             ->isInstanceOf(ClientInterface::class)
-            ->mock($client_pooler_mock)
+            ->mock($clientPoolerMock)
             ->call('getClient')
             ->withArguments('ok')
             ->once();
@@ -176,8 +176,8 @@ class Session extends VanillaSessionAtoum
     /** @throws FoundationException */
     public function testShutdown(): void
     {
-        $client_pooler_mock = $this->getClientPoolerInterfaceMock('test');
-        $session = $this->buildSession()->registerClientPooler($client_pooler_mock);
+        $clientPoolerMock = $this->getClientPoolerInterfaceMock('test');
+        $session = $this->buildSession()->registerClientPooler($clientPoolerMock);
         $session->shutdown();
 
         $this->exception(fn() => $session->getTest('ok'))

@@ -6,7 +6,8 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- */namespace PommProject\Foundation;
+ */
+namespace PommProject\Foundation;
 
 use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Session as FoundationSession;
