@@ -17,9 +17,6 @@ use PommProject\Foundation\Client\Client;
 use PommProject\Foundation\Session\ResultHandler;
 
 /**
- * PreparedQuery
- *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT <hubert.greg@gmail.com>
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -32,28 +29,18 @@ class PreparedQuery extends Client
     protected string $sql;
     private PreparationEnum $preparationStatus = PreparationEnum::NOT_PREPARED;
     private string $identifier;
+    /** @var array<int, ?callable>|null  */
     private ?array $converters = null;
 
-    /**
-     * getSignatureFor
-     *
-     * Returns a hash for a given sql query.
-     *
-     * @static
-     * @param string $sql Sql query
-     * @return string
-     */
+    /** Returns a hash for a given sql query. */
     public static function getSignatureFor(string $sql): string
     {
         return md5($sql);
     }
 
     /**
-     * __construct
-     *
      * Build the prepared query.
      *
-     * @param string|null $sql SQL query
      * @throws FoundationException
      */
     public function __construct(?string $sql)
@@ -66,29 +53,19 @@ class PreparedQuery extends Client
         $this->identifier = static::getSignatureFor($sql);
     }
 
-    /**
-     * @see ClientPoolerInterface
-     */
+    /** @see ClientPoolerInterface */
     public function getClientType(): string
     {
         return 'prepared_query';
     }
 
-    /**
-     * getClientIdentifier
-     *
-     * Return the query identifier.
-     *
-     * @return string Query identifier.
-     */
+    /** Return the query identifier. */
     public function getClientIdentifier(): string
     {
         return $this->identifier;
     }
 
     /**
-     * shutdown
-     *
      * Deallocate the statement in the database.
      *
      * @throws FoundationException
@@ -110,11 +87,9 @@ class PreparedQuery extends Client
     }
 
     /**
-     * execute
-     *
      * Launch the query with the given parameters.
      *
-     * @param array $values Query parameters
+     * @param array<int, mixed> $values Query parameters
      * @return ResultHandler
      * @throws FoundationException
      */
@@ -156,11 +131,7 @@ class PreparedQuery extends Client
     }
 
     /**
-     * prepare
-     *
      * Send the query to be prepared by the server.
-     *
-     * @return PreparedQuery $this
      * @throws FoundationException
      */
     protected function prepare(): PreparedQuery
@@ -180,26 +151,18 @@ class PreparedQuery extends Client
         return $this;
     }
 
-    /**
-     * getSql
-     *
-     * Get the original SQL query
-     *
-     * @return string SQL query
-     */
+    /** Get the original SQL query */
     public function getSql(): string
     {
         return $this->sql;
     }
 
     /**
-     * prepareValues
-     *
      * Prepare parameters to be sent.
      *
      * @param mixed $sql
-     * @param array $values
-     * @return array    $prepared_values
+     * @param array<int, mixed> $values
+     * @return array<int, null|string> $prepared_values
      * @throws FoundationException
      */
     protected function prepareValues(mixed $sql, array $values): array
@@ -218,12 +181,8 @@ class PreparedQuery extends Client
     }
 
     /**
-     * prepareConverters
-     *
      * Store converters needed for the query parameters.
      *
-     * @param mixed $sql
-     * @return PreparedQuery    $this
      * @throws FoundationException
      */
     protected function prepareConverters(mixed $sql): PreparedQuery
@@ -239,7 +198,8 @@ class PreparedQuery extends Client
 
                 $converter = $converterClient->getConverter();
 
-                $this->converters[$index] = fn($value) => $converter->toPgStandardFormat($value, $type, $this->getSession());
+                $this->converters[$index] =
+                    fn($value) => $converter->toPgStandardFormat($value, $type, $this->getSession());
             }
         }
 

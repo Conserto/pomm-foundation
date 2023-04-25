@@ -10,142 +10,88 @@
 namespace PommProject\Foundation;
 
 /**
- * Pager
- *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT <hubert.greg@gmail.com>
  * @license   MIT/X11 {@link http://opensource.org/licenses/mit-license.php}
+ *
+ * @template T
  */
 class Pager
 {
     /**
-     * __construct
-     *
-     * @param ResultIterator $iterator
-     * @param int $count        Total number of results.
-     * @param int $max_per_page Results per page
-     * @param int $page         Page index.
+     * @param ResultIterator<T> $iterator
+     * @param int $count Total number of results.
+     * @param int $maxPerPage Results per page
+     * @param int $page Page index.
      */
-    public function __construct(protected ResultIterator $iterator, protected int $count, protected int $max_per_page, protected int $page)
-    {
+    public function __construct(
+        protected ResultIterator $iterator,
+        protected int $count,
+        protected int $maxPerPage,
+        protected int $page
+    ) {
     }
 
     /**
-     * getIterator
-     *
      * Return the Pager's iterator.
      *
-     * @return ResultIterator
+     * @return ResultIterator<T>
      */
     public function getIterator(): ResultIterator
     {
         return $this->iterator;
     }
 
-    /**
-     * getResultCount
-     *
-     * Get the number of results in this page.
-     *
-     * @return int
-     */
+    /** Get the number of results in this page. */
     public function getResultCount(): int
     {
         return $this->iterator->count();
     }
 
-    /**
-     * getResultMin
-     *
-     * Get the index of the first element of this page.
-     *
-     * @return int
-     */
-    public function getResultMin(): int
-    {
-        return min((1 + $this->max_per_page * ($this->page - 1)), $this->count);
-    }
-
-    /**
-     * getResultMax
-     *
-     * Get the index of the last element of this page.
-     *
-     * @return int
-     */
+    /** Get the index of the last element of this page. */
     public function getResultMax(): int
     {
         return max(($this->getResultMin() + $this->iterator->count() - 1), 0);
     }
 
-    /**
-     * getLastPage
-     *
-     * Get the last page index.
-     *
-     * @return int
-     */
-    public function getLastPage(): int
+    /** Get the index of the first element of this page. */
+    public function getResultMin(): int
     {
-        return $this->count == 0 ? 1 : (int) ceil($this->count / $this->max_per_page);
+        return min((1 + $this->maxPerPage * ($this->page - 1)), $this->count);
     }
 
-    /**
-     * getPage
-     *
-     * @return int
-     */
-    public function getPage(): int
-    {
-        return $this->page;
-    }
-
-    /**
-     * isNextPage
-     *
-     * True if a next page exists.
-     *
-     * @return Boolean
-     */
+    /** True if a next page exists. */
     public function isNextPage(): bool
     {
         return $this->getPage() < $this->getLastPage();
     }
 
-    /**
-     * isPreviousPage
-     *
-     * True if a previous page exists.
-     *
-     * @return Boolean
-     */
+    public function getPage(): int
+    {
+        return $this->page;
+    }
+
+    /** Get the last page index. */
+    public function getLastPage(): int
+    {
+        return $this->count == 0 ? 1 : (int) ceil($this->count / $this->maxPerPage);
+    }
+
+    /** True if a previous page exists. */
     public function isPreviousPage(): bool
     {
         return $this->page > 1;
     }
 
-    /**
-     * getCount
-     *
-     * Get the total number of results in all pages.
-     *
-     * @return int
-     */
+    /** Get the total number of results in all pages. */
     public function getCount(): int
     {
         return $this->count;
     }
 
-    /**
-     * getMaxPerPage
-     *
-     * Get maximum result per page.
-     *
-     * @return int
-     */
+    /** Get maximum result per page. */
     public function getMaxPerPage(): int
     {
-        return $this->max_per_page;
+        return $this->maxPerPage;
     }
 }

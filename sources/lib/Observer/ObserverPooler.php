@@ -13,11 +13,8 @@ use PommProject\Foundation\Client\ClientPoolerInterface;
 use PommProject\Foundation\Client\ClientPooler;
 
 /**
- * ObserverPooler
- *
  * Pooler for observer clients.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -25,23 +22,13 @@ use PommProject\Foundation\Client\ClientPooler;
  */
 class ObserverPooler extends ClientPooler
 {
-    /**
-     * getPoolerType
-     *
-     * @see ClientPoolerInterface
-     */
+    /** @see ClientPoolerInterface */
     public function getPoolerType(): string
     {
         return 'observer';
     }
 
-    /**
-     * createClient
-     *
-     * @param  string   $identifier
-     * @return Observer
-     *@see    ClientPooler
-     */
+    /** @see ClientPooler */
     protected function createClient(string $identifier): Observer
     {
         return new Observer($identifier);

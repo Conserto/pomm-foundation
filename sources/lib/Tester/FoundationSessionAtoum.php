@@ -12,26 +12,20 @@ namespace PommProject\Foundation\Tester;
 use PommProject\Foundation\SessionBuilder;
 
 /**
- * FoundationSessionAtoum
+ * Provide an Atoum with a session configured with Foundation default poolers.
  *
- * Provide a Atoum with a session configured with Foundation default poolers.
- *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
  * @see       VanillaSessionAtoum
- * @abstract
  */
 abstract class FoundationSessionAtoum extends VanillaSessionAtoum
 {
     /**
-     * createSessionBuilder
-     *
      * Override VanillaSessionAtoum to return a Foundation Session builder.
      *
-     * @param   array $configuration
-     * @return  SessionBuilder
+     * @param array<string, mixed> $configuration
+     * @return SessionBuilder
      */
     protected function createSessionBuilder(array $configuration): SessionBuilder
     {

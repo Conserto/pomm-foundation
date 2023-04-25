@@ -9,32 +9,30 @@
  */
 namespace PommProject\Foundation\Test\Unit\PreparedQuery;
 
-use PommProject\Foundation\Exception\FoundationException;
-use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Converter\Type\Circle;
-use PommProject\Foundation\Tester\FoundationSessionAtoum;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\PreparedQuery\PreparedQuery as TestedPreparedQuery;
+use PommProject\Foundation\Session\Session;
+use PommProject\Foundation\Tester\FoundationSessionAtoum;
 
 class PreparedQuery extends FoundationSessionAtoum
 {
-    protected function initializeSession(Session $session)
+    /** @throws FoundationException */
+    public function testConstruct(): void
     {
-    }
-
-    public function testConstruct()
-    {
-        $this
-            ->exception(function () { $this->newTestedInstance(null); })
+        $this->exception(function () {
+            $this->newTestedInstance(null);
+        })
             ->isInstanceOf(FoundationException::class)
             ->message->contains('empty query')
             ->object($this->newTestedInstance('abcd'))
             ->isInstanceOf(TestedPreparedQuery::class)
             ->string($this->newTestedInstance('abcd')->getClientIdentifier())
-            ->isEqualTo(TestedPreparedQuery::getSignatureFor('abcd'))
-            ;
+            ->isEqualTo(TestedPreparedQuery::getSignatureFor('abcd'));
     }
 
-    public function testExecute()
+    /** @throws FoundationException */
+    public function testExecute(): void
     {
         $session = $this->buildSession();
         $sql = <<<SQL
@@ -50,11 +48,14 @@ where (p.id >= $* or p.pika = ANY($*::text[])) and p.a_timestamp > $*::timestamp
 SQL;
         $query = $this->newTestedInstance($sql);
         $session->registerClient($query);
-        $result = $query->execute([2, ['pika, chu', 'three'], new \DateTime('2000-01-01'), new Circle('<(1.5,1.5), 0.3>')]);
+        $result = $query->execute(
+            [2, ['pika, chu', 'three'], new \DateTime('2000-01-01'), new Circle('<(1.5,1.5), 0.3>')]
+        );
 
-        $this
-            ->integer($result->countRows())
-            ->isEqualTo(2)
-            ;
+        $this->integer($result->countRows())->isEqualTo(2);
+    }
+
+    protected function initializeSession(Session $session): void
+    {
     }
 }

@@ -7,7 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
@@ -15,12 +14,8 @@ use PommProject\Foundation\Converter\Type\BaseRange;
 use PommProject\Foundation\Session\Session;
 
 /**
- * TypeConverter
+ * Abstract class for converter that use object types like point, circle, numrange etc.
  *
- * Abstract class for converter that use object types like point, circle,
- * numrange etc.
- *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -28,33 +23,18 @@ use PommProject\Foundation\Session\Session;
  */
 abstract class TypeConverter implements ConverterInterface
 {
-    protected string $class_name;
+    protected string $className;
 
-    /**
-     * getTypeClassName
-     *
-     * Return the type class name
-     *
-     * @return string
-     */
+    /** Return the type class name */
     abstract protected function getTypeClassName(): string;
 
-    /**
-     * __construct
-     *
-     * Set the type class name.
-     *
-     * @param string|null $class_name
-     */
-    public function __construct(?string $class_name = null)
+    /** Set the type class name. */
+    public function __construct(?string $className = null)
     {
-        $this->class_name =
-            $class_name ?? $this->getTypeClassName();
+        $this->className = $className ?? $this->getTypeClassName();
     }
 
     /**
-     * fromPg
-     *
      * @throws ConverterException
      * @see ConverterInterface
      */
@@ -65,15 +45,10 @@ abstract class TypeConverter implements ConverterInterface
         }
         $data = trim($data);
 
-        return
-            $data !== ''
-                ? $this->createObjectFrom($data)
-                : null;
+        return $data !== '' ? $this->createObjectFrom($data) : null;
     }
 
     /**
-     * toPg
-     *
      * @throws ConverterException
      * @see ConverterInterface
      */
@@ -96,8 +71,6 @@ abstract class TypeConverter implements ConverterInterface
     }
 
     /**
-     * toPgStandardFormat
-     *
      * @throws ConverterException
      * @see ConverterInterface
      */
@@ -105,25 +78,21 @@ abstract class TypeConverter implements ConverterInterface
     {
         return
             $data !== null
-                ? sprintf("%s", str_replace('"', '""', (string)$this->checkData($data)))
+                ? sprintf("%s", str_replace('"', '""', (string) $this->checkData($data)))
                 : null;
     }
 
     /**
-     * checkData
+     * Check if data is suitable for Pg conversion. If not an attempt is made  to build the object from the given
+     * definition.
      *
-     * Check if data is suitable for Pg conversion. If not an attempt is made
-     * to build the object from the given definition.
-     *
-     * @param mixed $data
-     * @return object
      * @throws ConverterException
      */
     public function checkData(mixed $data): object
     {
-        $class_name = $this->getTypeClassName();
+        $className = $this->getTypeClassName();
 
-        if (!$data instanceof $class_name) {
+        if (!$data instanceof $className) {
             $data = $this->createObjectFrom($data);
         }
 
@@ -131,24 +100,19 @@ abstract class TypeConverter implements ConverterInterface
     }
 
     /**
-     * createObjectFrom
+     * Create a range object from a given definition. If the object creation fails, an exception is thrown.
      *
-     * Create a range object from a given definition. If the object creation
-     * fails, an exception is thrown.
-     *
-     * @param mixed $data
-     * @return BaseRange
      * @throws ConverterException
      */
     protected function createObjectFrom(mixed $data): object
     {
-        $class_name = $this->class_name;
+        $className = $this->className;
 
         try {
-            return new $class_name($data);
+            return new $className($data);
         } catch (\InvalidArgumentException $e) {
             throw new ConverterException(
-                sprintf("Unable to create a '%s' instance.", $class_name),
+                sprintf("Unable to create a '%s' instance.", $className),
                 0,
                 $e
             );

@@ -9,18 +9,19 @@
  */
 namespace PommProject\Foundation\Test\Unit\Session;
 
+use PommProject\Foundation\Exception\ConnectionException;
+
 class ConnectionConfigurator extends \Atoum
 {
-    public function testBadDsn($dsn)
+    public function testBadDsn($dsn): void
     {
-        $this
-            ->exception(function () use ($dsn) {
+        $this->exception(function () use ($dsn) {
                 $this->newTestedInstance($dsn);
             })
-            ->isInstanceOf(\PommProject\Foundation\Exception\ConnectionException::class);
+            ->isInstanceOf(ConnectionException::class);
     }
 
-    protected function testBadDsnDataProvider()
+    protected function testBadDsnDataProvider(): array
     {
         return [
             'azertyuiop',
@@ -30,7 +31,7 @@ class ConnectionConfigurator extends \Atoum
         ];
     }
 
-    public function testGoodDsn($dsn, $connectionString)
+    public function testGoodDsn($dsn, $connectionString): void
     {
         $configurator = $this->newTestedInstance($dsn);
         $this->object($configurator)
@@ -38,7 +39,7 @@ class ConnectionConfigurator extends \Atoum
             ->isEqualTo($connectionString);
     }
 
-    protected function testGoodDsnDataProvider()
+    protected function testGoodDsnDataProvider(): array
     {
         return [
             [
@@ -84,7 +85,7 @@ class ConnectionConfigurator extends \Atoum
         ];
     }
 
-    public function testGetConfiguration()
+    public function testGetConfiguration(): void
     {
         $configurator = $this->newTestedInstance('pgsql://user/dbname');
 
@@ -92,7 +93,7 @@ class ConnectionConfigurator extends \Atoum
             ->isEmpty();
     }
 
-    public function testAddConfiguration()
+    public function testAddConfiguration(): void
     {
         $configurator = $this->newTestedInstance('pgsql://user/dbname');
         $configuration = ['encoding' => 'utf-8'];
@@ -104,7 +105,7 @@ class ConnectionConfigurator extends \Atoum
             ->isIdenticalTo($configuration);
     }
 
-    public function testSet()
+    public function testSet(): void
     {
         $configurator = $this->newTestedInstance('pgsql://user/dbname');
         $configuration = ['encoding' => 'utf-8'];

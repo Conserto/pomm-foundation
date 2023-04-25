@@ -13,11 +13,8 @@ use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Session\Session;
 
 /**
- * PgInterval
- *
  * Convert an ISO8601 interval from/to PHP.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT <hubert.greg@gmail.com>
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -52,8 +49,7 @@ class PgInterval implements ConverterInterface
     {
         return $data !== null
             ? sprintf("%s '%s'", $type, $this->checkData($data)->format('%Y years %M months %D days %H:%i:%S'))
-            : sprintf("NULL::%s", $type)
-            ;
+            : sprintf("NULL::%s", $type);
     }
 
 
@@ -65,17 +61,12 @@ class PgInterval implements ConverterInterface
     {
         return $data !== null
             ? sprintf('"%s"', $this->checkData($data)->format('%Y years %M months %D days %H:%i:%S'))
-            : null
-            ;
+            : null;
     }
 
     /**
-     * checkData
+     * Check if Data is a DateInterval. If not, it tries to instantiate a DateInterval with the given data.
      *
-     * Check if Data is a DateInterval. If not, it tries to instantiate a
-     * DateInterval with the given data.
-     *
-     * @param  mixed $data
      * @throws ConverterException
      * @return \DateInterval $data
      */

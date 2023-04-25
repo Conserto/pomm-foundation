@@ -10,46 +10,39 @@
 namespace PommProject\Foundation;
 
 /**
- * Where
- *
  * This class represents a WHERE clause of a SQL statement. It deals with AND &
  * OR operator you can add using handy methods. This allows you to build
  * queries dynamically.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT <hubert.greg@gmail.com>
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
  */
 class Where implements \Stringable
 {
+    /** @var array<int, Where> */
     public array $stack = [];
-    public $element;
+
+    /** @var array<int, mixed> */
     public array $values = [];
-    public $operator;
+    public ?string $operator = null;
 
     /**
-     * create
-     *
-     * A constructor you can chain from.
-     *
-     * @static
      * @param string|null $element
-     * @param  array  $values
-     * @return Where
+     * @param array<int, mixed> $values
      */
-    public static function create(string $element = null, array $values = []): Where
+    public function __construct(public ?string $element = null, array $values = [])
     {
-        return new self($element, $values);
+        if ($element !== null) {
+            $this->values = $values;
+        }
     }
 
     /**
-     * createWhereIn
-     *
      * Create an escaped IN clause.
      *
      * @param string $element
-     * @param  array  $values
+     * @param array<int, mixed> $values
      * @return Where
      */
     public static function createWhereIn(string $element, array $values): Where
@@ -58,28 +51,11 @@ class Where implements \Stringable
     }
 
     /**
-     * createWhereNotIn
-     *
-     * Create an escaped NOT IN clause.
-     *
-     * @param string $element
-     * @param  array $values
-     * @return Where
-     */
-    public static function createWhereNotIn(string $element, array $values): Where
-    {
-        return self::createGroupCondition($element, 'NOT IN', $values);
-    }
-
-    /**
-     * createGroupCondition
-     *
-     * Create a Where instance with multiple escaped parameters. This is mainly
-     * useful for IN or NOT IN clauses.
+     * Create a Where instance with multiple escaped parameters. This is mainly useful for IN or NOT IN clauses.
      *
      * @param string $element
      * @param string $operation
-     * @param  array  $values
+     * @param array<int, mixed> $values
      * @return Where
      */
     public static function createGroupCondition(string $element, string $operation, array $values): Where
@@ -96,12 +72,32 @@ class Where implements \Stringable
     }
 
     /**
-     * extractValues
+     * Create an array of escaped strings from a value set.
      *
+     * @param array<int, mixed> $values
+     * @return array<int, string>
+     */
+    protected static function escapeSet(array $values): array
+    {
+        $escapedValues = [];
+
+        foreach ($values as $value) {
+            if (is_array($value)) {
+                $escapedValues[] =
+                    sprintf("(%s)", join(', ', static::escapeSet($value)));
+            } else {
+                $escapedValues[] = '$*';
+            }
+        }
+
+        return $escapedValues;
+    }
+
+    /**
      * Extract values with consistent keys.
      *
-     * @param  array $values
-     * @return array
+     * @param array<int, mixed> $values
+     * @return array<int, mixed>
      */
     protected static function extractValues(array $values): array
     {
@@ -115,95 +111,34 @@ class Where implements \Stringable
     }
 
     /**
-     * escapeSet
+     * Create an escaped NOT IN clause.
      *
-     * Create an array of escaped strings from a value set.
-     *
-     * @param  array $values
-     * @return array
-     */
-    protected static function escapeSet(array $values): array
-    {
-        $escaped_values = [];
-
-        foreach ($values as $value) {
-            if (is_array($value)) {
-                $escaped_values[] =
-                    sprintf("(%s)", join(', ', static::escapeSet($value)));
-            } else {
-                $escaped_values[] = '$*';
-            }
-        }
-
-        return $escaped_values;
-    }
-
-    /**
-     * __construct
-     *
-     * @param string|null $element (optional)
-     * @param array  $values  (optional)
-     */
-    public function __construct(string $element = null, array $values = [])
-    {
-        if ($element !== null) {
-            $this->element = $element;
-            $this->values = $values;
-        }
-    }
-
-    /**
-     * setOperator
-     *
-     * is it an AND or an OR ?
-     * or something else.
-     * XOR can be expressed as "A = !B"
-     *
-     * @param string $operator
+     * @param string $element
+     * @param array<int, mixed> $values
      * @return Where
      */
-    public function setOperator(string $operator): Where
+    public static function createWhereNotIn(string $element, array $values): Where
     {
-        $this->operator = $operator;
-
-        return $this;
+        return self::createGroupCondition($element, 'NOT IN', $values);
     }
 
     /**
-     * isEmpty
+     * Or use a ready to use AND where clause.
      *
-     * is it a fresh brand new object ?
-     *
-     * @return boolean
+     * @param mixed $element
+     * @param array<int, mixed> $values
+     * @return Where
      */
-    public function isEmpty(): bool
+    public function andWhere(mixed $element, array $values = []): Where
     {
-        return $this->element === null && count($this->stack) == 0;
+        return $this->addWhere($element, $values, 'AND');
     }
 
     /**
-     * transmute
-     *
-     * Absorbing another Where instance.
-     *
-     * @param Where $where
-     * @return void $this
-     */
-    private function transmute(Where $where): void
-    {
-        $this->stack    = $where->stack;
-        $this->element  = $where->element;
-        $this->operator = $where->operator;
-        $this->values   = $where->values;
-    }
-
-    /**
-     * addWhere
-     *
      * You can add a new WHERE clause with your own operator.
      *
-     * @param  mixed  $element
-     * @param  array  $values
+     * @param mixed $element
+     * @param array<int, mixed> $values
      * @param string $operator
      * @return Where
      */
@@ -245,35 +180,44 @@ class Where implements \Stringable
         return $this;
     }
 
-    /**
-     * andWhere
-     *
-     * Or use a ready to use AND where clause.
-     *
-     * @param  mixed $element
-     * @param  array $values
-     * @return Where
-     */
-    public function andWhere(mixed $element, array $values = []): Where
+    /** is it a fresh brand new object ? */
+    public function isEmpty(): bool
     {
-        return $this->addWhere($element, $values, 'AND');
+        return $this->element === null && count($this->stack) == 0;
+    }
+
+    /** Absorbing another Where instance. */
+    private function transmute(Where $where): void
+    {
+        $this->stack = $where->stack;
+        $this->element = $where->element;
+        $this->operator = $where->operator;
+        $this->values = $where->values;
+    }
+
+    public function hasElement(): bool
+    {
+        return $this->element !== null;
+    }
+
+    public function getElement(): string
+    {
+        return $this->element;
     }
 
     /**
-     * orWhere
-     *
-     * @param  mixed $element
-     * @return Where
+     * is it an AND or an OR ? or something else.
+     * XOR can be expressed as "A = !B"
      */
-    public function orWhere(mixed $element, array $values = []): Where
+    public function setOperator(string $operator): Where
     {
-        return $this->addWhere($element, $values, 'OR');
+        $this->operator = $operator;
+
+        return $this;
     }
 
     /**
-     * setStack
-     *
-     * @param array $stack
+     * @param array<int, Where> $stack
      * @return Where
      */
     public function setStack(array $stack): Where
@@ -284,42 +228,35 @@ class Where implements \Stringable
     }
 
     /**
-     * __toString
+     * A constructor you can chain from.
      *
-     * where your SQL statement is built.
-     *
-     * @return string
+     * @param string|null $element
+     * @param array<int, mixed> $values
+     * @return Where
      */
+    public static function create(string $element = null, array $values = []): Where
+    {
+        return new self($element, $values);
+    }
+
+    /**
+     * orWhere
+     *
+     * @param mixed $element
+     * @param array<int, mixed> $values
+     * @return Where
+     */
+    public function orWhere(mixed $element, array $values = []): Where
+    {
+        return $this->addWhere($element, $values, 'OR');
+    }
+
+    /** where your SQL statement is built. */
     public function __toString(): string
     {
         return $this->isEmpty() ? 'true' : $this->parse();
     }
 
-    /**
-     * hasElement
-     *
-     * @return boolean
-     */
-    public function hasElement(): bool
-    {
-        return $this->element !== null;
-    }
-
-    /**
-     * getElement
-     *
-     * @return string
-     */
-    public function getElement(): string
-    {
-        return $this->element;
-    }
-
-    /**
-     * parse
-     *
-     * @return string
-     */
     protected function parse(): string
     {
         if ($this->hasElement()) {
@@ -335,11 +272,9 @@ class Where implements \Stringable
     }
 
     /**
-     * getValues
-     *
      * Get all the values back for the prepared statement.
      *
-     * @return array
+     * @return array<int, mixed>
      */
     public function getValues(): array
     {

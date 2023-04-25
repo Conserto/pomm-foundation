@@ -12,13 +12,11 @@ namespace PommProject\Foundation\Converter;
 use PommProject\Foundation\Client\ClientInterface;
 use PommProject\Foundation\Client\ClientPooler;
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Exception\FoundationException;
 
 /**
- * ConverterPooler
- *
  * Pooler for converters.
  *
- * @package     Foundation
  * @copyright   2014 - 2015 Grégoire HUBERT
  * @author      Grégoire HUBERT
  * @license     X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -26,76 +24,45 @@ use PommProject\Foundation\Exception\ConverterException;
  */
 class ConverterPooler extends ClientPooler
 {
-    /**
-     * __construct
-     *
-     * Instantiate converter pooler.
-     *
-     * @param  ConverterHolder $converter_holder
-     */
-    public function __construct(protected ConverterHolder $converter_holder)
+    /** Instantiate converter pooler. */
+    public function __construct(protected ConverterHolder $converterHolder)
     {
     }
 
-    /**
-     * getPoolerType
-     *
-     * @see ClientPoolerInterface
-     */
+    /** @see ClientPoolerInterface */
     public function getPoolerType(): string
     {
         return 'converter';
     }
 
     /**
-     * getClient
-     *
+     * @throws FoundationException
      * @see ClientPoolerInterface
      */
-    public function getClient($identifier): ClientInterface
+    public function getClient(string $identifier): ClientInterface
     {
-        if ($identifier !== PgArray::getSubType($identifier)) {
-            return parent::getClient('array');
-        } else {
-            return parent::getClient($identifier);
-        }
+        $clientIdentifier = $identifier !== PgArray::getSubType($identifier) ? 'array' : $identifier;
+        return parent::getClient($clientIdentifier);
     }
 
     /**
-     * createClient
-     *
-     * Check in the converter holder if the type has an associated converter.
-     * If not, an exception is thrown.
+     * Check in the converter holder if the type has an associated converter. If not, an exception is thrown.
      *
      * @see   ClientPooler
      * @throws ConverterException
      */
     public function createClient(string $identifier): ConverterClient
     {
-        if (!$this->converter_holder->hasType($identifier)) {
-            throw new ConverterException(
-                sprintf(
-                    "No converter registered for type '%s'.",
-                    $identifier
-                )
-            );
+        if (!$this->converterHolder->hasType($identifier)) {
+            throw new ConverterException(sprintf("No converter registered for type '%s'.", $identifier));
         }
 
-        return new ConverterClient(
-            $identifier,
-            $this->converter_holder->getConverterForType($identifier)
-        );
+        return new ConverterClient($identifier, $this->converterHolder->getConverterForType($identifier));
     }
 
-    /**
-     * getConverterHolder
-     *
-     * Expose converter holder so one can add new converters on the fly.
-     *
-     * @return ConverterHolder
-     */
+    /** Expose converter holder so one can add new converters on the fly. */
     public function getConverterHolder(): ConverterHolder
     {
-        return $this->converter_holder;
+        return $this->converterHolder;
     }
 }

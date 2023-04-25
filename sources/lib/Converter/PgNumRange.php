@@ -12,11 +12,8 @@ namespace PommProject\Foundation\Converter;
 use PommProject\Foundation\Converter\Type\NumRange;
 
 /**
- * PgNumRange
- *
  * Range of numbers.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -24,11 +21,7 @@ use PommProject\Foundation\Converter\Type\NumRange;
  */
 class PgNumRange extends TypeConverter
 {
-    /**
-     * getTypeClassName
-     *
-     * @see TypeConverter
-     */
+    /** @see TypeConverter */
     public function getTypeClassName(): string
     {
         return NumRange::class;

@@ -9,22 +9,37 @@
  */
 namespace PommProject\Foundation\Test\Unit\Observer;
 
-use PommProject\Foundation\Tester\VanillaSessionAtoum;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Observer\ObserverPooler;
 use PommProject\Foundation\Session\Session;
+use PommProject\Foundation\Tester\VanillaSessionAtoum;
 
 class Observer extends VanillaSessionAtoum
 {
-    protected function initializeSession(Session $session)
+    /** @throws FoundationException */
+    public function testGetNotification(): void
     {
-        $session
-            ->registerClientPooler(new ObserverPooler())
-            ;
+        $session = $this->buildSession()
+            ->registerClient($this->newTestedInstance('pika'));
+
+        $this->variable($session->getObserver('pika')->getNotification())
+            ->isNull();
+
+        $this->notify('pika');
+        $this->array($session->getObserver('pika')->getNotification())
+            ->containsValues(['pika', '']);
+
+        $this->notify('pika', 'chu');
+        $this->array($session->getObserver('pika')->getNotification())
+            ->containsValues(['pika', 'chu'])
+            ->variable($session->getObserver('pika')->getNotification())
+            ->isNull();
     }
 
-    protected function notify($channel, $data = null)
+    /** @throws FoundationException */
+    protected function notify($channel, $data = null): static
     {
-        $session    = $this->buildSession();
+        $session = $this->buildSession();
         $connection = $session->getConnection();
 
         $connection
@@ -41,45 +56,28 @@ class Observer extends VanillaSessionAtoum
         return $this;
     }
 
-    public function testGetNotification()
+    /** @throws FoundationException */
+    public function testThrowNotification(): void
     {
         $session = $this->buildSession()
-            ->registerClient($this->newTestedInstance('pika'))
-            ;
+            ->registerClient($this->newTestedInstance('an identifier'));
 
-        $this
-            ->variable($session->getObserver('pika')->getNotification())
-            ->isNull()
-            ;
-        $this->notify('pika');
-        $this
-            ->array($session->getObserver('pika')->getNotification())
-            ->containsValues(['pika', ''])
-            ;
-        $this->notify('pika', 'chu');
-        $this
-            ->array($session->getObserver('pika')->getNotification())
-            ->containsValues(['pika', 'chu'])
-            ->variable($session->getObserver('pika')->getNotification())
-            ->isNull()
-            ;
-    }
+        $this->object($session->getObserver('an identifier')->throwNotification())
+            ->isInstanceOf(\PommProject\Foundation\Observer\Observer::class);
 
-    public function testThrowNotification()
-    {
-        $session = $this->buildSession()
-            ->registerClient($this->newTestedInstance('an identifier'))
-            ;
-        $this
-            ->object($session->getObserver('an identifier')->throwNotification())
-            ->isInstanceOf(\PommProject\Foundation\Observer\Observer::class)
-            ;
         $this->notify('an identifier', 'some data');
-        $this
-            ->exception(function () use ($session) { $session->getObserver('an identifier')->throwNotification(); })
+        $this->exception(
+            function () use ($session) {
+                $session->getObserver('an identifier')->throwNotification();
+            }
+        )
             ->message->contains('some data')
             ->object($session->getObserver('an identifier')->throwNotification())
-            ->isInstanceOf(\PommProject\Foundation\Observer\Observer::class)
-            ;
+            ->isInstanceOf(\PommProject\Foundation\Observer\Observer::class);
+    }
+
+    protected function initializeSession(Session $session): void
+    {
+        $session->registerClientPooler(new ObserverPooler());
     }
 }

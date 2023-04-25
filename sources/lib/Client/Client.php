@@ -10,16 +10,12 @@
 namespace PommProject\Foundation\Client;
 
 /**
- * Client
- *
  * Abstract class for Session clients.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
  * @see       ClientInterface
- * @abstract
  */
 abstract class Client implements ClientInterface
 {

@@ -9,60 +9,56 @@
  */
 namespace PommProject\Foundation\Test\Unit\Converter\Geometry;
 
-use PommProject\Foundation\Test\Unit\Converter\BaseConverter;
 use PommProject\Foundation\Converter\Type\Circle;
+use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Test\Unit\Converter\BaseConverter;
 
 class PgCircle extends BaseConverter
 {
-    public function testFromPg()
+    /** @throws FoundationException */
+    public function testFromPg(): void
     {
         $session = $this->buildSession();
-        $this
-            ->object($this->newTestedInstance()->fromPg('<(1.2345,-9.87654),3.141596>', 'circle', $session))
+        $this->object($this->newTestedInstance()->fromPg('<(1.2345,-9.87654),3.141596>', 'circle', $session))
             ->isInstanceOf(\PommProject\Foundation\Converter\Type\Circle::class)
             ->variable($this->newTestedInstance()->fromPg(null, 'circle', $session))
-            ->isNull()
-            ;
+            ->isNull();
+
         $circle = $this->newTestedInstance()->fromPg('<(1.2345,-9.87654),3.141596>', 'circle', $session);
-        $this
-            ->object($circle->center)
+        $this->object($circle->center)
             ->isInstanceOf(\PommProject\Foundation\Converter\Type\Point::class)
             ->float($circle->center->x)
             ->isEqualTo(1.2345)
             ->float($circle->radius)
-            ->isEqualTo(3.141596)
-            ;
+            ->isEqualTo(3.141596);
     }
 
-    public function testToPg()
+    public function testToPg(): void
     {
         $session = $this->buildSession();
         $circle = new Circle('<(1.2345,-9.87654),3.141596>');
-        $this
-            ->string($this->newTestedInstance()->toPg($circle, 'circle', $session))
+        $this->string($this->newTestedInstance()->toPg($circle, 'circle', $session))
             ->isEqualTo('circle(point(1.2345,-9.87654),3.141596)')
             ->string($this->newTestedInstance()->toPg('<(1.2345,-9.87654),3.141596>', 'circle', $session))
             ->isEqualTo('circle(point(1.2345,-9.87654),3.141596)')
             ->string($this->newTestedInstance()->toPg(null, 'mycircle', $session))
             ->isEqualTo('NULL::mycircle')
             ->exception(fn() => $this->newTestedInstance()->toPg('azsdf', 'circle', $session))
-            ->isInstanceOf(\PommProject\Foundation\Exception\ConverterException::class)
-            ;
+            ->isInstanceOf(ConverterException::class);
     }
 
-    public function testToPgStandardFormat()
+    public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();
         $circle = new Circle('<(1.2345,-9.87654),3.141596>');
-        $this
-            ->string($this->newTestedInstance()->toPgStandardFormat($circle, 'circle', $session))
+        $this->string($this->newTestedInstance()->toPgStandardFormat($circle, 'circle', $session))
             ->isEqualTo('<(1.2345,-9.87654),3.141596>')
             ->string($this->newTestedInstance()->toPgStandardFormat('<(1.2345,-9.87654),3.141596>', 'circle', $session))
             ->isEqualTo('<(1.2345,-9.87654),3.141596>')
             ->variable($this->newTestedInstance()->toPgStandardFormat(null, 'mycircle', $session))
             ->isNull()
             ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat('azsdf', 'circle', $session))
-            ->isInstanceOf(\PommProject\Foundation\Exception\ConverterException::class)
-            ;
+            ->isInstanceOf(ConverterException::class);
     }
 }

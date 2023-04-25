@@ -9,19 +9,52 @@
  */
 namespace PommProject\Foundation\Test\Unit\Session;
 
-use PommProject\Foundation\Session\Session                   as VanillaSession;
-use PommProject\Foundation\Session\Connection                as FoundationConnection;
-use PommProject\Foundation\Tester\VanillaSessionAtoum;
-use Mock\PommProject\Foundation\Client\ClientInterface       as ClientInterfaceMock;
+use Mock\PommProject\Foundation\Client\ClientInterface as ClientInterfaceMock;
 use Mock\PommProject\Foundation\Client\ClientPoolerInterface as ClientPoolerInterfaceMock;
+use PommProject\Foundation\Client\ClientInterface;
+use PommProject\Foundation\Client\ClientPoolerInterface;
+use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Session\Connection as FoundationConnection;
+use PommProject\Foundation\Session\Session as VanillaSession;
+use PommProject\Foundation\Tester\VanillaSessionAtoum;
 
 class Session extends VanillaSessionAtoum
 {
-    protected function initializeSession(VanillaSession $session)
+    public function testGetStamp(): void
     {
+        $this->variable($this->buildSession()->getStamp())
+            ->isNull
+            ->string($this->buildSession('a stamp')->getStamp())
+            ->isEqualTo('a stamp');
     }
 
-    protected function getClientInterfaceMock($identifier)
+    /** @throws FoundationException */
+    public function testGetConnection(): void
+    {
+        $session = $this->buildSession();
+
+        $this->object($session->getConnection())
+            ->isInstanceOf(FoundationConnection::class);
+    }
+
+    /** @throws FoundationException */
+    public function testGetClient(): void
+    {
+        $session = $this->buildSession();
+        $client = $this->getClientInterfaceMock('one');
+        $session->registerClient($client);
+        $this->variable($session->getClient('test', 'two'))
+            ->isNull()
+            ->object($session->getClient('test', 'one'))
+            ->isIdenticalTo($client)
+            ->variable($session->getClient('whatever', 'two'))
+            ->isNull()
+            ->variable($session->getClient(null, 'two'))
+            ->isNull();
+    }
+
+    /** @return ClientInterfaceMock&ClientInterface */
+    protected function getClientInterfaceMock($identifier): ClientInterfaceMock
     {
         $client = new ClientInterfaceMock();
         $client->getMockController()->getClientType = 'test';
@@ -30,63 +63,17 @@ class Session extends VanillaSessionAtoum
         return $client;
     }
 
-    protected function getClientPoolerInterfaceMock($type)
-    {
-        $client_pooler = new ClientPoolerInterfaceMock();
-        $client_pooler->getMockController()->getPoolerType = $type;
-        $client_pooler->getMockController()->getClient = $this->getClientInterfaceMock('ok');
-
-        return $client_pooler;
-    }
-
-    public function testGetStamp()
-    {
-        $this
-            ->variable($this->buildSession()->getStamp())
-            ->isNull
-            ->string($this->buildSession('a stamp')->getStamp())
-            ->isEqualTo('a stamp')
-            ;
-    }
-
-    public function testGetConnection()
+    /** @throws FoundationException */
+    public function testRegisterClient(): void
     {
         $session = $this->buildSession();
+        $clientMock = $this->getClientInterfaceMock('one');
 
-        $this
-            ->object($session->getConnection())
-            ->isInstanceOf(\PommProject\Foundation\Session\Connection::class)
-            ;
-    }
-
-    public function testGetClient()
-    {
-        $session = $this->buildSession();
-        $client  = $this->getClientInterfaceMock('one');
-        $session->registerClient($client);
-        $this
-            ->variable($session->getClient('test', 'two'))
+        $this->variable($session->getClient('test', 'one'))
             ->isNull()
-            ->object($session->getClient('test', 'one'))
-            ->isIdenticalTo($client)
-            ->variable($session->getClient('whatever', 'two'))
-            ->isNull()
-            ->variable($session->getClient(null, 'two'))
-            ->isNull()
-            ;
-    }
-
-    public function testRegisterClient()
-    {
-        $session     = $this->buildSession();
-        $client_mock = $this->getClientInterfaceMock('one');
-
-        $this
-            ->variable($session->getClient('test', 'one'))
-            ->isNull()
-            ->object($session->registerClient($client_mock))
-            ->isInstanceOf(\PommProject\Foundation\Session\Session::class)
-            ->mock($client_mock)
+            ->object($session->registerClient($clientMock))
+            ->isInstanceOf(VanillaSession::class)
+            ->mock($clientMock)
             ->call('getClientIdentifier')
             ->once()
             ->call('getClientType')
@@ -94,102 +81,119 @@ class Session extends VanillaSessionAtoum
             ->call('initialize')
             ->once()
             ->object($session->getClient('test', 'one'))
-            ->isIdenticalTo($client_mock)
-            ;
+            ->isIdenticalTo($clientMock);
     }
 
-    public function testRegisterPooler()
+    /** @throws FoundationException */
+    public function testRegisterPooler(): void
     {
-        $session            = $this->buildSession();
-        $client_pooler_mock = $this->getClientPoolerInterfaceMock('test');
+        $session = $this->buildSession();
+        $clientPoolerMock = $this->getClientPoolerInterfaceMock('test');
 
-        $this
-            ->boolean($session->hasPoolerForType('test'))
+        $this->boolean($session->hasPoolerForType('test'))
             ->isFalse()
             ->assert('Testing client pooler registration.')
-            ->object($session->registerClientPooler($client_pooler_mock))
-            ->isInstanceOf(\PommProject\Foundation\Session\Session::class)
+            ->object($session->registerClientPooler($clientPoolerMock))
+            ->isInstanceOf(VanillaSession::class)
             ->boolean($session->hasPoolerForType('test'))
             ->isTrue()
-            ->mock($client_pooler_mock)
+            ->mock($clientPoolerMock)
             ->call('getPoolerType')
             ->atLeastOnce()
             ->call('register')
-            ->once()
-            ;
+            ->once();
     }
 
-    public function testGetPoolerForType()
+    /** @return ClientPoolerInterfaceMock&ClientPoolerInterface */
+    protected function getClientPoolerInterfaceMock($type): ClientPoolerInterfaceMock
     {
-        $session            = $this->buildSession();
-        $client_pooler_mock = $this->getClientPoolerInterfaceMock('test');
+        $clientPooler = new ClientPoolerInterfaceMock();
+        $clientPooler->getMockController()->getPoolerType = $type;
+        $clientPooler->getMockController()->getClient = $this->getClientInterfaceMock('ok');
 
-        $this
-            ->exception(function () use ($session) { $session->getPoolerForType('test'); })
-            ->isInstanceOf(\PommProject\Foundation\Exception\FoundationException::class)
+        return $clientPooler;
+    }
+
+    /** @throws FoundationException */
+    public function testGetPoolerForType(): void
+    {
+        $session = $this->buildSession();
+        $clientPoolerMock = $this->getClientPoolerInterfaceMock('test');
+
+        $this->exception(function () use ($session) {
+            $session->getPoolerForType('test');
+        })
+            ->isInstanceOf(FoundationException::class)
             ->message->contains('No pooler registered for type')
             ->object($session
-                ->registerClientPooler($client_pooler_mock)
+                ->registerClientPooler($clientPoolerMock)
                 ->getPoolerForType('test')
             )
-            ->isIdenticalTo($client_pooler_mock)
-            ;
+            ->isIdenticalTo($clientPoolerMock);
     }
 
-    public function testGetClientUsingPooler()
+    /** @throws FoundationException */
+    public function testGetClientUsingPooler(): void
     {
-        $client_pooler_mock = $this->getClientPoolerInterfaceMock('test');
-        $session            = $this->buildSession()->registerClientPooler($client_pooler_mock);
+        $clientPoolerMock = $this->getClientPoolerInterfaceMock('test');
+        $session = $this->buildSession()->registerClientPooler($clientPoolerMock);
 
-        $this
-            ->object($session->getClientUsingPooler('test', 'ok'))
-            ->isInstanceOf(\PommProject\Foundation\Client\ClientInterface::class)
-            ->exception(function () use ($session) {$session->getClientUsingPooler('whatever', 'ok');})
-            ->isInstanceOf(\PommProject\Foundation\Exception\FoundationException::class)
-            ->message->contains('No pooler registered for type')
-            ;
+        $this->object($session->getClientUsingPooler('test', 'ok'))
+            ->isInstanceOf(ClientInterface::class)
+            ->exception(function () use ($session) {
+                $session->getClientUsingPooler('whatever', 'ok');
+            })
+            ->isInstanceOf(FoundationException::class)
+            ->message->contains('No pooler registered for type');
     }
 
-    public function testUnderscoreCall()
+    /** @throws FoundationException */
+    public function testUnderscoreCall(): void
     {
-        $client_pooler_mock = $this->getClientPoolerInterfaceMock('test');
-        $session            = $this->buildSession()->registerClientPooler($client_pooler_mock);
+        $clientPoolerMock = $this->getClientPoolerInterfaceMock('test');
+        $session = $this->buildSession()->registerClientPooler($clientPoolerMock);
 
-        $this
-            ->exception(function () use ($session) { $session->azerty('ok', 'what'); })
+        $this->exception(
+                function () use ($session) {
+                    $session->azerty('ok', 'what');
+                }
+            )
             ->isInstanceOf(\BadFunctionCallException::class)
             ->message->contains('Unknown method')
-            ->exception(function () use ($session) { $session->getPika('ok'); })
-            ->isInstanceOf(\PommProject\Foundation\Exception\FoundationException::class)
+            ->exception(function () use ($session) {
+                $session->getPika('ok');
+            })
+            ->isInstanceOf(FoundationException::class)
             ->message->contains('No pooler registered for type')
             ->object($session->getTest('ok'))
-            ->isInstanceOf(\PommProject\Foundation\Client\ClientInterface::class)
-            ->mock($client_pooler_mock)
+            ->isInstanceOf(ClientInterface::class)
+            ->mock($clientPoolerMock)
             ->call('getClient')
             ->withArguments('ok')
-            ->once()
-            ;
+            ->once();
     }
 
-    public function testShutdown()
+    /** @throws FoundationException */
+    public function testShutdown(): void
     {
-        $client_pooler_mock = $this->getClientPoolerInterfaceMock('test');
-        $session            = $this->buildSession()->registerClientPooler($client_pooler_mock);
+        $clientPoolerMock = $this->getClientPoolerInterfaceMock('test');
+        $session = $this->buildSession()->registerClientPooler($clientPoolerMock);
         $session->shutdown();
 
-        $this
-            ->exception(fn() => $session->getTest('ok'))
-            ->isInstanceOf(\PommProject\Foundation\Exception\FoundationException::class)
+        $this->exception(fn() => $session->getTest('ok'))
+            ->isInstanceOf(FoundationException::class)
             ->message->contains('is shutdown')
             ->integer($session->getConnection()->getConnectionStatus())
-            ->isEqualTo(FoundationConnection::CONNECTION_STATUS_NONE)
-            ;
+            ->isEqualTo(FoundationConnection::CONNECTION_STATUS_NONE);
+
         $session = $this->buildSession();
         $session->getConnection()->executeAnonymousQuery('select true');
         $session->shutdown();
-        $this
-            ->integer($session->getConnection()->getConnectionStatus())
-            ->isEqualTo(FoundationConnection::CONNECTION_STATUS_CLOSED)
-            ;
+        $this->integer($session->getConnection()->getConnectionStatus())
+            ->isEqualTo(FoundationConnection::CONNECTION_STATUS_CLOSED);
+    }
+
+    protected function initializeSession(VanillaSession $session): void
+    {
     }
 }

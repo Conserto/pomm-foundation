@@ -9,52 +9,46 @@
  */
 namespace PommProject\Foundation\Test\Unit\Converter;
 
-use PommProject\Foundation\Test\Unit\Converter\BaseConverter;
+use PommProject\Foundation\Exception\FoundationException;
 
 class PgLtree extends BaseConverter
 {
-    public function testFromPg()
+    /** @throws FoundationException */
+    public function testFromPg(): void
     {
         $session = $this->buildSession();
         $converter = $this->newTestedInstance();
-        $this
-            ->array(
-                $converter
-                    ->fromPg('_a_b_.c.d', 'ltree', $session)
-            )
+        $this->array(
+            $converter->fromPg('_a_b_.c.d', 'ltree', $session)
+        )
             ->isIdenticalTo(['_a_b_', 'c', 'd'])
             ->variable($converter->fromPg(null, 'ltree', $session))
-            ->isNull()
-            ;
+            ->isNull();
     }
 
-    public function testToPg()
+    /** @throws FoundationException */
+    public function testToPg(): void
     {
         $session = $this->buildSession();
         $converter = $this->newTestedInstance();
-        $this
-            ->string(
-                $converter
-                    ->toPg(['_a_b_', 'c', 'd'], 'ltree', $session)
-            )
+        $this->string(
+            $converter->toPg(['_a_b_', 'c', 'd'], 'ltree', $session)
+        )
             ->isEqualTo("ltree '_a_b_.c.d'")
             ->string($converter->toPg(null, 'ltree', $session))
-            ->isEqualTo('NULL::ltree')
-        ;
+            ->isEqualTo('NULL::ltree');
     }
 
-    public function testToPgStandardFormat()
+    /** @throws FoundationException */
+    public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();
         $converter = $this->newTestedInstance();
-        $this
-            ->string(
-                $converter
-                    ->toPgStandardFormat(['_a_b_', 'c', 'd'], 'ltree', $session)
-            )
+        $this->string(
+            $converter->toPgStandardFormat(['_a_b_', 'c', 'd'], 'ltree', $session)
+        )
             ->isEqualTo('_a_b_.c.d')
             ->variable($converter->toPgStandardFormat(null, 'ltree', $session))
-            ->isNull()
-        ;
+            ->isNull();
     }
 }

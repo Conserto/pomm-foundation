@@ -12,152 +12,103 @@ namespace PommProject\Foundation;
 use PommProject\Foundation\Session\ResultHandler;
 
 /**
- * ResultIterator
- *
  * Iterator on database results.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
  * @see       \Iterator
  * @see       \Countable
  * @see       \JsonSerializable
+ *
+ * @template-covariant T
+ * @template-implements \Iterator<int, T>
+ * @template-implements \SeekableIterator<int, T>
  */
 class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \SeekableIterator
 {
     private int $position = 0;
-    private ?int $rows_count = null;
+    private ?int $rowsCount = null;
 
-    /**
-     * __construct
-     *
-     * Constructor
-     *
-     * @param  ResultHandler $result
-     */
     public function __construct(protected ResultHandler $result)
     {
     }
 
-    /**
-     * __destruct
-     *
-     * Closes the cursor when the collection is cleared.
-     */
+    /** Closes the cursor when the collection is cleared. */
     public function __destruct()
     {
         $this->result->free();
     }
 
-    /**
-     * seek
-     *
-     * Alias for get(), required to be a Seekable iterator.
-     */
+    /** Alias for get(), required to be a Seekable iterator. */
     public function seek(int $offset): void
     {
         $this->get($offset); // throw exception if out of bounds
     }
 
     /**
-     * get
-     *
      * Return a particular result. An array with converted values is returned.
-     * pg_fetch_array is muted because it produces untrappable warnings on
-     * errors.
+     * pg_fetch_array is muted because it produces untrappable warnings on errors.
      *
-     * @param  integer $index
-     * @return mixed
+     * @return mixed (not array to allow method to be overriden)
      */
     public function get(int $index): mixed
     {
         return $this->result->fetchRow($index);
     }
 
-    /**
-     * has
-     *
-     * Return true if the given index exists false otherwise.
-     *
-     * @param integer $index
-     * @return boolean
-     */
+    /** Return true if the given index exists false otherwise. */
     public function has(int $index): bool
     {
         return $index < $this->count();
     }
 
-    /**
-     * count
-     *
-     * @see    \Countable
-     */
+    /** @see    \Countable */
     public function count(): int
     {
-        if ($this->rows_count == null) {
-            $this->rows_count = $this->result->countRows();
+        if ($this->rowsCount == null) {
+            $this->rowsCount = $this->result->countRows();
         }
 
-        return $this->rows_count;
+        return $this->rowsCount;
     }
 
-    /**
-     * rewind
-     *
-     * @see \Iterator
-     */
+    /** @see \Iterator */
     public function rewind(): void
     {
         $this->position = 0;
     }
 
     /**
-     * current
-     *
      * @see \Iterator
+     * @return T|null
      */
     public function current(): mixed
     {
-        return (($this->rows_count != null && $this->rows_count > 0 ) || !$this->isEmpty())
+        return (($this->rowsCount != null && $this->rowsCount > 0 ) || !$this->isEmpty())
             ? $this->get($this->position)
-            : null
-            ;
+            : null;
     }
 
-    /**
-     * key
-     *
-     * @see \Iterator
-     */
+    /** @see \Iterator */
     public function key(): int
     {
         return $this->position;
     }
 
-    /**
-     * next
-     *
-     * @see \Iterator
-     */
+    /** @see \Iterator */
     public function next(): void
     {
         ++$this->position;
     }
 
-    /**
-     * valid
-     *
-     * @see \Iterator
-     * @return boolean
-     */
+    /** @see \Iterator */
     public function valid(): bool
     {
         return $this->has($this->position);
     }
 
     /**
-     * isFirst
      * Is the iterator on the first element ?
      * Returns null if the iterator is empty.
      */
@@ -165,13 +116,10 @@ class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \Seeka
     {
         return !$this->isEmpty()
             ? $this->position === 0
-            : null
-            ;
+            : null;
     }
 
     /**
-     * isLast
-     *
      * Is the iterator on the last element ?
      * Returns null if the iterator is empty.
      */
@@ -179,43 +127,28 @@ class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \Seeka
     {
         return !$this->isEmpty()
             ? $this->position === $this->count() - 1
-            : null
-            ;
+            : null;
     }
 
-    /**
-     * isEmpty
-     *
-     * Is the collection empty (no element) ?
-     */
+    /** Is the collection empty (no element) ? */
     public function isEmpty(): bool
     {
-        return $this->rows_count === 0 || $this->count() === 0;
+        return $this->rowsCount === 0 || $this->count() === 0;
     }
 
-    /**
-     * isEven
-     *
-     * Is the iterator on an even position ?
-     */
+    /** Is the iterator on an even position ? */
     public function isEven(): bool
     {
         return ($this->position % 2) === 0;
     }
 
-    /**
-     * isOdd
-     *
-     * Is the iterator on an odd position ?
-     */
+    /** Is the iterator on an odd position ? */
     public function isOdd(): bool
     {
         return ($this->position % 2) === 1;
     }
 
     /**
-     * getOddEven
-     *
      * Return 'odd' or 'even' depending on the element index position.
      * Useful to style list elements when printing lists to do
      * <li class="line_<?php $list->getOddEven() ?>">.
@@ -226,9 +159,10 @@ class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \Seeka
     }
 
     /**
-     * slice
-     *
      * Extract an array of values for one column.
+     *
+     * @param string $field
+     * @return array<int, mixed>
      */
     public function slice(string $field): array
     {
@@ -240,12 +174,10 @@ class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \Seeka
     }
 
     /**
-     * extract
-     *
-     * Dump an iterator.
-     * This actually stores all the results in PHP allocated memory.
+     * Dump an iterator. This actually stores all the results in PHP allocated memory.
      * THIS MAY USE A LOT OF MEMORY.
      *
+     * @return array<int, array<string, mixed>>
      */
     public function extract(): array
     {
@@ -259,9 +191,9 @@ class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \Seeka
     }
 
     /**
-     * jsonSerialize
-     *
      * @see \JsonSerializable
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function jsonSerialize(): array
     {

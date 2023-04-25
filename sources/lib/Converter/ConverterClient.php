@@ -13,11 +13,8 @@ use PommProject\Foundation\Client\Client;
 use PommProject\Foundation\Exception\FoundationException;
 
 /**
- * ConverterClient
- *
  * Converter wrapper as Session's client.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -25,46 +22,26 @@ use PommProject\Foundation\Exception\FoundationException;
  */
 class ConverterClient extends Client
 {
-    /**
-     * __construct
-     *
-     * Wrap the given converter.
-     *
-     * @param  string    $name
-     * @param  ConverterInterface $converter
-     */
+    /** Wrap the given converter. */
     public function __construct(protected string $name, protected ConverterInterface $converter)
     {
     }
 
-    /**
-     * getClientType
-     *
-     * @see ClientInterface
-     */
+    /** @see ClientInterface */
     public function getClientType(): string
     {
         return 'converter';
     }
 
-    /**
-     * getClientIdentifier
-     *
-     * @see ClientInterface
-     */
+    /** @see ClientInterface */
     public function getClientIdentifier(): string
     {
         return $this->name;
     }
 
     /**
-     * toPg
-     *
      * Trigger converter's toPg conversion method.
      *
-     * @param mixed $value
-     * @param string|null $type
-     * @return string
      * @throws FoundationException
      * @see ConverterInterface
      */
@@ -78,13 +55,8 @@ class ConverterClient extends Client
     }
 
     /**
-     * fromPg
-     *
      * Trigger converter's fromPg conversion method.
      *
-     * @param mixed $value
-     * @param string|null $type
-     * @return mixed
      * @throws FoundationException
      * @see ConverterInterface
      */
@@ -98,13 +70,8 @@ class ConverterClient extends Client
     }
 
     /**
-     * toPgStandardFormat
-     *
      * Export data as CSV representation
      *
-     * @param mixed $value
-     * @param string|null $type
-     * @return string
      * @throws FoundationException
      * @see ConverterInterface
      */
@@ -117,13 +84,7 @@ class ConverterClient extends Client
         );
     }
 
-    /**
-     * getConverter
-     *
-     * Return the embedded converter.
-     *
-     * @return ConverterInterface
-     */
+    /** Return the embedded converter. */
     public function getConverter(): ConverterInterface
     {
         return $this->converter;

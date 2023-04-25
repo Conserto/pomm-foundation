@@ -10,11 +10,8 @@
 namespace PommProject\Foundation\Converter\Type;
 
 /**
- * BaseRange
- *
  * Abstract classes for range types.
  *
- * @package Foundation
  * @copyright 2014 Grégoire HUBERT
  * @author Grégoire HUBERT
  * @license X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -26,80 +23,53 @@ abstract class BaseRange implements \Stringable
     final const INFINITY_MIN = '-infinity';
     final const EMPTY_RANGE  = 'empty';
 
-    public mixed $start_limit;
-    public mixed $end_limit;
-    public ?bool $start_incl;
-    public ?bool $end_incl;
+    public mixed $startLimit;
+    public mixed $endLimit;
+    public ?bool $startIncl;
+    public ?bool $endIncl;
 
     protected string $description;
 
     /**
-     * getRegexp
-     *
-     * This function function must capture 4 elements of the description in
-     * this order:
+     * This function must capture 4 elements of the description in this order:
      *
      * - left bracket style
      * - left element
      * - right element
      * - right bracket style
-     *
-     * @return string
      */
     abstract protected function getRegexp(): string;
 
-    /**
-     * getSubElement
-     *
-     * Return the representation for each element.
-     *
-     * @param  string $element
-     * @return mixed
-     */
+    /** Return the representation for each element. */
     abstract protected function getSubElement(string $element): mixed;
 
     /**
-     * __construct
+     * Create an instance from a string definition. This string definition matches PostgreSQL range definition.
      *
-     * Create an instance from a string definition. This string definition
-     * matches PostgreSQL range definition.
-     *
-     * @param  string $description
      * @throws \InvalidArgumentException
      */
     public function __construct(string $description)
     {
         if (!preg_match($this->getRegexp(), $description, $matches)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Could not parse range description '%s'.",
-                    $description
-                )
-            );
+            throw new \InvalidArgumentException(sprintf("Could not parse range description '%s'.", $description));
         }
 
         if (count($matches) === 2) {
-            $this->start_limit = self::EMPTY_RANGE;
-            $this->end_limit   = self::EMPTY_RANGE;
-            $this->start_incl  = null;
-            $this->end_incl    = null;
+            $this->startLimit = self::EMPTY_RANGE;
+            $this->endLimit   = self::EMPTY_RANGE;
+            $this->startIncl  = null;
+            $this->endIncl    = null;
         } else {
-            $this->start_limit = $this->getSubElement($matches[3]);
-            $this->end_limit   = $this->getSubElement($matches[4]);
-            $this->start_incl  = (bool) ($matches[2] === '[');
-            $this->end_incl    = (bool) ($matches[5] === ']');
+            $this->startLimit = $this->getSubElement($matches[3]);
+            $this->endLimit   = $this->getSubElement($matches[4]);
+            $this->startIncl  = $matches[2] === '[';
+            $this->endIncl    = $matches[5] === ']';
         }
 
         $this->description = $description;
     }
 
-    /**
-     * __toString
-     *
-     * Text representation of a range.
-     *
-     * @return string
-     */
+    /** Text representation of a range. */
     public function __toString(): string
     {
         return $this->description;

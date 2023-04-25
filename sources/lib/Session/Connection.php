@@ -15,11 +15,8 @@ use PommProject\Foundation\Exception\SqlException;
 use PgSql\Connection as PgSqlConnection;
 
 /**
- * Connection
- *
  * Manage connection through a resource handler.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -40,33 +37,36 @@ class Connection
 
     protected ?PgSqlConnection $handler = null;
     protected ConnectionConfigurator $configurator;
-    private bool $is_closed = false;
+    private bool $isClosed = false;
 
     /**
-     * Constructor. Test if the given DSN is valid.
-     *
      * @throws ConnectionException if pgsql extension is missing
      * @throws FoundationException
+     *
+     * @param string $dsn
+     * @param bool $persist
+     * @param array<string, mixed> $configuration
      */
     public function __construct(string $dsn, bool $persist = false, array $configuration = [])
     {
         if (!function_exists('pg_connection_status')) {
-            throw new ConnectionException("`pgsql` PHP extension's functions are unavailable in your environment, please make sure PostgreSQL support is enabled in PHP.");
+            throw new ConnectionException(
+                "`pgsql` PHP extension's functions are unavailable in your environment, please make sure ".
+                "PostgreSQL support is enabled in PHP."
+            );
         }
 
         $this->configurator = new ConnectionConfigurator($dsn, $persist);
         $this->configurator->addConfiguration($configuration);
     }
 
-    /**
-     * Close the connection if any.
-     */
+    /** Close the connection if any. */
     public function close(): Connection
     {
         if ($this->hasHandler()) {
             pg_close($this->handler);
             $this->handler = null;
-            $this->is_closed = true;
+            $this->isClosed = true;
         }
 
         return $this;
@@ -75,7 +75,8 @@ class Connection
     /**
      * Add configuration settings. If settings exist, they are overridden.
      *
-     * @throws  ConnectionException if connection is already up.
+     * @throws ConnectionException if connection is already up.
+     * @param array<string, mixed> $configuration
      */
     public function addConfiguration(array $configuration): Connection
     {
@@ -102,7 +103,7 @@ class Connection
     /**
      * Return the connection handler. If no connection are open, it opens one.
      *
-     * @throws  ConnectionException|FoundationException if connection is open in a bad state.
+     * @throws ConnectionException|FoundationException if connection is open in a bad state.
      */
     protected function getHandler(): PgSqlConnection
     {
@@ -127,25 +128,17 @@ class Connection
         }
     }
 
-    /**
-     * Tell if a handler is set or not.
-     */
+    /** Tell if a handler is set or not. */
     protected function hasHandler(): bool
     {
         return $this->handler !== null;
     }
 
-    /**
-     * Return a connection status.
-     */
+    /** Return a connection status. */
     public function getConnectionStatus(): int
     {
         if (!$this->hasHandler()) {
-            if ($this->is_closed) {
-                return static::CONNECTION_STATUS_CLOSED;
-            } else {
-                return static::CONNECTION_STATUS_NONE;
-            }
+            return $this->isClosed ? static::CONNECTION_STATUS_CLOSED : static::CONNECTION_STATUS_NONE;
         }
 
         if (@pg_connection_status($this->handler) === \PGSQL_CONNECTION_OK) {
@@ -168,7 +161,7 @@ class Connection
     /**
      * Open a connection on the database.
      *
-     * @throws  ConnectionException|FoundationException if connection fails.
+     * @throws ConnectionException|FoundationException if connection fails.
      */
     private function launch(): Connection
     {
@@ -214,16 +207,18 @@ class Connection
 
         if( $this->handler === null)
         {
-            throw new ConnectionException(
-                "Handler must be set before sendConfiguration call."
-            );
+            throw new ConnectionException("Handler must be set before sendConfiguration call.");
         }
 
         foreach ($this->configurator->getConfiguration() as $setting => $value) {
-            $sql[] = sprintf("set %s = %s", pg_escape_identifier($this->handler, $setting), pg_escape_literal($this->handler, $value));
+            $sql[] = sprintf(
+                "set %s = %s",
+                pg_escape_identifier($this->handler, $setting),
+                pg_escape_literal($this->handler, $value)
+            );
         }
 
-        if (count($sql) > 0) {
+        if (!empty($sql)) {
             $this->testQuery(
                 pg_query($this->getHandler(), join('; ', $sql)),
                 sprintf("Error while applying settings '%s'.", join('; ', $sql))
@@ -238,14 +233,14 @@ class Connection
      *
      * @throws ConnectionException
      */
-    private function checkConnectionUp(string $error_message = ''): Connection
+    private function checkConnectionUp(string $errorMessage = ''): Connection
     {
         if ($this->hasHandler()) {
-            if ($error_message === '') {
-                $error_message = "Connection is already made with the server";
+            if ($errorMessage === '') {
+                $errorMessage = "Connection is already made with the server";
             }
 
-            throw new ConnectionException($error_message);
+            throw new ConnectionException($errorMessage);
         }
 
         return $this;
@@ -255,6 +250,8 @@ class Connection
      * Performs a raw SQL query
      *
      * @throws ConnectionException|SqlException|FoundationException
+     *
+     * @return ResultHandler|array<int, ResultHandler>
      */
     public function executeAnonymousQuery(string $sql): ResultHandler|array
     {
@@ -262,27 +259,28 @@ class Connection
 
         return $this
             ->testQuery($ret, sprintf("Anonymous query failed '%s'.", $sql))
-            ->getQueryResult($sql)
-            ;
+            ->getQueryResult($sql);
     }
 
     /**
      * Get an asynchronous query result.
-     * The only reason for the SQL query to be passed as parameter is to throw
-     * a meaningful exception when an error is raised.
-     * Since it is possible to send several queries at a time, This method can
-     * return an array of ResultHandler.
+     * The only reason for the SQL query to be passed as parameter is to throw a meaningful exception when an error is
+     * raised.
+     * Since it is possible to send several queries at a time, This method can return an array of ResultHandler.
      *
      * @throws ConnectionException if no response are available.
      * @throws FoundationException if the result is an error.
      * @throws SqlException if the result is an error.
+     *
+     * @param string|null $sql
+     * @return ResultHandler|array<int, ResultHandler>
      */
     protected function getQueryResult(string $sql = null): ResultHandler|array
     {
         $results = [];
 
         while ($result = pg_get_result($this->getHandler())) {
-            $status = pg_result_status($result, \PGSQL_STATUS_LONG);
+            $status = pg_result_status($result);
 
             if ($status !== \PGSQL_COMMAND_OK && $status !== \PGSQL_TUPLES_OK) {
                 throw new SqlException($result, $sql);
@@ -291,12 +289,9 @@ class Connection
             $results[] = new ResultHandler($result);
         }
 
-        if (count($results) === 0) {
+        if (empty($results)) {
             throw new ConnectionException(
-                sprintf(
-                    "There are no waiting results in connection.\nQuery = '%s'.",
-                    $sql
-                )
+                sprintf("There are no waiting results in connection.\nQuery = '%s'.", $sql)
             );
         }
 
@@ -304,9 +299,8 @@ class Connection
     }
 
     /**
-     * Escape database object's names. This is different from value escaping
-     * as objects names are surrounded by double quotes. API function does
-     * provide a nice escaping with -- hopefully -- UTF8 support.
+     * Escape database object's names. This is different from value escaping as objects names are surrounded by double
+     * quotes. API function does provide a nice escaping with -- hopefully -- UTF8 support.
      *
      * @see http://www.postgresql.org/docs/current/static/sql-syntax-lexical.html
      * @throws ConnectionException|FoundationException
@@ -319,8 +313,6 @@ class Connection
     /**
      * Escape a text value.
      *
-     * @param string|null $string $string The string to be escaped
-     * @return string the escaped string.
      * @throws ConnectionException|FoundationException
      */
     public function escapeLiteral(?string $string): string
@@ -338,35 +330,27 @@ class Connection
         return pg_escape_bytea($this->getHandler(), $word ?? '');
     }
 
-    /**
-     * Unescape PostgreSQL bytea.
-     */
+    /** Unescape PostgreSQL bytea. */
     public function unescapeBytea(string $bytea): string
     {
         return pg_unescape_bytea($bytea);
     }
 
     /**
-     * Execute a asynchronous query with parameters and send the results.
+     * Execute an asynchronous query with parameters and send the results.
      *
      * @param string $query
-     * @param  array         $parameters
+     * @param  array<int, string> $parameters
      * @return ResultHandler query result wrapper
-     *@throws SqlException|ConnectionException|FoundationException
+     * @throws SqlException|ConnectionException|FoundationException
      */
     public function sendQueryWithParameters(string $query, array $parameters = []): ResultHandler
     {
-        $res = pg_send_query_params(
-            $this->getHandler(),
-            $query,
-            $parameters
-        );
+        $res = pg_send_query_params($this->getHandler(), $query, $parameters);
 
         try {
-            return $this
-                ->testQuery($res, $query)
-                ->getQueryResult($query)
-                ;
+            return $this->testQuery($res, $query)
+                ->getQueryResult($query);
         } catch (SqlException $e) {
             throw $e->setQueryParameters($parameters);
         }
@@ -384,8 +368,7 @@ class Connection
                 pg_send_prepare($this->getHandler(), $identifier, $sql),
                 sprintf("Could not send prepare statement «%s».", $sql)
             )
-            ->getQueryResult(sprintf("PREPARE ===\n%s\n ===", $sql))
-            ;
+            ->getQueryResult(sprintf("PREPARE ===\n%s\n ===", $sql));
 
         return $this;
     }
@@ -395,9 +378,9 @@ class Connection
      *
      * @throws ConnectionException
      */
-    protected function testQuery(mixed $query_return, string $sql): Connection
+    protected function testQuery(mixed $queryReturn, string $sql): Connection
     {
-        if ($query_return === false) {
+        if ($queryReturn === false) {
             throw new ConnectionException(sprintf("Query Error : '%s'.", $sql));
         }
 
@@ -405,12 +388,17 @@ class Connection
     }
 
     /**
-     * Execute a prepared statement.
-     * The optional SQL parameter is for debugging purposes only.
+     * Execute a prepared statement. The optional SQL parameter is for debugging purposes only.
      *
      * @throws ConnectionException
      * @throws FoundationException
      * @throws SqlException
+     *
+     * @param string $identifier
+     * @param array<int, mixed> $parameters
+     * @param string $sql
+     *
+     * @return ResultHandler
      */
     public function sendExecuteQuery(string $identifier, array $parameters = [], string $sql = ''): ResultHandler
     {
@@ -419,8 +407,9 @@ class Connection
         /** @var ResultHandler $result */
         $result = $this
             ->testQuery($ret, sprintf("Prepared query '%s'.", $identifier))
-            ->getQueryResult(sprintf("EXECUTE ===\n%s\n ===\nparameters = {%s}", $sql, join(', ', $parameters)))
-        ;
+            ->getQueryResult(
+                sprintf("EXECUTE ===\n%s\n ===\nparameters = {%s}", $sql, join(', ', $parameters))
+            );
 
         return $result;
     }
@@ -447,15 +436,14 @@ class Connection
     {
         $result = pg_set_client_encoding($this->getHandler(), $encoding);
 
-        return $this
-            ->testQuery((bool) ($result != -1), sprintf("Set client encoding to '%s'.", $encoding))
-            ;
+        return $this->testQuery($result != -1, sprintf("Set client encoding to '%s'.", $encoding));
     }
 
     /**
-     * Get pending notifications. If no notifications are waiting, NULL is
-     * returned. Otherwise an associative array containing the optional data
-     * and de backend's PID is returned.
+     * Get pending notifications. If no notifications are waiting, NULL is returned.
+     * Otherwise, an associative array containing the optional data and de backend's PID is returned.
+     *
+     * @return array{message: string, pid: int, payload: string}|null
      */
     public function getNotification(): ?array
     {

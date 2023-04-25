@@ -13,11 +13,8 @@ use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Exception\FoundationException;
 
 /**
- * ClientTrait
- *
  * Abstract class for Session clients.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -28,9 +25,7 @@ trait ClientTrait
 {
     private ?Session $session = null;
 
-    /**
-     * @see ClientInterface
-     */
+    /** @see ClientInterface */
     public function initialize(Session $session): void
     {
         $this->session = $session;
@@ -45,12 +40,9 @@ trait ClientTrait
     }
 
     /**
-     * getSession
-     *
      * All subclasses of Client have to use this method to access the session.
      *
-     * @throws  FoundationException if Session is not set.
-     * @return Session
+     * @throws FoundationException if Session is not set.
      */
     protected function getSession(): Session
     {

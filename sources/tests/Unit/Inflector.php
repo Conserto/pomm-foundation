@@ -14,10 +14,9 @@ use Atoum;
 
 class Inflector extends Atoum
 {
-    public function testStudlyCaps()
+    public function testStudlyCaps(): void
     {
-        $this
-            ->variable(PommInflector::studlyCaps(null))
+        $this->variable(PommInflector::studlyCaps(null))
             ->isNull()
             ->string(PommInflector::studlyCaps(''))
             ->length->isEqualTo(0)
@@ -38,14 +37,12 @@ class Inflector extends Atoum
             ->string(PommInflector::studlyCaps('one2_three'))
             ->isEqualTo('One2Three')
             ->string(PommInflector::studlyCaps('_one'))
-            ->isEqualTo('One')
-            ;
+            ->isEqualTo('One');
     }
 
-    public function testUnderscore()
+    public function testUnderscore(): void
     {
-        $this
-            ->variable(PommInflector::underscore(null))
+        $this->variable(PommInflector::underscore(null))
             ->isNull()
             ->string(PommInflector::underscore(''))
             ->length->isEqualTo(0)
@@ -62,7 +59,6 @@ class Inflector extends Atoum
             ->string(PommInflector::underscore('one_2Three'))
             ->isEqualTo('one_2_three')
             ->string(PommInflector::underscore('One'))
-            ->isEqualTo('one')
-            ;
+            ->isEqualTo('one');
     }
 }

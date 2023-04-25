@@ -16,11 +16,8 @@ use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Session\Session;
 
 /**
- * PgBox
- *
  * Converter for PostgreSQL box type.
  *
- * @package Foundation
  * @copyright 2017 Grégoire HUBERT
  * @author Miha Vrhovnik
  * @license X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -28,19 +25,13 @@ use PommProject\Foundation\Session\Session;
  */
 class PgBox extends TypeConverter
 {
-    /**
-     * getTypeClassName
-     *
-     * @see TypeConverter
-     */
+    /** @see TypeConverter */
     public function getTypeClassName(): string
     {
         return Box::class;
     }
 
     /**
-     * toPg
-     *
      * @throws ConverterException
      * @see ConverterInterface
      */
@@ -52,9 +43,6 @@ class PgBox extends TypeConverter
 
         $data = $this->checkData($data);
 
-        return sprintf(
-            "box%s",
-            (string)$data
-        );
+        return sprintf("box%s", (string) $data);
     }
 }

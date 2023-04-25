@@ -13,11 +13,8 @@ use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Exception\ConverterException;
 
 /**
- * PgTimestamp
- *
  * Date and timestamp converter
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT <hubert.greg@gmail.com>
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -28,6 +25,7 @@ class PgTimestamp implements ConverterInterface
     final const TS_FORMAT = 'Y-m-d H:i:s.uP';
 
     /**
+     * @throws \Exception
      * @see ConverterInterface
      */
     public function fromPg(?string $data, string $type, Session $session): ?\DateTime
@@ -49,8 +47,7 @@ class PgTimestamp implements ConverterInterface
         return
             $data !== null
             ? sprintf("%s '%s'", $type, $this->checkData($data)->format(static::TS_FORMAT))
-            : sprintf("NULL::%s", $type)
-            ;
+            : sprintf("NULL::%s", $type);
     }
 
     /**
@@ -62,8 +59,7 @@ class PgTimestamp implements ConverterInterface
         return
             $data !== null
             ? $this->checkData($data)->format(static::TS_FORMAT)
-            : null
-            ;
+            : null;
     }
 
     /**

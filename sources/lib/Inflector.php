@@ -10,24 +10,15 @@
 namespace PommProject\Foundation;
 
 /**
- * Inflector
- *
  * Turn identifiers from/to StudlyCaps/underscore.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
  */
 class Inflector
 {
-    /**
-     * Camelize a string.
-     *
-     * @static
-     * @param string|null $string
-     * @return string|null
-     */
+    /** Camelize a string. */
     public static function studlyCaps(?string $string = null): ?string
     {
         if ($string === null) {
@@ -41,13 +32,7 @@ class Inflector
         );
     }
 
-    /**
-     * Underscore a string.
-     *
-     * @static
-     * @param string|null $string
-     * @return string|null
-     */
+    /** Underscore a string. */
     public static function underscore(string $string = null): ?string
     {
         if ($string === null) {

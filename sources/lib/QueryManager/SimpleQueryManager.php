@@ -10,17 +10,14 @@
 namespace PommProject\Foundation\QueryManager;
 
 use PommProject\Foundation\ConvertedResultIterator;
+use PommProject\Foundation\Converter\ConverterClient;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Listener\SendNotificationTrait;
 use PommProject\Foundation\Session\ResultHandler;
-use PommProject\Foundation\Converter\ConverterClient;
 
 /**
- * SimpleQueryManager
- *
  * Query system as a client.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -31,14 +28,13 @@ class SimpleQueryManager extends QueryManagerClient
     use QueryParameterParserTrait;
 
     /**
-     * query
-     *
      * Perform a simple escaped query and return converted result iterator.
      *
-     * @param string $sql
-     * @param array $parameters
-     * @return ConvertedResultIterator
      * @throws FoundationException
+     *
+     * @param string $sql
+     * @param array<int, mixed> $parameters
+     * @return ConvertedResultIterator<array<string, mixed>>
      */
     public function query(string $sql, array $parameters = []): ConvertedResultIterator
     {
@@ -46,24 +42,22 @@ class SimpleQueryManager extends QueryManagerClient
         $this->sendNotification(
             'query:pre',
             [
-                'sql'           => $sql,
-                'parameters'    => $parameters,
+                'sql' => $sql,
+                'parameters' => $parameters,
                 'session_stamp' => $this->getSession()->getStamp(),
             ]
         );
-        $start    = microtime(true);
+        $start = microtime(true);
         $resource = $this->doQuery($sql, $parameters);
-        $end      = microtime(true);
+        $end = microtime(true);
 
-        $iterator = new ConvertedResultIterator(
-            $resource,
-            $this->getSession()
-        );
+        $iterator = new ConvertedResultIterator($resource, $this->getSession());
+
         $this->sendNotification(
             'query:post',
             [
                 'result_count' => $iterator->count(),
-                'time_ms'      => sprintf("%03.1f", ($end - $start) * 1000),
+                'time_ms' => sprintf("%03.1f", ($end - $start) * 1000),
             ]
         );
 
@@ -71,36 +65,12 @@ class SimpleQueryManager extends QueryManagerClient
     }
 
     /**
-     * doQuery
-     *
-     * Perform the query
-     *
-     * @param string $sql
-     * @param array $parameters
-     * @return ResultHandler
-     * @throws FoundationException
-     */
-    protected function doQuery(string $sql, array $parameters): ResultHandler
-    {
-        return $this
-            ->getSession()
-            ->getConnection()
-            ->sendQueryWithParameters(
-                $this->orderParameters($sql),
-                $parameters
-            )
-            ;
-    }
-
-    /**
-     * prepareArguments
-     *
      * Prepare and convert $parameters if needed.
      *
-     * @param string $sql
-     * @param array $parameters
-     * @return array    $parameters
      * @throws FoundationException
+     * @param string $sql
+     * @param array<int, mixed> $parameters
+     * @return array<int, string>
      */
     protected function prepareArguments(string $sql, array $parameters): array
     {
@@ -118,5 +88,21 @@ class SimpleQueryManager extends QueryManagerClient
         }
 
         return $parameters;
+    }
+
+    /**
+     * Perform the query
+     *
+     * @throws FoundationException
+     * @param string $sql
+     * @param array<int, string> $parameters
+     * @return ResultHandler
+     */
+    protected function doQuery(string $sql, array $parameters): ResultHandler
+    {
+        return $this
+            ->getSession()
+            ->getConnection()
+            ->sendQueryWithParameters($this->orderParameters($sql), $parameters);
     }
 }

@@ -9,16 +9,49 @@
  */
 namespace PommProject\Foundation\Test\Unit;
 
+use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Session\ResultHandler;
 use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\FoundationSessionAtoum;
 
 class ConvertedResultIterator extends FoundationSessionAtoum
 {
-    protected function initializeSession(Session $session)
+    /** @throws FoundationException */
+    public function testConstructor(): void
     {
+        $iterator = $this->newTestedInstance(
+            $this->getResultResource("select true::boolean"),
+            $this->buildSession()
+        );
+
+        $this->object($iterator)
+            ->isInstanceOf(\PommProject\Foundation\ConvertedResultIterator::class)
+            ->isInstanceOf(\Countable::class)
+            ->isInstanceOf(\Iterator::class);
     }
 
-    protected function getPikaSql()
+    /** @throws FoundationException */
+    protected function getResultResource($sql, array $params = []): ResultHandler
+    {
+        return $this->buildSession()->getConnection()->sendQueryWithParameters($sql, $params);
+    }
+
+    /** @throws FoundationException */
+    public function testGet(): void
+    {
+        $sql = $this->getPikaSql();
+        $iterator = $this->newTestedInstance(
+            $this->getResultResource($sql),
+            $this->buildSession()
+        );
+
+        $this->array($iterator->get(0))
+            ->isIdenticalTo(['id' => 1, 'pika' => 'a', 'chu' => null])
+            ->array($iterator->get(2))
+            ->isIdenticalTo(['id' => 3, 'pika' => 'c', 'chu' => [1]]);
+    }
+
+    protected function getPikaSql(): string
     {
         return <<<SQL
 select
@@ -35,43 +68,8 @@ from
 SQL;
     }
 
-    protected function getResultResource($sql, array $params = [])
-    {
-        return $this->buildSession()->getConnection()->sendQueryWithParameters($sql, $params);
-    }
-
-    public function testConstructor()
-    {
-        $iterator = $this->newTestedInstance(
-            $this->getResultResource("select true::boolean"),
-            $this->buildSession()
-        );
-
-        $this
-            ->object($iterator)
-            ->isInstanceOf(\PommProject\Foundation\ConvertedResultIterator::class)
-            ->isInstanceOf(\Countable::class)
-            ->isInstanceOf(\Iterator::class)
-            ;
-    }
-
-    public function testGet()
-    {
-        $sql = $this->getPikaSql();
-        $iterator = $this->newTestedInstance(
-            $this->getResultResource($sql),
-            $this->buildSession()
-        );
-
-        $this
-            ->array($iterator->get(0))
-            ->isIdenticalTo(['id' => 1, 'pika' => 'a', 'chu' => null])
-            ->array($iterator->get(2))
-            ->isIdenticalTo(['id' => 3, 'pika' => 'c', 'chu' => [1]])
-            ;
-    }
-
-    public function testGetWithArray()
+    /** @throws FoundationException */
+    public function testGetWithArray(): void
     {
         $sql = "select array[1, 2, 3, null]::int4[] as array_one, array[null, null]::int4[] as array_two";
 
@@ -80,17 +78,16 @@ SQL;
             $this->buildSession()
         );
 
-        $this
-            ->integer($iterator->count())
+        $this->integer($iterator->count())
             ->isEqualTo(1)
             ->array($iterator->current()['array_one'])
             ->isIdenticalTo([1, 2, 3, null])
             ->array($iterator->current()['array_two'])
-            ->isIdenticalTo([null, null])
-            ;
+            ->isIdenticalTo([null, null]);
     }
 
-    public function testGetWithNoType()
+    /** @throws FoundationException */
+    public function testGetWithNoType(): void
     {
         $sql = 'select null as one, array[null, null] as two';
 
@@ -99,17 +96,16 @@ SQL;
             $this->buildSession()
         );
 
-        $this
-            ->integer($iterator->count())
+        $this->integer($iterator->count())
             ->isEqualTo(1)
             ->variable($iterator->current()['one'])
             ->isNull()
             ->array($iterator->current()['two'])
-            ->isIdenticalTo([null, null])
-            ;
+            ->isIdenticalTo([null, null]);
     }
 
-    public function testSlice()
+    /** @throws FoundationException */
+    public function testSlice(): void
     {
         $sql = $this->getPikaSql();
         $iterator = $this->newTestedInstance(
@@ -117,15 +113,14 @@ SQL;
             $this->buildSession()
         );
 
-        $this
-            ->array($iterator->slice('pika'))
+        $this->array($iterator->slice('pika'))
             ->isIdenticalTo(['a', 'b', 'c', 'd'])
             ->array($iterator->slice('id'))
-            ->isIdenticalTo([1, null, 3, 4])
-            ;
+            ->isIdenticalTo([1, null, 3, 4]);
     }
 
-    public function testExtract()
+    /** @throws FoundationException */
+    public function testExtract(): void
     {
         $sql = $this->getPikaSql();
         $iterator = $this->newTestedInstance(
@@ -133,8 +128,7 @@ SQL;
             $this->buildSession()
         );
 
-        $this
-            ->array($iterator->extract())
+        $this->array($iterator->extract())
             ->isIdenticalTo(
                 [
                     ['id' => 1, 'pika' => 'a', 'chu' => null],
@@ -143,5 +137,9 @@ SQL;
                     ['id' => 4, 'pika' => 'd', 'chu' => [2, 2]],
                 ]
             );
+    }
+
+    protected function initializeSession(Session $session): void
+    {
     }
 }

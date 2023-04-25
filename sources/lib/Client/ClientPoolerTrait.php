@@ -13,10 +13,8 @@ use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Session\Session;
 
 /**
- * ClientPoolerTrait
- *
- * Trait for client poolers. ClientPooler instances are factories for
- * Session's Client. The workflow of the ClientPooler is the following:
+ * Trait for client poolers. ClientPooler instances are factories for Session's Client.
+ * The workflow of the ClientPooler is the following:
  * When a client is called
  * 1   It is fetched from the pool
  * 2.0 If no client is found:
@@ -24,7 +22,6 @@ use PommProject\Foundation\Session\Session;
  * 2.2 The client is registered to the session
  * 3   The client is returned back
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -35,29 +32,13 @@ trait ClientPoolerTrait
 {
     private ?Session $session = null;
 
-    /**
-     * getPoolerType
-     *
-     * @see ClientPoolerInterface
-     */
+    /** @see ClientPoolerInterface */
     abstract public function getPoolerType(): string;
 
-    /**
-     * createClient
-     *
-     * Create a new client.
-     *
-     * @abstract
-     * @param  string $identifier
-     * @return ClientInterface
-     */
+    /** Create a new client. */
     abstract protected function createClient(string $identifier): ClientInterface;
 
-    /**
-     * register
-     *
-     * @see ClientPoolerInterface
-     */
+    /** @see ClientPoolerInterface */
     public function register(Session $session): ClientPoolerInterface
     {
         $this->session = $session;
@@ -66,12 +47,8 @@ trait ClientPoolerTrait
     }
 
     /**
-     * getClient
-     *
      * Basic getClient method.
      *
-     * @param string $identifier
-     * @return ClientInterface
      * @throws FoundationException
      * @see    ClientInterface
      */
@@ -88,34 +65,28 @@ trait ClientPoolerTrait
     }
 
     /**
-     * getClientFromPool
-     *
      * How the pooler fetch a client from the pool.
      *
-     * @param string $identifier
-     * @return ClientInterface|null
      * @throws FoundationException
      */
     protected function getClientFromPool(string $identifier): ?ClientInterface
     {
         return $this
             ->getSession()
-            ->getClient($this->getPoolerType(), $identifier)
-            ;
+            ->getClient($this->getPoolerType(), $identifier);
     }
 
     /**
-     * getSession
-     *
      * Check if the session is set and return it.
      *
-     * @return Session
      * @throws FoundationException
      */
     protected function getSession(): Session
     {
         if ($this->session === null) {
-            throw new FoundationException(sprintf("Client pooler '%s' is not initialized, session not set.", $this::class));
+            throw new FoundationException(
+                sprintf("Client pooler '%s' is not initialized, session not set.", $this::class)
+            );
         }
 
         return $this->session;

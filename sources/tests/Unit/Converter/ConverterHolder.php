@@ -9,124 +9,111 @@
  */
 namespace PommProject\Foundation\Test\Unit\Converter;
 
-use PommProject\Foundation\Converter\ConverterInterface;
-use PommProject\Foundation\Test\Fixture\DumbConverter;
-use PommProject\Foundation\Session\Session;
 use Atoum;
+use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Test\Fixture\DumbConverter;
 
 class ConverterHolder extends Atoum
 {
-    public function testRegisterConverter()
+    public function testRegisterConverter(): void
     {
-        $converter_holder = $this->newTestedInstance();
-        $this
-            ->array($converter_holder->registerConverter(
+        $converterHolder = $this->newTestedInstance();
+        $this->array($converterHolder->registerConverter(
             'Dumb',
             new DumbConverter(),
             ['schema.type', 'public.dumb']
         )->getTypes())
-        ->isIdenticalTo(['schema.type', 'public.dumb'])
-        ->array($converter_holder->getConverterNames())
-        ->isIdenticalTo(['Dumb'])
-        ->object($converter_holder->getConverterForType('public.dumb'))
-        ->isInstanceOf(\PommProject\Foundation\Test\Fixture\DumbConverter::class)
-        ;
+            ->isIdenticalTo(['schema.type', 'public.dumb'])
+            ->array($converterHolder->getConverterNames())
+            ->isIdenticalTo(['Dumb'])
+            ->object($converterHolder->getConverterForType('public.dumb'))
+            ->isInstanceOf(DumbConverter::class);
     }
 
-    public function testHasConverterName()
+    public function testHasConverterName(): void
     {
-        $converter_holder = $this->newTestedInstance();
-        $this
-            ->boolean($converter_holder->hasConverterName('Dumb'))
+        $converterHolder = $this->newTestedInstance();
+        $this->boolean($converterHolder->hasConverterName('Dumb'))
             ->isFalse()
-            ->boolean($converter_holder->registerConverter(
+            ->boolean($converterHolder->registerConverter(
                 'Dumb',
                 new DumbConverter(),
                 ['schema.type', 'public.dumb']
-        )->hasConverterName('Dumb'))
-        ->isTrue()
-            ;
+            )->hasConverterName('Dumb'))
+            ->isTrue();
     }
 
-    public function testGetConverter()
+    public function testGetConverter(): void
     {
-        $converter_holder = $this->newTestedInstance();
-        $this
-            ->variable($converter_holder->getConverter('Dumb'))
+        $converterHolder = $this->newTestedInstance();
+        $this->variable($converterHolder->getConverter('Dumb'))
             ->isNull()
-            ->object($converter_holder->registerConverter(
+            ->object($converterHolder->registerConverter(
                 'Dumb',
                 new DumbConverter(),
                 ['schema.type', 'public.dumb']
-        )->getConverter('Dumb'))
-        ->isInstanceOf(\PommProject\Foundation\Test\Fixture\DumbConverter::class)
-            ;
+            )->getConverter('Dumb'))
+            ->isInstanceOf(DumbConverter::class);
     }
 
-    public function testGetConverterNames()
+    public function testGetConverterNames(): void
     {
-        $converter_holder = $this->newTestedInstance();
-        $this
-            ->array($converter_holder->getConverterNames())
+        $converterHolder = $this->newTestedInstance();
+        $this->array($converterHolder->getConverterNames())
             ->isEmpty()
-            ->array($converter_holder->registerConverter(
+            ->array($converterHolder->registerConverter(
                 'Dumb',
                 new DumbConverter(),
                 ['public.dumb']
             )->getConverterNames())
-            ->isIdenticalTo(['Dumb'])
-            ;
+            ->isIdenticalTo(['Dumb']);
     }
 
-    public function testAddTypeToConverter()
+    public function testAddTypeToConverter(): void
     {
-        $converter_holder = $this->newTestedInstance();
-        $this
-            ->array($converter_holder->registerConverter(
-                'Dumb',
-                new DumbConverter(),
-                ['public.dumb']
-            )->addTypeToConverter('Dumb', 'schema.type')->getTypes())
+        $converterHolder = $this->newTestedInstance();
+        $this->array($converterHolder->registerConverter(
+            'Dumb',
+            new DumbConverter(),
+            ['public.dumb']
+        )->addTypeToConverter('Dumb', 'schema.type')->getTypes())
             ->isIdenticalTo(['public.dumb', 'schema.type'])
-            ->array($converter_holder->addTypeToConverter('Dumb', 'pika.chu')->getTypes())
+            ->array($converterHolder->addTypeToConverter('Dumb', 'pika.chu')->getTypes())
             ->isIdenticalTo(['public.dumb', 'schema.type', 'pika.chu'])
             ->exception(
-                function () use ($converter_holder) {
-                    $converter_holder->addTypeToConverter('No', 'pika.chu');
+                function () use ($converterHolder) {
+                    $converterHolder->addTypeToConverter('No', 'pika.chu');
                 })
-            ->isInstanceOf(\PommProject\Foundation\Exception\FoundationException::class)
-            ->message->contains('No such converter')
-            ;
+            ->isInstanceOf(FoundationException::class)
+            ->message->contains('No such converter');
     }
 
-    public function testGetConverterForType()
+    public function testGetConverterForType(): void
     {
-        $converter_holder = $this->newTestedInstance();
-        $this
-            ->object($converter_holder->registerConverter(
-                'Dumb',
-                new DumbConverter(),
-                ['schema.type', 'public.dumb']
-            )->getConverterForType('schema.type'))
-            ->isInstanceOf(\PommProject\Foundation\Test\Fixture\DumbConverter::class)
-            ->exception(function () use ($converter_holder) { $converter_holder->getConverterForType('no.type'); })
-            ->isInstanceOf(\PommProject\Foundation\Exception\FoundationException::class)
-            ->message->contains('No converters associated with type')
-            ;
+        $converterHolder = $this->newTestedInstance();
+        $this->object($converterHolder->registerConverter(
+            'Dumb',
+            new DumbConverter(),
+            ['schema.type', 'public.dumb']
+        )->getConverterForType('schema.type'))
+            ->isInstanceOf(DumbConverter::class)
+            ->exception(function () use ($converterHolder) {
+                $converterHolder->getConverterForType('no.type');
+            })
+            ->isInstanceOf(FoundationException::class)
+            ->message->contains('No converters associated with type');
     }
 
-    public function testHasType()
+    public function testHasType(): void
     {
-        $converter_holder = $this->newTestedInstance();
-        $this
-            ->boolean($converter_holder->hasType('pika.chu'))
+        $converterHolder = $this->newTestedInstance();
+        $this->boolean($converterHolder->hasType('pika.chu'))
             ->isFalse()
-            ->boolean($converter_holder->registerConverter(
+            ->boolean($converterHolder->registerConverter(
                 'Dumb',
                 new DumbConverter(),
                 ['pika.chu']
             )->hasType('pika.chu'))
-            ->isTrue()
-            ;
+            ->isTrue();
     }
 }

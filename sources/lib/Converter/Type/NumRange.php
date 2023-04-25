@@ -10,32 +10,21 @@
 namespace PommProject\Foundation\Converter\Type;
 
 /**
- * NumRange
- *
  * Type for numerical ranges.
  *
- * @package Foundation
  * @copyright 2014 Grégoire HUBERT
  * @author Grégoire HUBERT
  * @license X11 {@link http://opensource.org/licenses/mit-license.php}
  */
 class NumRange extends BaseRange
 {
-    /**
-     * getRegexp
-     *
-     * @see BaseRange
-     */
+    /** @see BaseRange */
     protected function getRegexp(): string
     {
         return '/(empty)|([\[\(])(-?[0-9\.]+)?, *(-?[0-9\.]+)?([\]\)])/';
     }
 
-    /**
-     * getSubElement
-     *
-     * @see BaseRange
-     */
+    /** @see BaseRange */
     protected function getSubElement(string $element): float|int|null
     {
         /** @phpstan-ignore-next-line */
