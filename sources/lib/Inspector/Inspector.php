@@ -13,15 +13,11 @@ use PommProject\Foundation\ConvertedResultIterator;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Client\Client;
 use PommProject\Foundation\PreparedQuery\PreparedQueryManager;
-use PommProject\Foundation\QueryManager\QueryManagerClient;
 use PommProject\Foundation\Where;
 
 /**
- * Inspector
- *
  * Database structure inspector.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -29,33 +25,24 @@ use PommProject\Foundation\Where;
  */
 class Inspector extends Client
 {
-    /**
-     * getClientType
-     *
-     * @see ClientInterface
-     */
+    /** @see ClientInterface */
     public function getClientType(): string
     {
         return 'inspector';
     }
 
-    /**
-     * getClientIdentifier
-     *
-     * @see ClientInterface
-     */
+    /** @see ClientInterface */
     public function getClientIdentifier(): string
     {
         return $this::class;
     }
 
     /**
-     * getSchemas
-     *
      * Return a list of available schemas in the current database.
      *
-     * @return ConvertedResultIterator
      * @throws FoundationException
+     *
+     * @return ConvertedResultIterator<array{name: string, oid: int, comment: ?string, relations: int}>
      */
     public function getSchemas(): ConvertedResultIterator
     {
@@ -79,14 +66,8 @@ SQL;
     }
 
     /**
-     * getTableOid
+     * Return the table oid from PostgreSQL catalog. If no table is found, null is returned.
      *
-     * Return the table oid from PostgreSQL catalog. If no table is found, null
-     * is returned.
-     *
-     * @param string $schema
-     * @param string $table
-     * @return int|null
      * @throws FoundationException
      */
     public function getTableOid(string $schema, string $table): ?int
@@ -102,8 +83,7 @@ where
 SQL;
 
         $where = Where::create('n.nspname =  $*', [$schema])
-            ->andWhere('c.relname = $*', [$table])
-            ;
+            ->andWhere('c.relname = $*', [$table]);
 
         $iterator = $this->executeSql($sql, $where);
 
@@ -111,14 +91,11 @@ SQL;
     }
 
     /**
-     * getTableFieldInformation
+     * Get table's field information. If no fields are found, null is returned.
      *
-     * Get table's field information. If no fields are found, null is
-     * returned.
-     *
-     * @param int $oid
-     * @return ConvertedResultIterator|null
      * @throws FoundationException
+     *
+     * @return ConvertedResultIterator<array{name: string, type: string, default: mixed, is_notnull: bool, comment: ?string, is_primary: bool}>
      */
     public function getTableFieldInformation(int $oid): ?ConvertedResultIterator
     {
@@ -149,15 +126,12 @@ order by
 SQL;
         $where = Where::create('att.attrelid = $*', [$oid])
             ->andWhere('att.attnum > 0')
-            ->andWhere('not att.attisdropped')
-            ;
+            ->andWhere('not att.attisdropped');
 
         return $this->executeSql($sql, $where);
     }
 
     /**
-     * getSchemaOid
-     *
      * Return the given schema oid, null if the schema is not found.
      *
      * @param string $schema
@@ -186,15 +160,14 @@ SQL;
     }
 
     /**
-     * getPrimaryKey
-     *
      * Get relation's primary key if any.
      *
-     * @param int $table_oid
-     * @return array|null
      * @throws FoundationException
+     *
+     * @param int $tableOid
+     * @return array<int, string>
      */
-    public function getPrimaryKey(int $table_oid): ?array
+    public function getPrimaryKey(int $tableOid): array
     {
         $sql = <<<SQL
 with
@@ -212,9 +185,8 @@ with
 select array_agg(field) as fields from pk_field
 SQL;
         $condition =
-            Where::create('ind.indrelid = $*', [$table_oid])
-            ->andWhere('ind.indisprimary')
-            ;
+            Where::create('ind.indrelid = $*', [$tableOid])
+            ->andWhere('ind.indisprimary');
 
         $pk = $this->executeSql($sql, $condition)->current();
 
@@ -222,19 +194,16 @@ SQL;
     }
 
     /**
-     * getSchemaRelations
+     * Return information on relations in a given schema. An additional Where condition can be passed to filter against
+     * other criteria.
      *
-     * Return information on relations in a given schema. An additional Where
-     * condition can be passed to filter against other criteria.
-     *
-     * @param int|null $schema_oid
-     * @param Where|null $where
-     * @return ConvertedResultIterator
      * @throws FoundationException
+     *
+     * @return ConvertedResultIterator<array{name: string ,type: string, oid: int, comment: ?string}>
      */
-    public function getSchemaRelations(?int $schema_oid, Where $where = null): ConvertedResultIterator
+    public function getSchemaRelations(?int $schemaOid, Where $where = null): ConvertedResultIterator
     {
-        $condition = Where::create('relnamespace = $*', [$schema_oid])
+        $condition = Where::create('relnamespace = $*', [$schemaOid])
             ->andWhere(Where::createWhereIn('relkind', ['r', 'v', 'm', 'f']))
             ->andWhere($where)
             ;
@@ -263,40 +232,32 @@ SQL;
     }
 
     /**
-     * getTableComment
-     *
      * Return the comment on a table if set. Null otherwise.
      *
-     * @param int $table_oid
-     * @return string|null
      * @throws FoundationException
      */
-    public function getTableComment(int $table_oid): ?string
+    public function getTableComment(int $tableOid): ?string
     {
         $sql      = <<<SQL
 select description from pg_catalog.pg_description where :condition
 SQL;
 
-        $where    = Where::create('objoid = $*', [$table_oid]);
+        $where    = Where::create('objoid = $*', [$tableOid]);
         $iterator = $this->executeSql($sql, $where);
 
         return $iterator->isEmpty() ? null : $iterator->current()['description'];
     }
 
     /**
-     * getTypeInformation
+     * Return the Oid of the given type name. It Additionally returns the type category.
      *
-     * Return the Oid of the given type name.
-     * It Additionally returns the type category.
-     *
-     * @param string $type_name
-     * @param string|null $type_schema
-     * @return array|null
      * @throws FoundationException
+     *
+     * @return null|array{oid: int, category: string}
      */
-    public function getTypeInformation(string $type_name, string $type_schema = null): ?array
+    public function getTypeInformation(string $typeName, string $typeSchema = null): ?array
     {
-        $condition = Where::create("t.typname = $*", [$type_name]);
+        $condition = Where::create("t.typname = $*", [$typeName]);
         $sql = <<<SQL
 select
     t.oid as "oid",
@@ -307,9 +268,9 @@ where
     :condition
 SQL;
 
-        if ($type_schema !== null) {
+        if ($typeSchema !== null) {
             $sql = strtr($sql, [':join' => 'join pg_namespace n on n.oid = t.typnamespace']);
-            $condition->andWhere('n.nspname = $*', [$type_schema]);
+            $condition->andWhere('n.nspname = $*', [$typeSchema]);
         } else {
             $sql = strtr($sql, [':join' => '']);
         }
@@ -320,13 +281,11 @@ SQL;
     }
 
     /**
-     * getTypeCategory
-     *
      * Get type category.
      *
-     * @param int $oid
-     * @return array|null
      * @throws FoundationException
+     *
+     * @return null|array{name: string, category: string}
      */
     public function getTypeCategory(int $oid): ?array
     {
@@ -349,13 +308,11 @@ SQL;
     }
 
     /**
-     * getTypeEnumValues
-     *
      * Return all possible values from an enumerated type in its natural order.
      *
-     * @param int $oid
-     * @return array|null
      * @throws FoundationException
+     *
+     * @return null|array<int, string>
      */
     public function getTypeEnumValues(int $oid): ?array
     {
@@ -374,20 +331,17 @@ SQL;
 
         $result = $this
             ->executeSql($sql, Where::create('e.enumtypid = $*', [$oid]))
-            ->current()
-            ;
+            ->current();
 
         return $result['labels'];
     }
 
     /**
-     * getCompositeInformation
-     *
      * Return the structure of a composite row.
      *
-     * @param int $oid
-     * @return ConvertedResultIterator
      * @throws FoundationException
+     *
+     * @return ConvertedResultIterator<array{name: string, type: string}>
      */
     public function getCompositeInformation(int $oid): ConvertedResultIterator
     {
@@ -408,32 +362,25 @@ SQL;
     }
 
     /**
-     * getVersion
-     *
      * Return server version.
      *
-     * @return string
      * @throws FoundationException
      */
     public function getVersion(): string
     {
-        $row = $this
-            ->executeSql("show server_version")
-            ->current()
-            ;
+        $row = $this->executeSql("show server_version")->current();
 
         return $row['server_version'];
     }
 
     /**
-     * executeSql
-     *
      * Launch query execution.
      *
-     * @param string $sql
-     * @param Where|null $condition
-     * @return ConvertedResultIterator
      * @throws FoundationException
+     *
+     * @param Where|null $condition
+     * @param string $sql
+     * @return ConvertedResultIterator<mixed>
      */
     protected function executeSql(string $sql, Where $condition = null): ConvertedResultIterator
     {

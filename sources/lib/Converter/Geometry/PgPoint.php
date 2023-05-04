@@ -16,11 +16,8 @@ use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Session\Session;
 
 /**
- * PgPoint
- *
  * Converter for PostgreSQL point type.
  *
- * @package Foundation
  * @copyright 2014 Grégoire HUBERT
  * @author Grégoire HUBERT
  * @license X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -29,8 +26,6 @@ use PommProject\Foundation\Session\Session;
 class PgPoint extends TypeConverter
 {
     /**
-     * getTypeClassName
-     *
      * @see TypeConverter
      */
     public function getTypeClassName(): string
@@ -39,8 +34,6 @@ class PgPoint extends TypeConverter
     }
 
     /**
-     * toPg
-     *
      * @throws ConverterException
      * @see ConverterInterface
      */
@@ -50,12 +43,9 @@ class PgPoint extends TypeConverter
             return sprintf("NULL::%s", $type);
         }
 
+        /** @var Point $data */
         $data = $this->checkData($data);
 
-        return sprintf(
-            "point(%s,%s)",
-            $data->x,
-            $data->y
-        );
+        return sprintf("point(%s,%s)", $data->x, $data->y);
     }
 }

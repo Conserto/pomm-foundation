@@ -13,11 +13,8 @@ use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Session\Session;
 
 /**
- * PgLtree
- *
  * Ltree converter.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -26,9 +23,9 @@ use PommProject\Foundation\Session\Session;
 class PgLtree extends ArrayTypeConverter
 {
     /**
-     * fromPg
-     *
      * @see ConverterInterface
+     *
+     * @return array<int, string>|bool|null
      */
     public function fromPg(?string $data, string $type, Session $session): array|bool|null
     {
@@ -45,8 +42,6 @@ class PgLtree extends ArrayTypeConverter
     }
 
     /**
-     * toPg
-     *
      * @throws ConverterException
      * @see ConverterInterface
      */
@@ -55,23 +50,17 @@ class PgLtree extends ArrayTypeConverter
         return
             $data !== null
             ? sprintf("ltree '%s'", join('.', $this->checkArray($data)))
-            : sprintf("NULL::%s", $type)
-            ;
+            : sprintf("NULL::%s", $type);
     }
 
 
     /**
-     * toPgStandardFormat
-     *
      * @throws ConverterException
      * @see ConverterInterface
      */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
         return
-            $data !== null
-            ? sprintf("%s", join('.', $this->checkArray($data)))
-            : null
-            ;
+            $data !== null ? sprintf("%s", join('.', $this->checkArray($data))) : null;
     }
 }

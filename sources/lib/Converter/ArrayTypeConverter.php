@@ -14,38 +14,31 @@ use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Session\Session;
 
 /**
- * ArrayTypeConverter
- *
  * Array sub class for converters using a PHP array representation.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
  * @see       ConverterInterface
- * @abstract
  */
 abstract class ArrayTypeConverter implements ConverterInterface
 {
+    /** @var array<string, ConverterClient> */
     protected array $converters = [];
 
     /**
-     * checkArray
-     *
      * Check if the data is an array.
      *
-     * @param  mixed    $data
      * @throws ConverterException
-     * @return array    $data
+     *
+     * @param mixed $data
+     * @return array<int|string, mixed>
      */
     protected function checkArray(mixed $data): array
     {
         if (!is_array($data)) {
             throw new ConverterException(
-                sprintf(
-                    "Array converter data must be an array ('%s' given).",
-                    gettype($data)
-                )
+                sprintf("Array converter data must be an array ('%s' given).", gettype($data))
             );
         }
 
@@ -53,14 +46,9 @@ abstract class ArrayTypeConverter implements ConverterInterface
     }
 
     /**
-     * getSubtypeConverter
-     *
      * Since the arrays in PostgreSQL have the same subtype, it is useful to
      * cache it here to avoid summoning the ClientHolder all the time.
      *
-     * @param string $type
-     * @param Session $session
-     * @return ConverterInterface
      * @throws FoundationException
      */
     protected function getSubtypeConverter(string $type, Session $session): ConverterInterface

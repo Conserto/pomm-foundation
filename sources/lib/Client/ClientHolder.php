@@ -12,27 +12,18 @@ namespace PommProject\Foundation\Client;
 use PommProject\Foundation\Exception\PommException;
 
 /**
- * ClientHolder
- *
  * Session clients are stored in this holder.
  *
- * @package   Pomm
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
  */
 class ClientHolder
 {
+    /** @var array<string, array<string, ClientInterface>> */
     protected array $clients = [];
 
-    /**
-     * add
-     *
-     * Add a new client or replace existing one.
-     *
-     * @param  ClientInterface $client
-     * @return ClientHolder    $this
-     */
+    /** Add a new client or replace existing one. */
     public function add(ClientInterface $client): ClientHolder
     {
         $this->clients[$client->getClientType()][$client->getClientIdentifier()] = $client;
@@ -40,41 +31,22 @@ class ClientHolder
         return $this;
     }
 
-    /**
-     * has
-     *
-     * Tell if a client is in the pool or not.
-     *
-     * @param  string $type
-     * @param  string $name
-     * @return bool
-     */
+    /** Tell if a client is in the pool or not. */
     public function has(string $type, string $name): bool
     {
         return isset($this->clients[$type][$name]);
     }
 
-    /**
-     * get
-     *
-     * Return a client by its name or null if no client exist for that name.
-     *
-     * @param string|null $type
-     * @param string $name
-     * @return ClientInterface|null
-     */
+    /** Return a client by its name or null if no client exist for that name. */
     public function get(?string $type, string $name): ?ClientInterface
     {
         return $this->clients[$type][$name] ?? null;
     }
 
     /**
-     * getAllFor
-     *
      * Return all clients for a given type.
      *
-     * @param  string $type
-     * @return array
+     * @return array<string, ClientInterface>
      */
     public function getAllFor(string $type): array
     {
@@ -85,16 +57,7 @@ class ClientHolder
         return $this->clients[$type];
     }
 
-    /**
-     * clear
-     *
-     * Call shutdown and remove a client from the pool. If the client does not
-     * exist, nothing is done.
-     *
-     * @param  string       $type
-     * @param  string       $name
-     * @return ClientHolder $this
-     */
+    /** Call shutdown and remove a client from the pool. If the client does not exist, nothing is done. */
     public function clear(string $type, string $name): ClientHolder
     {
         if (isset($this->clients[$type][$name])) {
@@ -106,15 +69,12 @@ class ClientHolder
     }
 
     /**
-     * shutdown
-     *
-     * Call shutdown for all registered clients and unset the clients so they
-     * can be cleaned by GC. It would have been better by far to use a
-     * RecursiveArrayIterator to do this but it is not possible in PHP using
+     * Call shutdown for all registered clients and unset the clients so they can be cleaned by GC.
+     * It would have been better by far to use a RecursiveArrayIterator to do this but it is not possible in PHP using
      * built'in iterators hence the double foreach recursion.
      * see http://fr2.php.net/manual/en/class.recursivearrayiterator.php#106519
      *
-     * @return array exceptions caught during the shutdown
+     * @return array<int, PommException> exceptions caught during the shutdown
      */
     public function shutdown(): array
     {

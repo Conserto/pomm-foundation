@@ -14,12 +14,9 @@ use PommProject\Foundation\Client\ClientInterface;
 use PommProject\Foundation\Client\Client;
 
 /**
- * Listener
- *
  * Listener client.
  * This class may attach actions that are triggered by events.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -27,47 +24,27 @@ use PommProject\Foundation\Client\Client;
  */
 class Listener extends Client
 {
+    /** @var array<int, callable> */
     protected array $actions = [];
 
-    /**
-     * __construct
-     *
-     * Take the client identifier as argument.
-     *
-     * @param  string $name
-     */
+    /** Take the client identifier as argument.*/
     public function __construct(protected string $name)
     {
     }
 
-    /**
-     * getClientType
-     *
-     * @see ClientInterface
-     */
+    /** @see ClientInterface */
     public function getClientType(): string
     {
         return 'listener';
     }
 
-    /**
-     * getClientIdentifier
-     *
-     * @see ClientInterface
-     */
+    /** @see ClientInterface */
     public function getClientIdentifier(): string
     {
         return $this->name;
     }
 
-    /**
-     * attachAction
-     *
-     * Attach a new callback to the callback list.
-     *
-     * @param  callable $action
-     * @return Listener $this
-     */
+    /** Attach a new callback to the callback list. */
     public function attachAction(callable $action): Listener
     {
         $this->actions[] = $action;
@@ -76,17 +53,16 @@ class Listener extends Client
     }
 
     /**
-     * notify
-     *
      * Trigger actions. All actions are executed passing the following parameters:
      * string   $name    name of the event
      * array    $data    event's payload if any
      * Session  $session the current session
      *
-     * @param string $name
-     * @param array $data
-     * @return Listener $this
      * @throws FoundationException
+     *
+     * @param string $name
+     * @param array<mixed, mixed> $data
+     * @return Listener
      */
     public function notify(string $name, array $data): Listener
     {

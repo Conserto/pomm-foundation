@@ -9,32 +9,25 @@
  */
 namespace PommProject\Foundation\Test\Unit\Listener;
 
-use PommProject\Foundation\Tester\FoundationSessionAtoum;
-use PommProject\Foundation\Session\Session;
 use Mock\PommProject\Foundation\Listener\Listener as MockListener;
+use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Session\Session;
+use PommProject\Foundation\Tester\FoundationSessionAtoum;
 
 class ListenerPooler extends FoundationSessionAtoum
 {
-    protected function initializeSession(Session $session)
-    {
-        $session
-            ->registerClient(new MockListener('pika'))
-            ->registerClient(new MockListener('chu'))
-            ;
-    }
-
-    public function testNotify()
+    /** @throws FoundationException */
+    public function testNotify(): void
     {
         $session = $this->buildSession();
         $session->registerClientPooler($this->newTestedInstance());
 
-        $this
-            ->assert('notifying one listener.')
+        $this->assert('notifying one listener.')
             ->object(
                 $session
                     ->getPoolerForType('listener')
-                    ->notify('pika', [ 'data' => 1 ])
-                )
+                    ->notify('pika', ['data' => 1])
+            )
             ->isInstanceOf(\PommProject\Foundation\Listener\ListenerPooler::class)
             ->mock($session->getClient('listener', 'pika'))
             ->call('notify')
@@ -46,7 +39,7 @@ class ListenerPooler extends FoundationSessionAtoum
             ->object(
                 $session
                     ->getPoolerForType('listener')
-                    ->notify(['pika', 'chu', 'whatever'], [ 'data' => 1 ])
+                    ->notify(['pika', 'chu', 'whatever'], ['data' => 1])
             )
             ->mock($session->getClient('listener', 'pika'))
             ->call('notify')
@@ -58,7 +51,7 @@ class ListenerPooler extends FoundationSessionAtoum
             ->object(
                 $session
                     ->getPoolerForType('listener')
-                    ->notify('*', [ 'data' => 1 ])
+                    ->notify('*', ['data' => 1])
             )
             ->isInstanceOf(\PommProject\Foundation\Listener\ListenerPooler::class)
             ->mock($session->getClient('listener', 'pika'))
@@ -71,15 +64,20 @@ class ListenerPooler extends FoundationSessionAtoum
             ->object(
                 $session
                     ->getPoolerForType('listener')
-                    ->notify('pika:plop', [ 'data' => 1 ])
-                )
+                    ->notify('pika:plop', ['data' => 1])
+            )
             ->isInstanceOf(\PommProject\Foundation\Listener\ListenerPooler::class)
             ->mock($session->getClient('listener', 'pika'))
             ->call('notify')
             ->once()
             ->mock($session->getClient('listener', 'chu'))
             ->call('notify')
-            ->never()
-            ;
+            ->never();
+    }
+
+    protected function initializeSession(Session $session): void
+    {
+        $session->registerClient(new MockListener('pika'))
+            ->registerClient(new MockListener('chu'));
     }
 }

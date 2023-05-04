@@ -9,59 +9,55 @@
  */
 namespace PommProject\Foundation\Test\Unit;
 
+use PommProject\Foundation\Exception\ConnectionException;
+use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
+use PommProject\Foundation\Session\ResultHandler;
 use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\VanillaSessionAtoum;
 
 class ResultIterator extends VanillaSessionAtoum
 {
-    protected function initializeSession(Session $session)
-    {
-    }
-
-    protected function getPikaSql()
-    {
-        return <<<SQL
-select
-    p.id,
-    p.pika
-from
-  (values
-    (1::int4, 'a'::text),
-    (2, 'b'),
-    (3, 'c'),
-    (4, 'd')
-  ) p (id, pika)
-SQL;
-    }
-
-    protected function getResultResource($sql, array $params = [])
-    {
-        return $this->buildSession()->getConnection()->sendQueryWithParameters($sql, $params);
-    }
-
-    public function testConstructor()
+    /**
+     * @throws FoundationException
+     * @throws SqlException
+     * @throws ConnectionException
+     */
+    public function testConstructor(): void
     {
         $iterator = $this->newTestedInstance(
             $this->getResultResource("select true::boolean")
         );
 
-        $this
-            ->object($iterator)
+        $this->object($iterator)
             ->isInstanceOf(\PommProject\Foundation\ResultIterator::class)
             ->isInstanceOf(\Countable::class)
-            ->isInstanceOf(\Iterator::class)
-            ;
+            ->isInstanceOf(\Iterator::class);
     }
 
-    public function testGet()
+    /**
+     * @throws SqlException
+     * @throws FoundationException
+     * @throws ConnectionException
+     */
+    protected function getResultResource($sql, array $params = []): ResultHandler
+    {
+        return $this->buildSession()->getConnection()->sendQueryWithParameters($sql, $params);
+    }
+
+    /**
+     * @throws FoundationException
+     * @throws SqlException
+     * @throws ConnectionException
+     */
+    public function testGet(): void
     {
         $sql = $this->getPikaSql();
         $iterator = $this->newTestedInstance(
             $this->getResultResource($sql)
         );
 
-        $this
-            ->array($iterator->get(0))
+        $this->array($iterator->get(0))
             ->isIdenticalTo(['id' => '1', 'pika' => 'a'])
             ->array($iterator->get(2))
             ->isIdenticalTo(['id' => '3', 'pika' => 'c'])
@@ -69,17 +65,36 @@ SQL;
             ->isIdenticalTo(['id' => '2', 'pika' => 'b'])
             ->exception(fn() => $iterator->get(5))
             ->isInstanceOf(\OutOfBoundsException::class)
-            ->message->contains('Cannot jump to non existing row')
-            ;
+            ->message->contains('Cannot jump to non existing row');
     }
 
-    public function testGetOnEmptyResult()
+    protected function getPikaSql(): string
+    {
+        return <<<SQL
+            select
+                p.id,
+                p.pika
+            from
+              (values
+                (1::int4, 'a'::text),
+                (2, 'b'),
+                (3, 'c'),
+                (4, 'd')
+              ) p (id, pika)
+        SQL;
+    }
+
+    /**
+     * @throws FoundationException
+     * @throws SqlException
+     * @throws ConnectionException
+     */
+    public function testGetOnEmptyResult(): void
     {
         $iterator = $this->newTestedInstance(
             $this->getResultResource('select true where false')
         );
-        $this
-            ->integer($iterator->count())
+        $this->integer($iterator->count())
             ->isEqualTo(0)
             ->boolean($iterator->isEmpty())
             ->isTrue()
@@ -88,28 +103,35 @@ SQL;
             ->variable($iterator->isLast())
             ->isNull()
             ->variable($iterator->isFirst())
-            ->isNull()
-            ;
+            ->isNull();
     }
 
-    public function testHasAndCount()
+    /**
+     * @throws SqlException
+     * @throws FoundationException
+     * @throws ConnectionException
+     */
+    public function testHasAndCount(): void
     {
         $sql = $this->getPikaSql();
         $iterator = $this->newTestedInstance(
             $this->getResultResource($sql)
         );
 
-        $this
-            ->integer($iterator->count())
+        $this->integer($iterator->count())
             ->isEqualTo(4)
             ->boolean($iterator->has(1))
             ->isTrue()
             ->boolean($iterator->has(4))
-            ->isFalse()
-            ;
+            ->isFalse();
     }
 
-    public function testIterator()
+    /**
+     * @throws SqlException
+     * @throws FoundationException
+     * @throws ConnectionException
+     */
+    public function testIterator(): void
     {
         $sql = $this->getPikaSql();
         $iterator = $this->newTestedInstance(
@@ -118,54 +140,55 @@ SQL;
 
         foreach ($iterator as $index => $element) {
             if ($index === 0) {
-                $this
-                    ->boolean($iterator->isFirst())
+                $this->boolean($iterator->isFirst())
                     ->isTrue();
             } elseif ($index === $iterator->count() - 1) {
-                $this
-                    ->boolean($iterator->isLast())
+                $this->boolean($iterator->isLast())
                     ->isTrue();
             } else {
-                $this
-                    ->boolean($iterator->isFirst())
+                $this->boolean($iterator->isFirst())
                     ->isFalse()
                     ->boolean($iterator->isLast())
-                    ->isFalse()
-                    ;
+                    ->isFalse();
             }
-            $this
-                ->string($element['id'])
-                ->isEqualTo($index + 1)
-                ;
+            $this->string($element['id'])
+                ->isEqualTo($index + 1);
         }
     }
 
-    public function testSlice()
+    /**
+     * @throws SqlException
+     * @throws FoundationException
+     * @throws ConnectionException
+     */
+    public function testSlice(): void
     {
         $sql = $this->getPikaSql();
         $iterator = $this->newTestedInstance(
             $this->getResultResource($sql)
         );
 
-        $this
-            ->array($iterator->slice('pika'))
+        $this->array($iterator->slice('pika'))
             ->isIdenticalTo(['a', 'b', 'c', 'd'])
             ->array($iterator->slice('id'))
             ->isIdenticalTo(['1', '2', '3', '4'])
             ->exception(fn() => $iterator->slice('no_such_key'))
             ->isInstanceOf(\InvalidArgumentException::class)
-            ->message->contains('Could not find field')
-            ;
+            ->message->contains('Could not find field');
     }
 
-    public function testExtract()
+    /**
+     * @throws FoundationException
+     * @throws SqlException
+     * @throws ConnectionException
+     */
+    public function testExtract(): void
     {
         $iterator = $this->newTestedInstance(
             $this->getResultResource($this->getPikaSql())
         );
 
-        $this
-            ->array($iterator->extract())
+        $this->array($iterator->extract())
             ->isIdenticalTo(
                 [
                     ['id' => '1', 'pika' => 'a'],
@@ -179,21 +202,27 @@ SQL;
             $this->getResultResource('select true where false')
         );
 
-        $this
-            ->array($iterator->extract())
-            ->isEmpty()
-            ;
+        $this->array($iterator->extract())->isEmpty();
     }
 
-    public function testJsonSerializable()
+    /**
+     * @throws SqlException
+     * @throws FoundationException
+     * @throws ConnectionException
+     * @throws \JsonException
+     */
+    public function testJsonSerializable(): void
     {
         $iterator = $this->newTestedInstance(
             $this->getResultResource($this->getPikaSql())
         );
 
         $json = json_encode($iterator, JSON_THROW_ON_ERROR);
-        $this
-            ->string($json)
+        $this->string($json)
             ->isIdenticalTo('[{"id":"1","pika":"a"},{"id":"2","pika":"b"},{"id":"3","pika":"c"},{"id":"4","pika":"d"}]');
+    }
+
+    protected function initializeSession(Session $session): void
+    {
     }
 }

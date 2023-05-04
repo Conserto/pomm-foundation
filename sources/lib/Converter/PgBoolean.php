@@ -13,11 +13,8 @@ use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Session\Session;
 
 /**
- * PgBoolean
- *
  * Converter for boolean type.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT <hubert.greg@gmail.com>
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -47,9 +44,7 @@ class PgBoolean implements ConverterInterface
         return $data === 't';
     }
 
-    /**
-     * @see ConverterInterface
-     */
+    /** @see ConverterInterface */
     public function toPg(mixed $data, string $type, Session $session): string
     {
         if ($data === null) {
@@ -59,9 +54,7 @@ class PgBoolean implements ConverterInterface
         return sprintf("%s '%s'", $type, $data === true ? "true" : "false");
     }
 
-    /**
-     * @see ConverterInterface
-     */
+    /** @see ConverterInterface */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
         if ($data !== null) {

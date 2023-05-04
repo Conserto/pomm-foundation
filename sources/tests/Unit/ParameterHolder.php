@@ -10,176 +10,154 @@
 namespace PommProject\Test\Unit\Foundation;
 
 use Atoum;
+use PommProject\Foundation\Exception\FoundationException;
 
 class ParameterHolder extends Atoum
 {
-    public function testConstructorEmpty()
+    public function testConstructorEmpty(): void
     {
-        $parameter_holder = $this->newTestedInstance();
-        $this
-            ->array($parameter_holder->getIterator()->getArrayCopy())
-            ->isEmpty()
-            ;
+        $parameterHolder = $this->newTestedInstance();
+        $this->array($parameterHolder->getIterator()->getArrayCopy())
+            ->isEmpty();
     }
 
-    public function testConstructorWithParameter()
+    public function testConstructorWithParameter(): void
     {
-        $parameter_holder = $this->newTestedInstance(['pika' => 'one']);
-        $this
-            ->array($parameter_holder->getIterator()->getArrayCopy())
-            ->isIdenticalTo(['pika' => 'one'])
-            ;
+        $parameterHolder = $this->newTestedInstance(['pika' => 'one']);
+        $this->array($parameterHolder->getIterator()->getArrayCopy())
+            ->isIdenticalTo(['pika' => 'one']);
     }
 
-    public function testSetParameter()
+    public function testSetParameter(): void
     {
-        $parameter_holder = $this->newTestedInstance(['pika' => 'one']);
-        $this
-            ->array($parameter_holder->setParameter('chu', 'two')->getIterator()->getArrayCopy())
+        $parameterHolder = $this->newTestedInstance(['pika' => 'one']);
+        $this->array($parameterHolder->setParameter('chu', 'two')->getIterator()->getArrayCopy())
             ->isIdenticalTo(['pika' => 'one', 'chu' => 'two'])
-            ->array($parameter_holder->setParameter('pika', 'three')->getIterator()->getArrayCopy())
+            ->array($parameterHolder->setParameter('pika', 'three')->getIterator()->getArrayCopy())
             ->isIdenticalTo(['pika' => 'three', 'chu' => 'two'])
-            ->array($parameter_holder->setParameter('plop', null)->getIterator()->getArrayCopy())
+            ->array($parameterHolder->setParameter('plop', null)->getIterator()->getArrayCopy())
             ->isIdenticalTo(['pika' => 'three', 'chu' => 'two', 'plop' => null])
-            ->array($parameter_holder->setParameter('pika', null)->getIterator()->getArrayCopy())
-            ->isIdenticalTo(['pika' => null, 'chu' => 'two', 'plop' => null])
-            ;
+            ->array($parameterHolder->setParameter('pika', null)->getIterator()->getArrayCopy())
+            ->isIdenticalTo(['pika' => null, 'chu' => 'two', 'plop' => null]);
     }
 
-    public function testHasParameter()
+    public function testHasParameter(): void
     {
-        $parameter_holder = $this->newTestedInstance(['pika' => 'one']);
-        $this
-            ->boolean($parameter_holder->hasParameter('pika'))
+        $parameterHolder = $this->newTestedInstance(['pika' => 'one']);
+        $this->boolean($parameterHolder->hasParameter('pika'))
             ->isTrue()
-            ->boolean($parameter_holder->hasParameter('chu'))
+            ->boolean($parameterHolder->hasParameter('chu'))
             ->isFalse()
-            ->boolean($parameter_holder->setParameter('chu', 'whatever')->hasParameter('chu'))
+            ->boolean($parameterHolder->setParameter('chu', 'whatever')->hasParameter('chu'))
             ->isTrue()
-            ->boolean($parameter_holder->setParameter('chu', null)->hasParameter('chu'))
-            ->isTrue()
-            ;
+            ->boolean($parameterHolder->setParameter('chu', null)->hasParameter('chu'))
+            ->isTrue();
     }
 
-    public function testGetParameter()
+    public function testGetParameter(): void
     {
-        $parameter_holder = $this->newTestedInstance(['pika' => 'one']);
-        $this
-            ->string($parameter_holder->getParameter('pika'))
+        $parameterHolder = $this->newTestedInstance(['pika' => 'one']);
+        $this->string($parameterHolder->getParameter('pika'))
             ->isEqualTo('one')
-            ->string($parameter_holder->getParameter('pika', 'two'))
+            ->string($parameterHolder->getParameter('pika', 'two'))
             ->isEqualTo('one')
-            ->string($parameter_holder->getParameter('chu', 'two'))
+            ->string($parameterHolder->getParameter('chu', 'two'))
             ->isEqualTo('two')
-            ->variable($parameter_holder->getParameter('chu'))
-            ->isNull()
-            ;
+            ->variable($parameterHolder->getParameter('chu'))
+            ->isNull();
     }
 
-    public function testMustHave()
+    public function testMustHave(): void
     {
-        $parameter_holder = $this->newTestedInstance(['pika' => 'one']);
-        $this
-            ->object($parameter_holder->mustHave('pika'))
+        $parameterHolder = $this->newTestedInstance(['pika' => 'one']);
+        $this->object($parameterHolder->mustHave('pika'))
             ->isInstanceOf(\PommProject\Foundation\ParameterHolder::class)
-            ->exception(function () use ($parameter_holder) { $parameter_holder->mustHave('chu'); })
-            ->isInstanceOf(\PommProject\Foundation\Exception\FoundationException::class)
+            ->exception(function () use ($parameterHolder) { $parameterHolder->mustHave('chu'); })
+            ->isInstanceOf(FoundationException::class)
             ->message->contains('mandatory')
-            ->object($parameter_holder->setParameter('chu', 'whatever')->mustHave('chu'))
-            ->isInstanceOf(\PommProject\Foundation\ParameterHolder::class)
-            ;
+            ->object($parameterHolder->setParameter('chu', 'whatever')->mustHave('chu'))
+            ->isInstanceOf(\PommProject\Foundation\ParameterHolder::class);
     }
 
-    public function testSetDefaultValue()
+    public function testSetDefaultValue(): void
     {
-        $parameter_holder = $this->newTestedInstance(['pika' => 'one']);
-        $this
-            ->string(
-                $parameter_holder->setDefaultValue('pika', 'two')->getParameter('pika'))
-                ->isEqualTo('one')
-                ->string($parameter_holder->setDefaultValue('chu', 'two')->getParameter('chu'))
-                ->isEqualTo('two')
-                ;
-    }
-
-    public function testMustBeOneOf()
-    {
-        $parameter_holder = $this->newTestedInstance(['pika' => 'one', 'chu' => 'two']);
-        $this
-            ->object($parameter_holder->mustBeOneOf('pika', [ 'one', 'two', 'tree']))
-            ->isInstanceOf(\PommProject\Foundation\ParameterHolder::class)
-            ->exception(function () use ($parameter_holder) { $parameter_holder->mustBeOneOf('pika', ['four', 'five']); })
-            ->isInstanceOf(\PommProject\Foundation\Exception\FoundationException::class)
-            ->message->contains('must be one of')
-            ->exception(function () use ($parameter_holder) { $parameter_holder->mustBeOneOf('chu', ['four', 'five']); })
-            ->isInstanceOf(\PommProject\Foundation\Exception\FoundationException::class)
-            ->message->contains('must be one of')
-            ;
-    }
-
-    public function testUnsetParameter()
-    {
-        $parameter_holder = $this->newTestedInstance(['pika' => 'one', 'chu' => 'two']);
-        $this
-            ->array($parameter_holder->unsetParameter('pika')->getIterator()->getArrayCopy())
-            ->isIdenticalTo(['chu' => 'two'])
-            ->array($parameter_holder->unsetParameter('chu')->getIterator()->getArrayCopy())
-            ->isEmpty()
-            ->array($parameter_holder->unsetParameter('chu')->getIterator()->getArrayCopy())
-            ->isEmpty()
-            ;
-    }
-
-    public function testArrayAccess()
-    {
-        $parameter_holder = $this->newTestedInstance(['pika' => 'one']);
-        $this
-            ->object($parameter_holder)
-            ->isInstanceOf(\ArrayAccess::class)
-            ->boolean(isset($parameter_holder['pika']))
-            ->isTrue()
-            ->string($parameter_holder['pika'])
+        $parameterHolder = $this->newTestedInstance(['pika' => 'one']);
+        $this->string($parameterHolder->setDefaultValue('pika', 'two')->getParameter('pika'))
             ->isEqualTo('one')
-            ->boolean(isset($parameter_holder['chu']))
-            ->isFalse()
-            ;
-        $parameter_holder['chu'] = 'two';
-        $this
-            ->boolean(isset($parameter_holder['chu']))
+            ->string($parameterHolder->setDefaultValue('chu', 'two')->getParameter('chu'))
+            ->isEqualTo('two');
+    }
+
+    public function testMustBeOneOf(): void
+    {
+        $parameterHolder = $this->newTestedInstance(['pika' => 'one', 'chu' => 'two']);
+        $this->object($parameterHolder->mustBeOneOf('pika', [ 'one', 'two', 'tree']))
+            ->isInstanceOf(\PommProject\Foundation\ParameterHolder::class)
+            ->exception(
+                function () use ($parameterHolder) { $parameterHolder->mustBeOneOf('pika', ['four', 'five']); }
+            )
+            ->isInstanceOf(FoundationException::class)
+            ->message->contains('must be one of')
+            ->exception(
+                function () use ($parameterHolder) { $parameterHolder->mustBeOneOf('chu', ['four', 'five']); }
+            )
+            ->isInstanceOf(FoundationException::class)
+            ->message->contains('must be one of');
+    }
+
+    public function testUnsetParameter(): void
+    {
+        $parameterHolder = $this->newTestedInstance(['pika' => 'one', 'chu' => 'two']);
+        $this->array($parameterHolder->unsetParameter('pika')->getIterator()->getArrayCopy())
+            ->isIdenticalTo(['chu' => 'two'])
+            ->array($parameterHolder->unsetParameter('chu')->getIterator()->getArrayCopy())
+            ->isEmpty()
+            ->array($parameterHolder->unsetParameter('chu')->getIterator()->getArrayCopy())
+            ->isEmpty();
+    }
+
+    public function testArrayAccess(): void
+    {
+        $parameterHolder = $this->newTestedInstance(['pika' => 'one']);
+        $this->object($parameterHolder)
+            ->isInstanceOf(\ArrayAccess::class)
+            ->boolean(isset($parameterHolder['pika']))
             ->isTrue()
-            ->string($parameter_holder['chu'])
-            ->isEqualTo('two')
-            ;
-        unset($parameter_holder['chu']);
-        $this
-            ->boolean(isset($parameter_holder['chu']))
-            ->isFalse()
-            ;
+            ->string($parameterHolder['pika'])
+            ->isEqualTo('one')
+            ->boolean(isset($parameterHolder['chu']))
+            ->isFalse();
+
+        $parameterHolder['chu'] = 'two';
+        $this->boolean(isset($parameterHolder['chu']))
+            ->isTrue()
+            ->string($parameterHolder['chu'])
+            ->isEqualTo('two');
+
+        unset($parameterHolder['chu']);
+        $this->boolean(isset($parameterHolder['chu']))
+            ->isFalse();
     }
 
-    public function testCount()
+    public function testCount(): void
     {
-        $parameter_holder = $this->newTestedInstance(['pika' => 'one']);
-        $this
-            ->object($parameter_holder)
+        $parameterHolder = $this->newTestedInstance(['pika' => 'one']);
+        $this->object($parameterHolder)
             ->isInstanceOf(\Countable::class)
-            ->integer($parameter_holder->count())
+            ->integer($parameterHolder->count())
             ->isEqualTo(1)
-            ->integer($parameter_holder->setParameter('chu', 'two')->count())
-            ->isEqualTo(2)
-            ;
+            ->integer($parameterHolder->setParameter('chu', 'two')->count())
+            ->isEqualTo(2);
     }
 
-    public function testGetIterator()
+    public function testGetIterator(): void
     {
-        $parameter_holder = $this->newTestedInstance(['pika' => 'one']);
-        $this
-            ->object($parameter_holder)
+        $parameterHolder = $this->newTestedInstance(['pika' => 'one']);
+        $this->object($parameterHolder)
             ->isInstanceOf(\IteratorAggregate::class)
-            ->array($parameter_holder->getIterator()->getArrayCopy())
+            ->array($parameterHolder->getIterator()->getArrayCopy())
             ->isIdenticalTo(['pika' => 'one'])
-            ->array($parameter_holder->setParameter('chu', 'two')->getIterator()->getArrayCopy())
-            ->isIdenticalTo(['pika' => 'one', 'chu' => 'two'])
-            ;
+            ->array($parameterHolder->setParameter('chu', 'two')->getIterator()->getArrayCopy())
+            ->isIdenticalTo(['pika' => 'one', 'chu' => 'two']);
     }
 }

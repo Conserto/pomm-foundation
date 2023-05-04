@@ -13,11 +13,8 @@ use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Session\Session;
 
 /**
- * PgHStore
- *
  * HStore converter
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -60,6 +57,7 @@ class PgHstore extends ArrayTypeConverter
     }
 
     /**
+     * @throws ConverterException
      * @see \Pomm\Converter\ConverterInterface
      */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
@@ -72,22 +70,20 @@ class PgHstore extends ArrayTypeConverter
     }
 
     /**
-     * buildArray
-     *
      * Return an array of HStore elements.
      *
-     * @param  array $data
-     * @return array
+     * @param  array<string, null|string> $data
+     * @return array<int, string>
      */
     protected function buildArray(array $data): array
     {
-        $insert_values = [];
+        $insertValues = [];
 
         foreach ($data as $key => $value) {
             if ($value === null) {
-                $insert_values[] = sprintf('%s => NULL', $this->escape($key));
+                $insertValues[] = sprintf('%s => NULL', $this->escape($key));
             } else {
-                $insert_values[] = sprintf(
+                $insertValues[] = sprintf(
                     '%s => %s',
                     $this->escape($key),
                     $this->escape($value)
@@ -95,17 +91,10 @@ class PgHstore extends ArrayTypeConverter
             }
         }
 
-        return $insert_values;
+        return $insertValues;
     }
 
-    /**
-     * escape
-     *
-     * Escape a string.
-     *
-     * @param string $string
-     * @return string
-     */
+    /** Escape a string. */
     protected function escape(string $string): string
     {
         if (preg_match('/["\s,]/', $string) === false) {

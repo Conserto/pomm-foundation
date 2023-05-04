@@ -18,11 +18,8 @@ use PommProject\Foundation\QueryManager\QueryManagerClient;
 use PommProject\Foundation\Session\Session as VanillaSession;
 
 /**
- * Session
- *
  * Session with Foundation poolers API.
  *
- * @package     Foundation
  * @copyright   2014 - 2015 Grégoire HUBERT
  * @author      Grégoire HUBERT
  * @license     X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -31,12 +28,8 @@ use PommProject\Foundation\Session\Session as VanillaSession;
 class Session extends VanillaSession
 {
     /**
-     * getPreparedQuery
-     *
      * Return the prepared query client.
      *
-     * @param string $query
-     * @return  PreparedQuery
      * @throws Exception\FoundationException
      */
     public function getPreparedQuery(string $query): PreparedQuery
@@ -47,28 +40,20 @@ class Session extends VanillaSession
     }
 
     /**
-     * getQueryManager
-     *
      * Return a query manager (default to QueryManager\SimpleQueryManager)
      *
-     * @param string|null $query_manager
-     * @return  QueryManagerClient
      * @throws Exception\FoundationException
      */
-    public function getQueryManager(?string $query_manager = null): QueryManagerClient
+    public function getQueryManager(?string $queryManager = null): QueryManagerClient
     {
         /** @var QueryManagerClient $queryManagerClient */
-        $queryManagerClient = $this->getClientUsingPooler('query_manager', $query_manager);
+        $queryManagerClient = $this->getClientUsingPooler('query_manager', $queryManager);
         return $queryManagerClient;
     }
 
     /**
-     * getConverter
-     *
      * Return a converter client.
      *
-     * @param string $name
-     * @return  ConverterClient
      * @throws Exception\FoundationException
      */
     public function getConverter(string $name): ConverterClient
@@ -79,12 +64,8 @@ class Session extends VanillaSession
     }
 
     /**
-     * getObserver
-     *
      * Return an observer client.
      *
-     * @param string $name
-     * @return  Observer
      * @throws Exception\FoundationException
      */
     public function getObserver(string $name): Observer
@@ -95,12 +76,8 @@ class Session extends VanillaSession
     }
 
     /**
-     * getInspector
-     *
      * Return the database inspector.
      *
-     * @param string|null $name (null)
-     * @return Inspector
      * @throws Exception\FoundationException
      */
     public function getInspector(?string $name = null): Inspector
@@ -110,15 +87,7 @@ class Session extends VanillaSession
         return $inspector;
     }
 
-    /**
-     * getListener
-     *
-     * A short description here
-     *
-     * @param string $name
-     * @return  Listener
-     * @throws Exception\FoundationException
-     */
+    /** @throws Exception\FoundationException */
     public function getListener(string $name): Listener
     {
         /** @var Listener $listener */

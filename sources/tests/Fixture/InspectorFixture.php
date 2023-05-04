@@ -14,7 +14,6 @@ use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\Session\ResultHandler;
-use PommProject\Foundation\Session\Session;
 
 class InspectorFixture extends Client
 {
@@ -64,7 +63,7 @@ class InspectorFixture extends Client
     /**
      * @throws SqlException|FoundationException|ConnectionException
      */
-    public function renamePks($table, $old_pk, $new_pk)
+    public function renamePks($table, $old_pk, $new_pk): void
     {
         $sql = sprintf(
             'alter table inspector_test."%s" rename "%s" to "%s"',
@@ -79,7 +78,7 @@ class InspectorFixture extends Client
     /**
      * @throws SqlException|FoundationException|ConnectionException
      */
-    public function dropSchema()
+    public function dropSchema(): void
     {
         $sql = "drop schema if exists inspector_test cascade";
         $this->executeAnonymousQuery($sql);

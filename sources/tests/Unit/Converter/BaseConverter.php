@@ -9,67 +9,42 @@
  */
 namespace PommProject\Foundation\Test\Unit\Converter;
 
-use PommProject\Foundation\Tester\FoundationSessionAtoum;
 use PommProject\Foundation\Session\Session;
+use PommProject\Foundation\Tester\FoundationSessionAtoum;
 
 abstract class BaseConverter extends FoundationSessionAtoum
 {
-    protected function initializeSession(Session $session)
+    /** Return true if the server version meets client expectations. */
+    public function isPgVersionAtLeast(string $version, Session $session): bool
+    {
+        $current_version = $session->getInspector()->getVersion();
+
+        return version_compare($version, $current_version) <= 0;
+    }
+
+    protected function initializeSession(Session $session): void
     {
     }
 
-    /**
-     * doesTypeExist
-     *
-     * Return true if the given type exists.
-     *
-     * @access protected
-     * @param  string   $type
-     * @return bool
-     */
-    protected function doesTypeExist($type, Session $session)
+    /** Return true if the given type exists. */
+    protected function doesTypeExist(string $type, Session $session): bool
     {
         return ($session->getInspector()->getTypeInformation($type, 'public') !== null);
     }
 
     /**
-     * isPgVersionAtLeast
+     * To test toPgStandardFormat, values can be sent to Postgres and retreived.
      *
-     * Return true if the server version meets client expectations.
-     *
-     * @param  string   $version
-     * @param  Session  $session
-     * @return bool
-     */
-    public function isPgVersionAtLeast($version, Session $session)
-    {
-        $current_version = $session->getInspector()->getVersion();
-
-        return (bool) (version_compare($version, $current_version) <= 0);
-    }
-
-    /**
-     * sendToPostgres
-     *
-     * To test toPgStandardFormat, values can be sent to Postgres and
-     * retreived.
-     *
-     * @access protected
-     * @param  mixed $value
-     * @param  mixed $type
-     * @param  Session $session
      * @return mixed query result
      */
-    protected function sendToPostgres($value, $type, Session $session)
+    protected function sendToPostgres(mixed $value, mixed $type, Session $session): mixed
     {
-        $result = $session
-            ->getQueryManager()
+        $result = $session->getQueryManager()
             ->query(
                 sprintf("select $*::%s as my_test", $type),
                 [$value]
             )
-            ->current()
-            ;
+            ->current();
 
         return $result['my_test'];
     }

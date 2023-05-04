@@ -1,6 +1,6 @@
 parameters:
     bootstrapFiles:
         - vendor/atoum/atoum/classes/autoloader.php
-    level : 5
+    level : 6
     paths:
         - sources/lib

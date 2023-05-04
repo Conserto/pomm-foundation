@@ -9,58 +9,52 @@
  */
 namespace PommProject\Foundation\Test\Unit\Converter\Geometry;
 
-use PommProject\Foundation\Test\Unit\Converter\BaseConverter;
 use PommProject\Foundation\Converter\Type\Point;
+use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Test\Unit\Converter\BaseConverter;
 
 class PgPoint extends BaseConverter
 {
-    public function testFromPg()
+    public function testFromPg(): void
     {
         $session = $this->buildSession();
-        $this
-            ->object($this->newTestedInstance()->fromPg('(1.2345,-9.87654)', 'point', $session))
-            ->isInstanceOf(\PommProject\Foundation\Converter\Type\Point::class)
+        $this->object($this->newTestedInstance()->fromPg('(1.2345,-9.87654)', 'point', $session))
+            ->isInstanceOf(Point::class)
             ->variable($this->newTestedInstance()->fromPg(null, 'point', $session))
-            ->isNull()
-            ;
+            ->isNull();
+
         $point = $this->newTestedInstance()->fromPg('(1.2345,-9.87654)', 'point', $session);
-        $this
-            ->float($point->x)
+        $this->float($point->x)
             ->isEqualTo(1.2345)
             ->float($point->y)
-            ->isEqualTo(-9.87654)
-            ;
+            ->isEqualTo(-9.87654);
     }
 
-    public function testToPg()
+    public function testToPg(): void
     {
         $session = $this->buildSession();
         $point = new Point('(1.2345, -9.87654)');
-        $this
-            ->string($this->newTestedInstance()->toPg($point, 'point', $session))
+        $this->string($this->newTestedInstance()->toPg($point, 'point', $session))
             ->isEqualTo('point(1.2345,-9.87654)')
             ->string($this->newTestedInstance()->toPg('(1.2345,-9.87654)', 'point', $session))
             ->isEqualTo('point(1.2345,-9.87654)')
             ->exception(fn() => $this->newTestedInstance()->toPg('azsdf', 'point', $session))
-            ->isInstanceOf(\PommProject\Foundation\Exception\ConverterException::class)
+            ->isInstanceOf(ConverterException::class)
             ->string($this->newTestedInstance()->toPg(null, 'subpoint', $session))
-            ->isEqualTo('NULL::subpoint')
-            ;
+            ->isEqualTo('NULL::subpoint');
     }
 
-    public function testToPgStandardFormat()
+    public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();
         $point = new Point('(1.2345, -9.87654)');
-        $this
-            ->string($this->newTestedInstance()->toPgStandardFormat($point, 'point', $session))
+        $this->string($this->newTestedInstance()->toPgStandardFormat($point, 'point', $session))
             ->isEqualTo('(1.2345,-9.87654)')
             ->string($this->newTestedInstance()->toPgStandardFormat('(1.2345,-9.87654)', 'point', $session))
             ->isEqualTo('(1.2345,-9.87654)')
             ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat('azsdf', 'point', $session))
-            ->isInstanceOf(\PommProject\Foundation\Exception\ConverterException::class)
+            ->isInstanceOf(ConverterException::class)
             ->variable($this->newTestedInstance()->toPgStandardFormat(null, 'subpoint', $session))
-            ->isNull()
-            ;
+            ->isNull();
     }
 }

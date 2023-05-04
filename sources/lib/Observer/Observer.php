@@ -15,12 +15,8 @@ use PommProject\Foundation\Client\Client;
 use PommProject\Foundation\Session\Session;
 
 /**
- * Observer
+ * Observer session client. Listen to notifications sent to the server.
  *
- * Observer session client.
- * Listen to notifications sent to the server.
- *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -28,40 +24,24 @@ use PommProject\Foundation\Session\Session;
  */
 class Observer extends Client
 {
-    /**
-     * __construct
-     *
-     * Constructor
-     *
-     * @param string $channel
-     */
     public function __construct(protected string $channel)
     {
     }
 
-    /**
-     * getClientType
-     *
-     * @see Client
-     */
+    /** @see Client */
     public function getClientType(): string
     {
         return 'observer';
     }
 
-    /**
-     * getClientIdentifier
-     *
-     * @see Client
-     */
+    /** @see Client */
     public function getClientIdentifier(): string
     {
         return $this->channel;
     }
 
     /**
-     * initialize
-     *
+     * @throws FoundationException
      * @see Client
      */
     public function initialize(Session $session): void
@@ -70,42 +50,27 @@ class Observer extends Client
         $this->restartListening();
     }
 
-    /**
-     * shutdown
-     *
-     * @see Client
-     */
+    /** @see Client */
     public function shutdown(): void
     {
         $this->unlisten($this->channel);
     }
 
     /**
-     * getNotification
+     * Check if a notification is pending. If so, the payload is returned. Otherwise, null is returned.
      *
-     * Check if a notification is pending. If so, the payload is returned.
-     * Otherwise, null is returned.
-     *
-     * @return array|null
      * @throws FoundationException
+     * @return array{message: string, pid: int, payload: string}|null
      */
     public function getNotification(): ?array
     {
-        return $this
-            ->getSession()
-            ->getConnection()
-            ->getNotification()
-            ;
+        return $this->getSession()->getConnection()->getNotification();
     }
 
     /**
-     * restartListening
+     * Send a LISTEN command to the backend. This is called in the initialize() method but it can be unlisten if the
+     * listen command took place in a transaction.
      *
-     * Send a LISTEN command to the backend. This is called in the initialize()
-     * method but it can be unlisten if the listen command took place in a
-     * transaction.
-     *
-     * @return Observer $this
      * @throws FoundationException
      */
     public function restartListening(): Observer
@@ -114,58 +79,39 @@ class Observer extends Client
     }
 
     /**
-     * listen
+     * Start to listen on the given channel. The observer automatically starts listening when registered against the
+     * session.
+     * NOTE: When listen is issued in a transaction it is unlisten when the transaction is committed or rollback.
      *
-     * Start to listen on the given channel. The observer automatically starts
-     * listening when registered against the session.
-     * NOTE: When listen is issued in a transaction it is unlisten when the
-     * transaction is committed or rollback.
-     *
-     * @param string $channel
-     * @return Observer $this
      * @throws FoundationException
      */
     protected function listen(string $channel): Observer
     {
-        $this
-            ->executeAnonymousQuery(
-                sprintf(
-                    "listen %s",
-                    $this->escapeIdentifier($channel)
-                )
-            );
-
-        return $this;
-    }
-
-    /**
-     * unlisten
-     *
-     * Stop listening to events.
-     *
-     * @param string $channel
-     * @return Observer $this
-     *
-     */
-    protected function unlisten(string $channel): Observer
-    {
         $this->executeAnonymousQuery(
-            sprintf(
-                "unlisten %s",
-                $this->escapeIdentifier($channel)
-            )
+            sprintf("listen %s", $this->escapeIdentifier($channel))
         );
 
         return $this;
     }
 
     /**
-     * throwNotification
+     * Stop listening to events.
      *
+     * @throws FoundationException
+     */
+    protected function unlisten(string $channel): Observer
+    {
+        $this->executeAnonymousQuery(
+            sprintf("unlisten %s", $this->escapeIdentifier($channel))
+        );
+
+        return $this;
+    }
+
+    /**
      * Check if a notification is pending. If so, a NotificationException is thrown.
      *
-     * @return Observer $this
-     *@throws  NotificationException|FoundationException
+     * @throws NotificationException|FoundationException
      */
     public function throwNotification(): Observer
     {
@@ -179,42 +125,26 @@ class Observer extends Client
     }
 
     /**
-     * executeAnonymousQuery
-     *
      * Proxy for Connection::executeAnonymousQuery()
      *
-     * @param string $sql
-     * @return Observer $this
      * @throws FoundationException
      * @see Connection
      */
     protected function executeAnonymousQuery(string $sql): Observer
     {
-        $this
-            ->getSession()
-            ->getConnection()
-            ->executeAnonymousQuery($sql)
-            ;
+        $this->getSession()->getConnection()->executeAnonymousQuery($sql);
 
         return $this;
     }
 
     /**
-     * escapeIdentifier
-     *
      * Proxy for Connection::escapeIdentifier()
      *
-     * @param string $string
-     * @return string
      * @throws FoundationException
      * @see Connection
      */
     protected function escapeIdentifier(string $string): string
     {
-        return $this
-            ->getSession()
-            ->getConnection()
-            ->escapeIdentifier($string)
-            ;
+        return $this->getSession()->getConnection()->escapeIdentifier($string);
     }
 }

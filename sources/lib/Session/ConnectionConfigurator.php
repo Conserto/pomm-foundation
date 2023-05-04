@@ -14,13 +14,9 @@ use PommProject\Foundation\ParameterHolder;
 use PommProject\Foundation\Exception\ConnectionException;
 
 /**
- * ConnectionConfigurator
+ * This class is responsible for configuring the connection.
+ * It has to extract information from the DSN and ensure required arguments are present.
  *
- * This class is responsible of configuring the connection.
- * It has to extract information from the DSN and ensure required arguments
- * are present.
- *
- * @package     Foundation
  * @copyright   2014 - 2015 Grégoire HUBERT
  * @author      Grégoire HUBERT
  * @license     X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -29,11 +25,7 @@ class ConnectionConfigurator
 {
     protected ParameterHolder $configuration;
 
-    /**
-     * Initialize configuration.
-     *
-     * @throws ConnectionException|FoundationException
-     */
+    /** @throws ConnectionException|FoundationException */
     public function __construct(string $dsn, bool $persist = false)
     {
         $this->configuration = new ParameterHolder(
@@ -56,6 +48,8 @@ class ConnectionConfigurator
 
     /**
      * Add configuration settings. If settings exist, they are overridden.
+     *
+     * @param array<string, mixed> $configuration
      */
     public function addConfiguration(array $configuration): ConnectionConfigurator
     {
@@ -70,19 +64,13 @@ class ConnectionConfigurator
         return $this;
     }
 
-    /**
-     * Set a new configuration setting.
-     */
+    /** Set a new configuration setting. */
     public function set(string $name, mixed $value): ConnectionConfigurator
     {
         $configuration = $this->configuration->getParameter('configuration');
         $configuration[$name] = $value;
-        $this
-            ->configuration
-            ->setParameter(
-                'configuration',
-                $configuration
-            );
+        $this->configuration
+            ->setParameter('configuration', $configuration);
 
         return $this;
     }
@@ -154,8 +142,7 @@ class ConnectionConfigurator
             ->setParameter('port', $port)
             ->setParameter('database', $database)
             ->mustHave('user')
-            ->mustHave('database')
-            ;
+            ->mustHave('database');
 
         return $this;
     }
@@ -168,7 +155,7 @@ class ConnectionConfigurator
     public function getConnectionString(): string
     {
         $this->parseDsn();
-        $connect_parameters = [
+        $connectParameters = [
             sprintf(
                 "user=%s dbname=%s",
                 $this->configuration['user'],
@@ -177,22 +164,24 @@ class ConnectionConfigurator
         ];
 
         if ($this->configuration['host'] !== '') {
-            $connect_parameters[] = sprintf('host=%s', $this->configuration['host']);
+            $connectParameters[] = sprintf('host=%s', $this->configuration['host']);
         }
 
         if ($this->configuration['port'] !== '') {
-            $connect_parameters[] = sprintf('port=%s', $this->configuration['port']);
+            $connectParameters[] = sprintf('port=%s', $this->configuration['port']);
         }
 
         if ($this->configuration['pass'] !== '') {
-            $connect_parameters[] = sprintf('password=%s', addslashes($this->configuration['pass']));
+            $connectParameters[] = sprintf('password=%s', addslashes($this->configuration['pass']));
         }
 
-        return join(' ', $connect_parameters);
+        return join(' ', $connectParameters);
     }
 
     /**
      * Standalone, default configuration.
+     *
+     * @return array<string, mixed>
      */
     protected function getDefaultConfiguration(): array
     {
@@ -203,6 +192,7 @@ class ConnectionConfigurator
      * Return current configuration settings.
      *
      * @throws ConnectionException
+     * @return array<string, mixed>
      */
     public function getConfiguration(): array
     {

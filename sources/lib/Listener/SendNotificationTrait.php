@@ -13,41 +13,30 @@ use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Session\Session;
 
 /**
- * SendNotificationTrait
- *
  * Trait to add sendNotification method to clients.
  *
- * @package     Foundation
  * @copyright   2014 - 2015 Grégoire HUBERT
  * @author      Grégoire HUBERT
  * @license     X11 {@link http://opensource.org/licenses/mit-license.php}
  */
 trait SendNotificationTrait
 {
-    /**
-     * getSession
-     *
-     * sendNotification needs to access the session.
-     */
+    /** sendNotification needs to access the session. */
     abstract protected function getSession(): Session;
 
     /**
-     * sendNotification
-     *
      * Send notification to the listener pooler.
      *
-     * @param string $name
-     * @param array $data
-     * @return mixed
      * @throws FoundationException
+     *
+     * @param string $name
+     * @param array<mixed, mixed> $data
+     * @return static
      */
-    protected function sendNotification(string $name, array $data): mixed
+    protected function sendNotification(string $name, array $data): static
     {
         /** @var Listener $listener */
-        $listener = $this
-            ->getSession()
-            ->getPoolerForType('listener');
-
+        $listener = $this->getSession()->getPoolerForType('listener');
         $listener->notify($name, $data);
 
         return $this;

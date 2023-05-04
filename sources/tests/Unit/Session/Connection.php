@@ -10,16 +10,29 @@
 namespace PommProject\Foundation\Test\Unit\Session;
 
 use Atoum;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Exception\SqlException;
-use PommProject\Foundation\Session\Connection as PommConnection;
+use PommProject\Foundation\Session\ResultHandler;
 
 class Connection extends Atoum
 {
-    protected function getDsn()
+    public function testExecuteAnonymousQuery(): void
     {
-        $var = $GLOBALS['pomm_db1'];
-
-        return $var['dsn'];
+        $connection = $this->getConnection($this->getDsn());
+        $this->object($connection->executeAnonymousQuery('select true'))
+            ->isInstanceOf(ResultHandler::class)
+            ->exception(function () use ($connection) {
+                $connection->executeAnonymousQuery('bad query');
+            })
+            ->isInstanceOf(SqlException::class)
+            ->string($this->exception->getSQLErrorState())
+            ->isIdenticalTo(SqlException::SYNTAX_ERROR)
+            ->array($connection->executeAnonymousQuery('select true; select false; select null'))
+            ->hasSize(3)
+            ->exception(function () use ($connection) {
+                $connection->executeAnonymousQuery('select true; bad query');
+            })
+            ->isInstanceOf(SqlException::class);
     }
 
     protected function getConnection($dsn)
@@ -27,40 +40,26 @@ class Connection extends Atoum
         return $this->newTestedInstance($dsn);
     }
 
-    public function testExecuteAnonymousQuery()
+    protected function getDsn()
     {
-        $connection = $this->getConnection($this->getDsn());
-        $this
-            ->object($connection->executeAnonymousQuery('select true'))
-            ->isInstanceOf(\PommProject\Foundation\Session\ResultHandler::class)
-            ->exception(function () use ($connection) {
-                    $connection->executeAnonymousQuery('bad query');
-                })
-            ->isInstanceOf(\PommProject\Foundation\Exception\SqlException::class)
-            ->string($this->exception->getSQLErrorState())
-            ->isIdenticalTo(SqlException::SYNTAX_ERROR)
-            ->array($connection->executeAnonymousQuery('select true; select false; select null'))
-            ->hasSize(3)
-            ->exception(function () use ($connection) {
-                    $connection->executeAnonymousQuery('select true; bad query');
-                })
-            ->isInstanceOf(\PommProject\Foundation\Exception\SqlException::class)
-            ;
+        $var = $GLOBALS['pomm_db1'];
+
+        return $var['dsn'];
     }
 
-    public function testSendQueryWithParameters()
+    /** @throws FoundationException */
+    public function testSendQueryWithParameters(): void
     {
-        $bad_query = 'select n where true = $1';
+        $badQuery = 'select n where true = $1';
         $parameters = [true];
 
         $connection = $this->getConnection($this->getDsn());
-        $this
-            ->object($connection->sendQueryWithParameters('select true where true = $1', $parameters))
-            ->isInstanceOf(\PommProject\Foundation\Session\ResultHandler::class)
-            ->exception(function () use ($connection, $bad_query, $parameters) {
-                $connection->sendQueryWithParameters($bad_query, $parameters);
+        $this->object($connection->sendQueryWithParameters('select true where true = $1', $parameters))
+            ->isInstanceOf(ResultHandler::class)
+            ->exception(function () use ($connection, $badQuery, $parameters) {
+                $connection->sendQueryWithParameters($badQuery, $parameters);
             })
-            ->isInstanceOf(\PommProject\Foundation\Exception\SqlException::class)
+            ->isInstanceOf(SqlException::class)
             ->string($this->exception->getSQLErrorState())
             ->isIdenticalTo(SqlException::UNDEFINED_COLUMN)
             ->and
@@ -68,7 +67,6 @@ class Connection extends Atoum
             ->isIdenticalTo($parameters)
             ->and
             ->string($this->exception->getQuery())
-            ->isIdenticalTo($bad_query)
-        ;
+            ->isIdenticalTo($badQuery);
     }
 }

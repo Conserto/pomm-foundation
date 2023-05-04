@@ -9,29 +9,31 @@
  */
 namespace PommProject\Foundation;
 
+use PommProject\Foundation\Converter\ConverterClient;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Session\ResultHandler;
 use PommProject\Foundation\Session\Session as BaseSession;
 
 /**
- * ConvertedResultIterator
- *
  * Iterator on converted results.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
  * @see       ResultIterator
+ *
+ * @template T
+ * @extends ResultIterator<T>
  */
 class ConvertedResultIterator extends ResultIterator
 {
+    /** @var array<string, string> */
     protected array $types = [];
+
+    /** @var array<string, ConverterClient> */
     protected array $converters = [];
 
-    /**
-     * @param ResultHandler $result
-     * @param BaseSession   $session
-     */
+    /** @throws FoundationException */
     public function __construct(ResultHandler $result, protected BaseSession $session)
     {
         parent::__construct($result);
@@ -39,14 +41,11 @@ class ConvertedResultIterator extends ResultIterator
     }
 
     /**
-     * get
-     *
      * Return a particular result. An array with converted values is returned.
-     * pg_fetch_array is muted because it produces untrappable warnings on
-     * errors.
+     * pg_fetch_array is muted because it produces untrappable warnings on errors.
      *
      * @param  integer $index
-     * @return array
+     * @return array<string, mixed>
      */
     public function get(int $index): array
     {
@@ -54,10 +53,10 @@ class ConvertedResultIterator extends ResultIterator
     }
 
     /**
-     * initTypes
-     *
      * Get the result types from the result handler.
+     * @throws FoundationException
      *
+     * @return ResultIterator<T>
      */
     protected function initTypes(): ResultIterator
     {
@@ -69,51 +68,42 @@ class ConvertedResultIterator extends ResultIterator
             }
 
             $this->types[$name] = $type;
-            $this->converters[$name] = $this
-                ->session
-                ->getClientUsingPooler('converter', $type)
-            ;
+
+            /** @var ConverterClient $converter */
+            $converter = $this->session->getClientUsingPooler('converter', $type);
+            $this->converters[$name] = $converter;
         }
 
         return $this;
     }
 
     /**
-     * parseRow
-     *
      * Convert values from Pg.
      *
+     * @param array<string, ?string> $values
+     * @return array<string, mixed>
      */
     protected function parseRow(array $values): array
     {
-        $output_values = [];
+        $outputValues = [];
 
         foreach ($values as $name => $value) {
-            $output_values[$name] =
-                $this->convertField($name, $value) ;
+            $outputValues[$name] = $this->convertField($name, $value) ;
         }
 
-        return $output_values;
+        return $outputValues;
     }
 
-    /**
-     * convertField
-     *
-     * Return converted value for a result field.
-     *
-     */
+    /** Return converted value for a result field. */
     protected function convertField(string $name, ?string $value): mixed
     {
-        return $this
-            ->converters[$name]
-            ->fromPg($value, $this->types[$name])
-            ;
+        return $this->converters[$name]->fromPg($value, $this->types[$name]);
     }
 
     /**
-     * slice
-     *
      * see @ResultIterator
+     *
+     * @return array<int, mixed>
      */
     public function slice(string $field): array
     {

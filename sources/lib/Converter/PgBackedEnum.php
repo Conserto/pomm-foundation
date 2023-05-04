@@ -6,11 +6,8 @@ use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Session\Session;
 
 /**
- * PgBackedEnum
- *
  * Converter for BackedEnum types (>= PHP 8.1).
  *
- * @package     Foundation
  * @copyright   2023 Tovski
  * @author      Tovski
  * @license     X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -20,6 +17,8 @@ class PgBackedEnum implements ConverterInterface
 {
     /**
      * @throws ConverterException
+     *
+     * @param class-string $enumFqcn
      */
     public function __construct(private readonly string $enumFqcn)
     {
@@ -28,9 +27,7 @@ class PgBackedEnum implements ConverterInterface
         }
     }
 
-    /**
-     * @throws ConverterException
-     */
+    /** @throws ConverterException */
     public function fromPg(?string $data, string $type, Session $session): ?\BackedEnum
     {
         if (null === $data) {

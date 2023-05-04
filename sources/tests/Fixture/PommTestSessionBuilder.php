@@ -19,25 +19,20 @@ use PommProject\Foundation\Test\Fixture\PommTestSession;
 class PommTestSessionBuilder extends SessionBuilder
 {
     /**
-     * createSession
-     *
      * Override default session.
      *
      * @see SessionBuilder
-     * @return PommTestSession
      */
-    protected function createSession(Connection $connection, ClientHolder $client_holder, ?string $stamp): Session
+    protected function createSession(Connection $connection, ClientHolder $clientHolder, ?string $stamp): Session
     {
-        return new PommTestSession($connection, $client_holder, $stamp);
+        return new PommTestSession($connection, $clientHolder, $stamp);
     }
 
     protected function postConfigure(Session $session): static
     {
         parent::postConfigure($session);
 
-        $session
-            ->registerClientPooler(new ListenerPooler)
-            ;
+        $session->registerClientPooler(new ListenerPooler);
         return $this;
     }
 }

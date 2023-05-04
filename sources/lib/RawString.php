@@ -10,38 +10,20 @@
 namespace PommProject\Foundation;
 
 /**
- * RowString
- *
  * Expression escaper.
  *
- * This type allows to pass raw expressions as is to the database. Useful to
- * call functions or database expressions.
+ * This type allows to pass raw expressions as is to the database. Useful to call functions or database expressions.
  *
- * @package   Foundation
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
  */
 class RawString implements \Stringable
 {
-    /**
-     * __construct
-     *
-     * Create a RawString.
-     *
-     * @param string $expression
-     */
     public function __construct(protected string $expression)
     {
     }
 
-    /**
-     * __toString
-     *
-     * String cast this instance.
-     *
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->expression;

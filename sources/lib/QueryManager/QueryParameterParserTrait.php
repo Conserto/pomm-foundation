@@ -12,12 +12,8 @@ namespace PommProject\Foundation\QueryManager;
 use PommProject\Foundation\Session\Session;
 
 /**
- * QueryParameterParserTrait
+ * Trait that makes query managers to parse, expand anc convert query parameters.
  *
- * Trait that makes query managers to parse, expand anc convert query
- * parameters.
- *
- * @package     Foundation
  * @copyright   2014 - 2015 Grégoire HUBERT
  * @author      Grégoire HUBERT
  * @license     X11 {@link http://opensource.org/licenses/mit-license.php}
@@ -26,27 +22,13 @@ trait QueryParameterParserTrait
 {
     abstract protected function getSession(): Session;
 
-    /**
-     * unorderParameters
-     *
-     * Transform an ordered parameters list with $1, $2 to $* parameters.
-     *
-     * @param string $string
-     * @return string
-     */
+    /** Transform an ordered parameters list with $1, $2 to $* parameters. */
     public function unorderParameters(string $string): string
     {
         return preg_replace('/\$[0-9]+/', '$*', $string);
     }
 
-    /**
-     * orderParameters
-     *
-     * Transform an unordered parameters list $* to ordered $1, $2 parameters.
-     *
-     * @param string $string
-     * @return string
-     */
+    /** Transform an unordered parameters list $* to ordered $1, $2 parameters. */
     public function orderParameters(string $string): string
     {
         return preg_replace_callback(
@@ -61,16 +43,12 @@ trait QueryParameterParserTrait
     }
 
     /**
-     * getParametersType
-     *
-     * Return an array of the type specified with the parameters if any. It is
-     * possible to give the type when passing parameters like « SELECT … WHERE
-     * field = $*::timestamptz ». In this case, PostgreSQL will assume the
-     * given parameter is a timestamp. Pomm uses these type hints to convert
-     * PHP representation to PostgreSQL data value.
+     * Return an array of the type specified with the parameters if any. It is possible to give the type when passing
+     * parameters like « SELECT … WHERE field = $*::timestamptz ». In this case, PostgreSQL will assume the given
+     * parameter is a timestamp. Pomm uses these type hints to convert PHP representation to PostgreSQL data value.
      *
      * @param   mixed $string SQL query.
-     * @return  array
+     * @return  array<int, string>
      */
     public function getParametersType(mixed $string): array
     {
