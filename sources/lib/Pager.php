@@ -14,7 +14,7 @@ namespace PommProject\Foundation;
  * @author    Grégoire HUBERT <hubert.greg@gmail.com>
  * @license   MIT/X11 {@link http://opensource.org/licenses/mit-license.php}
  *
- * @template T
+ * @template-covariant T
  */
 class Pager
 {
