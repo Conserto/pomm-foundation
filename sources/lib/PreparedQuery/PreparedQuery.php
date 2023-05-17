@@ -10,6 +10,8 @@
 namespace PommProject\Foundation\PreparedQuery;
 
 use PommProject\Foundation\Converter\ConverterClient;
+use PommProject\Foundation\Exception\ConnectionException;
+use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\QueryManager\QueryParameterParserTrait;
 use PommProject\Foundation\Listener\SendNotificationTrait;
 use PommProject\Foundation\Exception\FoundationException;
@@ -91,7 +93,7 @@ class PreparedQuery extends Client
      *
      * @param array<int, mixed> $values Query parameters
      * @return ResultHandler
-     * @throws FoundationException
+     * @throws ConnectionException|FoundationException|SqlException
      */
     public function execute(array $values = []): ResultHandler
     {
@@ -133,6 +135,7 @@ class PreparedQuery extends Client
     /**
      * Send the query to be prepared by the server.
      * @throws FoundationException
+     * @throws SqlException if the result is an error.
      */
     protected function prepare(): PreparedQuery
     {

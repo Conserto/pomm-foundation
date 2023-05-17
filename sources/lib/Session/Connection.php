@@ -390,15 +390,11 @@ class Connection
     /**
      * Execute a prepared statement. The optional SQL parameter is for debugging purposes only.
      *
-     * @throws ConnectionException
-     * @throws FoundationException
-     * @throws SqlException
-     *
      * @param string $identifier
      * @param array<int, mixed> $parameters
      * @param string $sql
-     *
      * @return ResultHandler
+     * @throws ConnectionException|FoundationException|SqlException
      */
     public function sendExecuteQuery(string $identifier, array $parameters = [], string $sql = ''): ResultHandler
     {
