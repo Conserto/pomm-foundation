@@ -1,5 +1,5 @@
 {
-    "version": "3.2.2",
+    "version": "3.2.3",
     "name": "conserto/pomm-foundation",
     "type": "library",
     "description":  "Pomm connection manager for Postgresql",
@@ -10,7 +10,7 @@
     "require": {
         "php": ">=8.1",
         "ext-pgsql": "*",
-        "psr/log": "~1.0"
+        "psr/log": "^2.0 || ^3.0"
     },
     "require-dev": {
         "atoum/atoum" : "^4.0",
