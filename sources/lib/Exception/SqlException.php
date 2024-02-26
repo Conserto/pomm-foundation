@@ -356,9 +356,10 @@ class SqlException extends FoundationException
     }
 
     /** Returns the error message sent by the server. */
-    public function getSqlErrorMessage(): string
+    public function getSqlErrorMessage(bool $primary = false): string
     {
-        return pg_result_error($this->result);
+        return $primary ?
+            pg_result_error_field($this->result, \PGSQL_DIAG_MESSAGE_PRIMARY) : pg_result_error($this->result);
     }
 
     public function getSQLDetailedErrorMessage(): string

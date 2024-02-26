@@ -1,6 +1,14 @@
+== VERSION 3.2.4
+
+ * Add option to SqlException::getSqlErrorMessage() to get only primary message
+
+== VERSION 3.2.3
+
+ * Update psr/log dependency
+
 == VERSION 3.2.2
 
- * Add some @throws annotations
+* Add some @throws annotations
 
 == VERSION 3.2.1
 
