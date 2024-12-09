@@ -85,7 +85,7 @@ class PgComposite extends ArrayTypeConverter
 
         return
             sprintf("(%s)",
-                join(',', array_map(fn($val): mixed => match (true)
+                join(',', array_map(fn(mixed $val): mixed => match (true)
                 {
                     (null === $val) => '',
                     ('' === $val) => '""',

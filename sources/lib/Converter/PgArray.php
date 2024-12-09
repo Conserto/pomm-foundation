@@ -84,7 +84,7 @@ class PgArray extends ArrayTypeConverter
 
         return sprintf(
             'ARRAY[%s]::%s[]',
-            join(',', array_map(fn($val): string => $converter->toPg($val, $type, $session), $data)),
+            join(',', array_map(fn(mixed $val): string => $converter->toPg($val, $type, $session), $data)),
             $type
         );
     }
@@ -105,7 +105,7 @@ class PgArray extends ArrayTypeConverter
 
         return
             sprintf('{%s}', join(',',
-                array_map(function ($val) use ($converter, $type, $session): ?string {
+                array_map(function (mixed $val) use ($converter, $type, $session): ?string {
                     if ($val === null) {
                         return 'NULL';
                     }
