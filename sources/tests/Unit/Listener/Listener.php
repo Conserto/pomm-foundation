@@ -20,9 +20,9 @@ class Listener extends FoundationSessionAtoum
     {
         $listener = $this->newTestedInstance('pika');
         $this->buildSession()->registerClient($listener);
-        $this->object($listener->attachAction(fn($name, $data, $session) => true))
+        $this->object($listener->attachAction(fn($name, $data, $session): true => true))
             ->isInstanceOf(\PommProject\Foundation\Listener\Listener::class)
-            ->object($listener->attachAction([$this, 'testAttachAction']));
+            ->object($listener->attachAction($this->testAttachAction(...)));
     }
 
     /** @throws FoundationException */
@@ -32,8 +32,8 @@ class Listener extends FoundationSessionAtoum
         $this->buildSession()->registerClient($listener);
         $flag = null;
         $listener
-            ->attachAction(fn($name, $data, $session) => true)
-            ->attachAction(function ($name, $data, $session) use (&$flag) {
+            ->attachAction(fn($name, $data, $session): true => true)
+            ->attachAction(function ($name, $data, $session) use (&$flag): void {
                 $flag = $name;
             });
 

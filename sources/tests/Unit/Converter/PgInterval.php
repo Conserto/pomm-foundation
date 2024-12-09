@@ -22,7 +22,7 @@ class PgInterval extends BaseConverter
             ->isNull()
             ->dateInterval($this->newTestedInstance()->fromPg('P14346DT22H47M3.138892S', 'interval', $session))
             ->isEqualTo(new \DateInterval('P14346DT22H47M3S')) // <- truncated to second precision
-            ->exception(function () use ($session) {
+            ->exception(function () use ($session): void {
                 $this->newTestedInstance()->fromPg('P-11D', 'interval', $session);
             })
             ->isInstanceOf(ConverterException::class)
@@ -37,7 +37,7 @@ class PgInterval extends BaseConverter
             ->isEqualTo('NULL::interval')
             ->string($this->newTestedInstance()->toPg(new \DateInterval('P14346DT22H47M3S'), 'interval', $session))
             ->isEqualTo("interval '00 years 00 months 14346 days 22:47:03'")
-            ->exception(function () use ($session) {
+            ->exception(function () use ($session): void {
                 $this->newTestedInstance()->toPg('foo', 'interval', $session);
             })
             ->isInstanceOf(ConverterException::class)

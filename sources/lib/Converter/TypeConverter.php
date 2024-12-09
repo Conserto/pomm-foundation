@@ -63,7 +63,7 @@ abstract class TypeConverter implements ConverterInterface
                 return sprintf("%s('%s')", $type, $dataObject);
             } else {
                 throw new ConverterException(
-                    sprintf("Unable to transform a '%s' instance to string.", get_class($dataObject)),
+                    sprintf("Unable to transform a '%s' instance to string.", $dataObject::class),
                     0
                 );
             }

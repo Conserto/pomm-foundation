@@ -29,6 +29,6 @@ abstract class QueryManagerClient extends Client implements QueryManagerInterfac
     /** @see ClientInterface */
     public function getClientIdentifier(): string
     {
-        return $this::class;
+        return static::class;
     }
 }

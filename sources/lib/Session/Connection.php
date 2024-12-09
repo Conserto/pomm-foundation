@@ -23,17 +23,17 @@ use PgSql\Connection as PgSqlConnection;
  */
 class Connection
 {
-    final const CONNECTION_STATUS_NONE    = 0;
-    final const CONNECTION_STATUS_GOOD    = 1;
-    final const CONNECTION_STATUS_BAD     = 2;
-    final const CONNECTION_STATUS_CLOSED  = 3;
-    final const ISOLATION_READ_COMMITTED  = "READ COMMITTED";  // default
-    final const ISOLATION_REPEATABLE_READ = "REPEATABLE READ"; // from Pg 9.1
-    final const ISOLATION_SERIALIZABLE    = "SERIALIZABLE";    // changes in 9.1
-    final const CONSTRAINTS_DEFERRED      = "DEFERRED";
-    final const CONSTRAINTS_IMMEDIATE     = "IMMEDIATE";       // default
-    final const ACCESS_MODE_READ_ONLY     = "READ ONLY";
-    final const ACCESS_MODE_READ_WRITE    = "READ WRITE";      // default
+    final const int CONNECTION_STATUS_NONE    = 0;
+    final const int CONNECTION_STATUS_GOOD    = 1;
+    final const int CONNECTION_STATUS_BAD     = 2;
+    final const int CONNECTION_STATUS_CLOSED  = 3;
+    final const string ISOLATION_READ_COMMITTED  = "READ COMMITTED";  // default
+    final const string ISOLATION_REPEATABLE_READ = "REPEATABLE READ"; // from Pg 9.1
+    final const string ISOLATION_SERIALIZABLE    = "SERIALIZABLE";    // changes in 9.1
+    final const string CONSTRAINTS_DEFERRED      = "DEFERRED";
+    final const string CONSTRAINTS_IMMEDIATE     = "IMMEDIATE";       // default
+    final const string ACCESS_MODE_READ_ONLY     = "READ ONLY";
+    final const string ACCESS_MODE_READ_WRITE    = "READ WRITE";      // default
 
     protected ?PgSqlConnection $handler = null;
     protected ConnectionConfigurator $configurator;
@@ -214,7 +214,7 @@ class Connection
             $sql[] = sprintf(
                 "set %s = %s",
                 pg_escape_identifier($this->handler, $setting),
-                pg_escape_literal($this->handler, $value)
+                pg_escape_literal($this->handler, (string) $value)
             );
         }
 
@@ -275,7 +275,7 @@ class Connection
      * @param string|null $sql
      * @return ResultHandler|array<int, ResultHandler>
      */
-    protected function getQueryResult(string $sql = null): ResultHandler|array
+    protected function getQueryResult(?string $sql = null): ResultHandler|array
     {
         $results = [];
 

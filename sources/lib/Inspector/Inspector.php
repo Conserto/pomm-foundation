@@ -34,7 +34,7 @@ class Inspector extends Client
     /** @see ClientInterface */
     public function getClientIdentifier(): string
     {
-        return $this::class;
+        return static::class;
     }
 
     /**
@@ -139,7 +139,7 @@ SQL;
      * @return int|null
      * @throws FoundationException
      */
-    public function getSchemaOid(string $schema, Where $where = null): ?int
+    public function getSchemaOid(string $schema, ?Where $where = null): ?int
     {
         $condition =
             Where::create("s.nspname = $*", [$schema])
@@ -201,7 +201,7 @@ SQL;
      *
      * @return ConvertedResultIterator<array{name: string ,type: string, oid: int, comment: ?string}>
      */
-    public function getSchemaRelations(?int $schemaOid, Where $where = null): ConvertedResultIterator
+    public function getSchemaRelations(?int $schemaOid, ?Where $where = null): ConvertedResultIterator
     {
         $condition = Where::create('relnamespace = $*', [$schemaOid])
             ->andWhere(Where::createWhereIn('relkind', ['r', 'v', 'm', 'f']))
@@ -255,7 +255,7 @@ SQL;
      *
      * @return null|array{oid: int, category: string}
      */
-    public function getTypeInformation(string $typeName, string $typeSchema = null): ?array
+    public function getTypeInformation(string $typeName, ?string $typeSchema = null): ?array
     {
         $condition = Where::create("t.typname = $*", [$typeName]);
         $sql = <<<SQL
@@ -382,7 +382,7 @@ SQL;
      * @param string $sql
      * @return ConvertedResultIterator<mixed>
      */
-    protected function executeSql(string $sql, Where $condition = null): ConvertedResultIterator
+    protected function executeSql(string $sql, ?Where $condition = null): ConvertedResultIterator
     {
         $condition = (new Where())->andWhere($condition);
         $sql = strtr($sql, [':condition' => $condition]);

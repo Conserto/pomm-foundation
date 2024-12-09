@@ -49,7 +49,7 @@ class Pomm extends Atoum
             ->message->contains('Could not instantiate');
     }
 
-    protected function getPomm(array $configuration = null)
+    protected function getPomm(?array $configuration = null)
     {
         if ($configuration === null) {
             $configuration =
@@ -88,7 +88,7 @@ class Pomm extends Atoum
             ->isInstanceOf(SessionBuilder::class)
             ->object($pomm->getBuilder('db_two'))
             ->isInstanceOf(PommTestSessionBuilder::class)
-            ->exception(function () use ($pomm) {
+            ->exception(function () use ($pomm): void {
                 $pomm->getBuilder('whatever');
             })
             ->isInstanceOf(FoundationException::class)
@@ -130,7 +130,7 @@ class Pomm extends Atoum
             ->isInstanceOf(\PommProject\Foundation\Pomm::class)
             ->boolean($pomm->hasSession('db_one'))
             ->isFalse()
-            ->exception(function () use ($pomm) {
+            ->exception(function () use ($pomm): void {
                 $pomm->removeSession('unknown');
             })
             ->isInstanceOf(FoundationException::class)
@@ -140,7 +140,7 @@ class Pomm extends Atoum
     public function testPostConfiguration(): void
     {
         $pomm = $this->getPomm()
-            ->addPostConfiguration('db_two', function ($session) {
+            ->addPostConfiguration('db_two', function ($session): void {
                 $session->getListener('pika');
             });
 

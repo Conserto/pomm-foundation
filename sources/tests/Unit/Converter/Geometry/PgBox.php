@@ -45,9 +45,7 @@ class PgBox extends BaseConverter
             ->isEqualTo('box((1.2345,-9.87654),(0.1234,-10.98765))')
             ->string($this->newTestedInstance()->toPg('((1.2345,-9.87654),(0.1234,-10.98765))', 'box', $session))
             ->isEqualTo('box((1.2345,-9.87654),(0.1234,-10.98765))')
-            ->exception(function () use ($session) {
-                return $this->newTestedInstance()->toPg('azsdf', 'box', $session);
-            })
+            ->exception(fn() => $this->newTestedInstance()->toPg('azsdf', 'box', $session))
             ->isInstanceOf(ConverterException::class)
             ->string($this->newTestedInstance()->toPg(null, 'subbox', $session))
             ->isEqualTo('NULL::subbox');
@@ -62,9 +60,7 @@ class PgBox extends BaseConverter
             ->isEqualTo('((1.2345,-9.87654),(0.1234,-10.98765))')
             ->string($this->newTestedInstance()->toPgStandardFormat('((1.2345,-9.87654),(0.1234,-10.98765))', 'box', $session))
             ->isEqualTo('((1.2345,-9.87654),(0.1234,-10.98765))')
-            ->exception(function () use ($session) {
-                return $this->newTestedInstance()->toPgStandardFormat('azsdf', 'box', $session);
-            })
+            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat('azsdf', 'box', $session))
             ->isInstanceOf(ConverterException::class)
             ->variable($this->newTestedInstance()->toPgStandardFormat(null, 'subbox', $session))
             ->isNull();

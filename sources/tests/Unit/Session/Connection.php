@@ -21,7 +21,7 @@ class Connection extends Atoum
         $connection = $this->getConnection($this->getDsn());
         $this->object($connection->executeAnonymousQuery('select true'))
             ->isInstanceOf(ResultHandler::class)
-            ->exception(function () use ($connection) {
+            ->exception(function () use ($connection): void {
                 $connection->executeAnonymousQuery('bad query');
             })
             ->isInstanceOf(SqlException::class)
@@ -29,7 +29,7 @@ class Connection extends Atoum
             ->isIdenticalTo(SqlException::SYNTAX_ERROR)
             ->array($connection->executeAnonymousQuery('select true; select false; select null'))
             ->hasSize(3)
-            ->exception(function () use ($connection) {
+            ->exception(function () use ($connection): void {
                 $connection->executeAnonymousQuery('select true; bad query');
             })
             ->isInstanceOf(SqlException::class);
@@ -56,7 +56,7 @@ class Connection extends Atoum
         $connection = $this->getConnection($this->getDsn());
         $this->object($connection->sendQueryWithParameters('select true where true = $1', $parameters))
             ->isInstanceOf(ResultHandler::class)
-            ->exception(function () use ($connection, $badQuery, $parameters) {
+            ->exception(function () use ($connection, $badQuery, $parameters): void {
                 $connection->sendQueryWithParameters($badQuery, $parameters);
             })
             ->isInstanceOf(SqlException::class)

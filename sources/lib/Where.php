@@ -125,7 +125,6 @@ class Where implements \Stringable
     /**
      * Or use a ready to use AND where clause.
      *
-     * @param mixed $element
      * @param array<int, mixed> $values
      * @return Where
      */
@@ -137,7 +136,6 @@ class Where implements \Stringable
     /**
      * You can add a new WHERE clause with your own operator.
      *
-     * @param mixed $element
      * @param array<int, mixed> $values
      * @param string $operator
      * @return Where
@@ -234,7 +232,7 @@ class Where implements \Stringable
      * @param array<int, mixed> $values
      * @return Where
      */
-    public static function create(string $element = null, array $values = []): Where
+    public static function create(?string $element = null, array $values = []): Where
     {
         return new self($element, $values);
     }
@@ -242,7 +240,6 @@ class Where implements \Stringable
     /**
      * orWhere
      *
-     * @param mixed $element
      * @param array<int, mixed> $values
      * @return Where
      */
@@ -263,10 +260,7 @@ class Where implements \Stringable
             return $this->getElement();
         }
 
-        $stack = [];
-        foreach ($this->stack as $offset => $where) {
-            $stack[$offset] = $where->parse();
-        }
+        $stack = array_map(fn(Where $where): string => $where->parse(), $this->stack);
 
         return sprintf('(%s)', join(sprintf(' %s ', $this->operator), $stack));
     }

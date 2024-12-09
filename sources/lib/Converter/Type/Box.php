@@ -16,7 +16,7 @@ namespace PommProject\Foundation\Converter\Type;
  * @author Miha Vrhovnik
  * @license X11 {@link http://opensource.org/licenses/mit-license.php}
  */
-class Box
+class Box implements \Stringable
 {
     public float $topX;
     public float $topY;
@@ -43,7 +43,7 @@ class Box
     }
 
     /** Return a string representation of Box. */
-    public function __toString()
+    public function __toString(): string
     {
         return sprintf(
             "((%s,%s),(%s,%s))",

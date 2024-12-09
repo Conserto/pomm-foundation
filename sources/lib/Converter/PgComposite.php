@@ -47,7 +47,7 @@ class PgComposite extends ArrayTypeConverter
             return null;
         }
 
-        $values = str_getcsv(stripcslashes(trim($data, '()')));
+        $values = str_getcsv(stripcslashes(trim($data, '()')), escape: "\\");
 
         return $this->convertArray(array_combine(array_keys($this->structure), $values), $session, 'fromPg');
     }
@@ -85,15 +85,13 @@ class PgComposite extends ArrayTypeConverter
 
         return
             sprintf("(%s)",
-                join(',', array_map(function ($val) {
-                    return match (true)
-                    {
-                        (null === $val) => '',
-                        ('' === $val) => '""',
-                        (bool) preg_match('/[,\s()]/', $val) =>
-                            sprintf('"%s"', str_replace('"', '""', $val)),
-                        default => $val,
-                    };
+                join(',', array_map(fn($val): mixed => match (true)
+                {
+                    (null === $val) => '',
+                    ('' === $val) => '""',
+                    (bool) preg_match('/[,\s()]/', (string) $val) =>
+                        sprintf('"%s"', str_replace('"', '""', $val)),
+                    default => $val,
                 }, $this->convertArray($data, $session, 'toPgStandardFormat')
                 ))
             );

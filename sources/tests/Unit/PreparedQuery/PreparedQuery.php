@@ -20,7 +20,7 @@ class PreparedQuery extends FoundationSessionAtoum
     /** @throws FoundationException */
     public function testConstruct(): void
     {
-        $this->exception(function () {
+        $this->exception(function (): void {
             $this->newTestedInstance(null);
         })
             ->isInstanceOf(FoundationException::class)

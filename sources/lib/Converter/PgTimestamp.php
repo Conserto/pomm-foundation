@@ -22,7 +22,7 @@ use PommProject\Foundation\Exception\ConverterException;
  */
 class PgTimestamp implements ConverterInterface
 {
-    final const TS_FORMAT = 'Y-m-d H:i:s.uP';
+    final const string TS_FORMAT = 'Y-m-d H:i:s.uP';
 
     /**
      * @throws \Exception
