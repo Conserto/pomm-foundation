@@ -16,9 +16,12 @@ use PommProject\Foundation\Session\SessionBuilder;
 use PommProject\Foundation\Test\Fixture\PommTestSession;
 use PommProject\Foundation\Test\Fixture\PommTestSessionBuilder;
 use \Mock\PommProject\Foundation\Session\Session as MockSession;
+use PommProject\Foundation\Test\Unit\Session\ConnectionConfigurator;
 
 class Pomm extends Atoum
 {
+    private const string DSN_TEST = 'pgsql://user:pass@host:5432/db_name';
+
     public function testConstructor(): void
     {
         $pomm = $this->getPomm([]);
@@ -31,17 +34,17 @@ class Pomm extends Atoum
             ->array(
                 $this->newTestedInstance([
                     "first_db_config" => [
-                        "dsn" => "pgsql://user:pass@host:port/db_name",
+                        "dsn" => "pgsql://user:pass@host:5432/db_name",
                     ],
                     "second_db_config" => [
-                        "dsn" => "pgsql://user:pass@host:port/db_name",
+                        "dsn" => "pgsql://user:pass@host:5432/db_name",
                     ],
                 ])->getSessionBuilders())
             ->size->isEqualTo(2)
             ->exception(fn() => $this->newTestedInstance(
                 [
                     "db_three" => [
-                        "dsn" => "pgsql://user:pass@host:port/db_name",
+                        "dsn" => "pgsql://user:pass@host:5432/db_name",
                         "class:session_builder" => "\\Whatever\\Unexistent\\Class",
                     ],
                 ]))
@@ -54,9 +57,9 @@ class Pomm extends Atoum
         if ($configuration === null) {
             $configuration =
                 [
-                    "db_one" => ["dsn" => "pgsql://user:pass@host:port/db_name"],
+                    "db_one" => ["dsn" => "pgsql://user:pass@host:5432/db_name"],
                     "db_two" => [
-                        "dsn" => "pgsql://user:pass@host:port/db_name",
+                        "dsn" => "pgsql://user:pass@host:5432/db_name",
                         "class:session_builder" => PommTestSessionBuilder::class,
                         "pomm:default" => true,
                     ],
@@ -99,7 +102,7 @@ class Pomm extends Atoum
     {
         $pomm = $this->getPomm();
         $this->object($pomm->getSession('db_one'))
-            ->isInstanceOf(Session::class)
+        ->isInstanceOf(Session::class)
             ->object($pomm->getSession('db_two'))
             ->isInstanceOf(PommTestSession::class)
             ->exception(fn() => $pomm->getSession('whatever'))
@@ -155,7 +158,7 @@ class Pomm extends Atoum
             ->isInstanceOf(Session::class)
             ->string($this->getPomm()->getDefaultSession()->getStamp())
             ->contains('db_two')
-            ->string($this->newTestedInstance(['one' => ['dsn' => 'pgsql://user/db']])->getDefaultSession()->getStamp())
+            ->string($this->newTestedInstance(['one' => ['dsn' => ConnectionConfigurator::DSN_TEST]])->getDefaultSession()->getStamp())
             ->contains('one')
             ->exception(fn() => $this->getPomm()->setDefaultBuilder('none'))
             ->message->contains("No such builder")
@@ -166,8 +169,8 @@ class Pomm extends Atoum
     public function testIsDefault(): void
     {
         $pomm = $this->newTestedInstance([
-            'one' => ['dsn' => 'pgsql://user/db'],
-            'two' => ['dsn' => 'pgsql://user/db']
+            'one' => ['dsn' => ConnectionConfigurator::DSN_TEST],
+            'two' => ['dsn' => ConnectionConfigurator::DSN_TEST]
         ]);
 
         $this->boolean($pomm->isDefaultSession('one'))
@@ -181,8 +184,8 @@ class Pomm extends Atoum
     public function testShutdown(): void
     {
         $pomm = $this->newTestedInstance([
-            'one' => ['dsn' => 'pgsql://user/db', 'class:session' => MockSession::class],
-            'two' => ['dsn' => 'pgsql://user/db']
+            'one' => ['dsn' => ConnectionConfigurator::DSN_TEST, 'class:session' => MockSession::class],
+            'two' => ['dsn' => ConnectionConfigurator::DSN_TEST]
         ]);
         $session_mock = $pomm['one'];
 

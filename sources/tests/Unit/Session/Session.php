@@ -81,7 +81,8 @@ class Session extends VanillaSessionAtoum
             ->call('initialize')
             ->once()
             ->object($session->getClient('test', 'one'))
-            ->isIdenticalTo($clientMock);
+            ->isIdenticalTo($clientMock)
+        ;
     }
 
     /** @throws FoundationException */

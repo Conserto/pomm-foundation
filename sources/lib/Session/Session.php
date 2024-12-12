@@ -11,6 +11,7 @@ namespace PommProject\Foundation\Session;
 
 use PommProject\Foundation\Client\ClientHolder;
 use PommProject\Foundation\Client\ClientInterface;
+use PommProject\Foundation\Client\ClientPooler;
 use PommProject\Foundation\Client\ClientPoolerInterface;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Inflector;
@@ -39,9 +40,10 @@ class Session implements LoggerAwareInterface
      */
     public function __construct(
         protected Connection $connection,
-        protected ClientHolder $clientHolder = new ClientHolder,
+        protected ?ClientHolder $clientHolder = null,
         protected ?string $stamp = null
     ) {
+        $this->clientHolder = $clientHolder ?? new ClientHolder;
     }
 
     /** A short description here */

@@ -84,21 +84,22 @@ class ConnectionConfigurator
     private function parseDsn(): ConnectionConfigurator
     {
         $dsn = $this->configuration->mustHave('dsn')->getParameter('dsn');
+        $parsedDsn = parse_url($dsn);
 
         if (!preg_match(
-            '#([a-z]+)://([^:@]+)(?::([^@]*))?(?:@([\w\.-]+|!/.+[^/]!)(?::(\w+))?)?/(.+)#',
+            '#^[a-z]+://([a-zA-Z0-9_\-]+)(?::([a-zA-Z0-9_\-]+))?@([a-zA-Z0-9\-.]+)(?::([0-9]{1,5}))?/([a-zA-Z0-9_\-]+)(\?([a-zA-Z0-9_\-]+=([a-zA-Z0-9_\-]+))(&([a-zA-Z0-9_\-]+=([a-zA-Z0-9_\-]+))*)?)?$#',
             (string) $dsn
-        )) {
+        ) || !$parsedDsn) {
             throw new ConnectionException(sprintf('Could not parse DSN "%s".', $dsn));
         }
 
-        $parsedDsn = parse_url($dsn);
+        $scheme = $parsedDsn['scheme'] ?? '';
 
-        if ($parsedDsn['scheme'] !== 'pgsql') {
+        if ($scheme !== 'pgsql') {
             throw new ConnectionException(
                 sprintf(
                     "bad protocol information '%s' in dsn '%s'. Pomm does only support 'pgsql' for now.",
-                    $parsedDsn['scheme'],
+                    $scheme,
                     $dsn
                 )
             );
@@ -125,7 +126,7 @@ class ConnectionConfigurator
         }
 
         $this->configuration
-            ->setParameter('adapter', $parsedDsn['scheme'])
+            ->setParameter('adapter', $scheme)
             ->setParameter('user', $parsedDsn['user'])
             ->setParameter('pass', $parsedDsn['pass'] ?? '')
             ->setParameter('host', $parsedDsn['host'])
