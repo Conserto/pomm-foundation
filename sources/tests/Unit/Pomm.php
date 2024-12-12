@@ -20,8 +20,6 @@ use PommProject\Foundation\Test\Unit\Session\ConnectionConfigurator;
 
 class Pomm extends Atoum
 {
-    private const string DSN_TEST = 'pgsql://user:pass@host:5432/db_name';
-
     public function testConstructor(): void
     {
         $pomm = $this->getPomm([]);

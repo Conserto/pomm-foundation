@@ -27,7 +27,7 @@ class Inflector
 
         return preg_replace_callback(
             '/_([a-z])/',
-            fn($v) => strtoupper((string) $v[1]),
+            fn(array $v): string => strtoupper((string) $v[1]),
             ucfirst(strtolower($string))
         );
     }
