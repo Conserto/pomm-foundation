@@ -87,7 +87,7 @@ class ConnectionConfigurator
         $parsedDsn = parse_url($dsn);
 
         if (!preg_match(
-            '#^[a-z]+://([a-zA-Z0-9_\-]+)(?::([a-zA-Z0-9_\-]+))?@([a-zA-Z0-9\-.]+)(?::([0-9]{1,5}))?/([a-zA-Z0-9_\-]+)(\?([a-zA-Z0-9_\-]+=([a-zA-Z0-9_\-]+))(&([a-zA-Z0-9_\-]+=([a-zA-Z0-9_\-]+))*)?)?$#',
+            '#^[a-z]+://([a-zA-Z0-9_\-]+)(?::([a-zA-Z0-9_\-]+))?@([a-zA-Z0-9\-_.]+)(?::([0-9]{1,5}))?/([a-zA-Z0-9_\-]+)(\?([a-zA-Z0-9_\-]+=([a-zA-Z0-9_\-]+))(&([a-zA-Z0-9_\-]+=([a-zA-Z0-9_\-]+))*)?)?$#',
             (string) $dsn
         ) || !$parsedDsn) {
             throw new ConnectionException(sprintf('Could not parse DSN "%s".', $dsn));
