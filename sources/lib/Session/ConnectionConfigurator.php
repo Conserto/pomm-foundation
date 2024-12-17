@@ -84,27 +84,28 @@ class ConnectionConfigurator
     private function parseDsn(): ConnectionConfigurator
     {
         $dsn = $this->configuration->mustHave('dsn')->getParameter('dsn');
+        $parsedDsn = parse_url($dsn);
+
         if (!preg_match(
-            '#([a-z]+)://([^:@]+)(?::([^@]*))?(?:@([\w\.-]+|!/.+[^/]!)(?::(\w+))?)?/(.+)#',
-            (string) $dsn,
-            $matches
-        )) {
+            '#^[a-z]+://([a-zA-Z0-9_\-]+)(?::([a-zA-Z0-9_\-]+))?@([a-zA-Z0-9\-_.]+)(?::([0-9]{1,5}))?/([a-zA-Z0-9_\-]+)(\?([a-zA-Z0-9_\-]+=([a-zA-Z0-9_\-]+))(&([a-zA-Z0-9_\-]+=([a-zA-Z0-9_\-]+))*)?)?$#',
+            (string) $dsn
+        ) || !$parsedDsn) {
             throw new ConnectionException(sprintf('Could not parse DSN "%s".', $dsn));
         }
 
-        if ($matches[1] !== 'pgsql') {
+        $scheme = $parsedDsn['scheme'] ?? '';
+
+        if ($scheme !== 'pgsql') {
             throw new ConnectionException(
                 sprintf(
                     "bad protocol information '%s' in dsn '%s'. Pomm does only support 'pgsql' for now.",
-                    $matches[1],
+                    $scheme,
                     $dsn
                 )
             );
         }
 
-        $adapter = $matches[1];
-
-        if ($matches[2] === '') {
+        if (empty($parsedDsn['user'])) {
             throw new ConnectionException(
                 sprintf(
                     "No user information in dsn '%s'.",
@@ -113,18 +114,9 @@ class ConnectionConfigurator
             );
         }
 
-        $user = $matches[2];
-        $pass = $matches[3];
+        $database = ltrim( $parsedDsn['path'] ?? '', '/');
 
-        if (preg_match('/!(.*)!/', $matches[4], $host_matches)) {
-            $host = $host_matches[1];
-        } else {
-            $host = $matches[4];
-        }
-
-        $port = $matches[5];
-
-        if ($matches[6] === '') {
+        if (empty($database)) {
             throw new ConnectionException(
                 sprintf(
                     "No database name in dsn '%s'.",
@@ -133,13 +125,12 @@ class ConnectionConfigurator
             );
         }
 
-        $database = $matches[6];
         $this->configuration
-            ->setParameter('adapter', $adapter)
-            ->setParameter('user', $user)
-            ->setParameter('pass', $pass)
-            ->setParameter('host', $host)
-            ->setParameter('port', $port)
+            ->setParameter('adapter', $scheme)
+            ->setParameter('user', $parsedDsn['user'])
+            ->setParameter('pass', $parsedDsn['pass'] ?? '')
+            ->setParameter('host', $parsedDsn['host'])
+            ->setParameter('port', $parsedDsn['port'] ?? '')
             ->setParameter('database', $database)
             ->mustHave('user')
             ->mustHave('database');

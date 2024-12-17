@@ -163,7 +163,6 @@ class PreparedQuery extends Client
     /**
      * Prepare parameters to be sent.
      *
-     * @param mixed $sql
      * @param array<int, mixed> $values
      * @return array<int, null|string> $prepared_values
      * @throws FoundationException

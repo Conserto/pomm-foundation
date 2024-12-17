@@ -67,7 +67,7 @@ class Observer extends VanillaSessionAtoum
 
         $this->notify('an identifier', 'some data');
         $this->exception(
-            function () use ($session) {
+            function () use ($session): void {
                 $session->getObserver('an identifier')->throwNotification();
             }
         )

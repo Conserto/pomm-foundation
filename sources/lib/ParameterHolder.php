@@ -103,7 +103,6 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * @see ArrayAccess
      *
-     * @param mixed $offset
      * @return bool|array<mixed, mixed>|string|null
      */
     public function offsetGet(mixed $offset): bool|array|string|null
@@ -125,7 +124,6 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * @see ArrayAccess
      *
-     * @param mixed $offset
      * @param bool|string|array<mixed, mixed>|null $value
      * @return void
      */

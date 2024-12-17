@@ -335,7 +335,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
                     join(
                         ', ',
                         array_map(
-                            fn($val) => sprintf("'%s'", $val),
+                            fn(string $val): string => sprintf("'%s'", $val),
                             array_keys($this->getSessionBuilders())
                         )
                     )

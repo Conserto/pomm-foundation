@@ -27,13 +27,13 @@ class Inflector
 
         return preg_replace_callback(
             '/_([a-z])/',
-            fn($v) => strtoupper((string) $v[1]),
+            fn(array $v): string => strtoupper((string) $v[1]),
             ucfirst(strtolower($string))
         );
     }
 
     /** Underscore a string. */
-    public static function underscore(string $string = null): ?string
+    public static function underscore(?string $string = null): ?string
     {
         if ($string === null) {
             return null;

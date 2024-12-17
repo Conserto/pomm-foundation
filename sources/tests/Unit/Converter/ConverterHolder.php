@@ -81,7 +81,7 @@ class ConverterHolder extends Atoum
             ->array($converterHolder->addTypeToConverter('Dumb', 'pika.chu')->getTypes())
             ->isIdenticalTo(['public.dumb', 'schema.type', 'pika.chu'])
             ->exception(
-                function () use ($converterHolder) {
+                function () use ($converterHolder): void {
                     $converterHolder->addTypeToConverter('No', 'pika.chu');
                 })
             ->isInstanceOf(FoundationException::class)
@@ -97,7 +97,7 @@ class ConverterHolder extends Atoum
             ['schema.type', 'public.dumb']
         )->getConverterForType('schema.type'))
             ->isInstanceOf(DumbConverter::class)
-            ->exception(function () use ($converterHolder) {
+            ->exception(function () use ($converterHolder): void {
                 $converterHolder->getConverterForType('no.type');
             })
             ->isInstanceOf(FoundationException::class)

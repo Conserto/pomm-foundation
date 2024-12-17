@@ -39,7 +39,7 @@ class SessionBuilder
      * @param array<string, mixed> $configuration
      * @param ConverterHolder|null $converterHolder
      */
-    public function __construct(array $configuration, ConverterHolder $converterHolder = null)
+    public function __construct(array $configuration, ?ConverterHolder $converterHolder = null)
     {
         $this->configuration = new ParameterHolder(
             array_merge(
@@ -72,7 +72,7 @@ class SessionBuilder
      *
      * @throws FoundationException
      */
-    final public function buildSession(string $stamp = null): Session
+    final public function buildSession(?string $stamp = null): Session
     {
         $this->preConfigure();
         $dsn = $this

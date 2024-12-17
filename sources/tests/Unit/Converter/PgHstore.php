@@ -50,7 +50,7 @@ class PgHstore extends BaseConverter
                 $converter->toPg(['a' => 'b', 'b' => null, 'a b c' => 'd \'é\' f'], 'hstore', $session)
             )
             ->isEqualTo('hstore($hs$"a" => "b", "b" => NULL, "a b c" => "d \'é\' f"$hs$)')
-            ->exception(function () use ($session, $converter) {
+            ->exception(function () use ($session, $converter): void {
                 $converter->toPg('foo', 'hstore', $session);
             })
             ->isInstanceOf(ConverterException::class)
@@ -71,7 +71,7 @@ class PgHstore extends BaseConverter
                 $converter->toPgStandardFormat($hstore, 'hstore', $session)
             )
             ->isEqualTo('"a" => "b", "b" => NULL, "a \\\\b\\\\ c" => "d \'é\' f"')
-            ->exception(function () use ($session, $converter) {
+            ->exception(function () use ($session, $converter): void {
                 $converter->toPgStandardFormat('foo', 'hstore', $session);
             })
             ->isInstanceOf(ConverterException::class)

@@ -35,7 +35,7 @@ class PgBackedEnum extends BaseConverter
         $this->boolean($fromPgBackedEnum instanceof BackedEnum)->isTrue();
 
         // Exception
-        $this->exception(function () use ($converterBackedEnum, $session) {
+        $this->exception(function () use ($converterBackedEnum, $session): void {
             $converterBackedEnum->fromPg('wrong_value', 'test_type_1', $session);
         })
             ->hasMessage(sprintf('Value "wrong_value" not found in BackedEnum "%s"', BackedEnum::class));

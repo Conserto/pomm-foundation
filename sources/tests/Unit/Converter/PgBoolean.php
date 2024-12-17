@@ -21,7 +21,7 @@ class PgBoolean extends BaseConverter
             ->isTrue()
             ->boolean($this->newTestedInstance()->fromPg('f', 'bool', $session))
             ->isFalse()
-            ->exception(function () use ($session) {
+            ->exception(function () use ($session): void {
                 $this->newTestedInstance()->fromPg('whatever', 'bool', $session);
             })
             ->isInstanceOf(\PommProject\Foundation\Exception\ConverterException::class)

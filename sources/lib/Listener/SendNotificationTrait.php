@@ -35,7 +35,7 @@ trait SendNotificationTrait
      */
     protected function sendNotification(string $name, array $data): static
     {
-        /** @var Listener $listener */
+        /** @var ListenerPooler $listener */
         $listener = $this->getSession()->getPoolerForType('listener');
         $listener->notify($name, $data);
 

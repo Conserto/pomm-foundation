@@ -9,6 +9,7 @@
  */
 namespace PommProject\Foundation\Test\Unit\QueryManager;
 
+use PommProject\Foundation\Client\ClientInterface;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\VanillaSessionAtoum;
@@ -24,7 +25,7 @@ class QueryManagerPooler extends VanillaSessionAtoum
                 ->getClient()
         )
             ->isInstanceOf(\PommProject\Foundation\QueryManager\SimpleQueryManager::class)
-            ->exception(fn() => $session
+            ->exception(fn(): ClientInterface => $session
                 ->getPoolerForType('query_manager')
                 ->getClient('\No\Such\Client'))
             ->isInstanceOf(FoundationException::class)

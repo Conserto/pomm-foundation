@@ -25,7 +25,7 @@ class Pager
      * @param int $page Page index.
      */
     public function __construct(
-        protected ResultIterator $iterator,
+        private readonly ResultIterator $iterator,
         protected int $count,
         protected int $maxPerPage,
         protected int $page

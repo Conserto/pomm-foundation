@@ -81,7 +81,8 @@ class Session extends VanillaSessionAtoum
             ->call('initialize')
             ->once()
             ->object($session->getClient('test', 'one'))
-            ->isIdenticalTo($clientMock);
+            ->isIdenticalTo($clientMock)
+        ;
     }
 
     /** @throws FoundationException */
@@ -120,7 +121,7 @@ class Session extends VanillaSessionAtoum
         $session = $this->buildSession();
         $clientPoolerMock = $this->getClientPoolerInterfaceMock('test');
 
-        $this->exception(function () use ($session) {
+        $this->exception(function () use ($session): void {
             $session->getPoolerForType('test');
         })
             ->isInstanceOf(FoundationException::class)
@@ -140,7 +141,7 @@ class Session extends VanillaSessionAtoum
 
         $this->object($session->getClientUsingPooler('test', 'ok'))
             ->isInstanceOf(ClientInterface::class)
-            ->exception(function () use ($session) {
+            ->exception(function () use ($session): void {
                 $session->getClientUsingPooler('whatever', 'ok');
             })
             ->isInstanceOf(FoundationException::class)
@@ -154,13 +155,13 @@ class Session extends VanillaSessionAtoum
         $session = $this->buildSession()->registerClientPooler($clientPoolerMock);
 
         $this->exception(
-                function () use ($session) {
+                function () use ($session): void {
                     $session->azerty('ok', 'what');
                 }
             )
             ->isInstanceOf(\BadFunctionCallException::class)
             ->message->contains('Unknown method')
-            ->exception(function () use ($session) {
+            ->exception(function () use ($session): void {
                 $session->getPika('ok');
             })
             ->isInstanceOf(FoundationException::class)

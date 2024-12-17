@@ -20,11 +20,8 @@ use PgSql\Result as PgSqlResult;
  */
 class ResultHandler
 {
-    protected ?PgSqlResult $handler;
-
-    public function __construct(PgSqlResult $resultResource)
+    public function __construct(protected ?PgSqlResult $handler)
     {
-        $this->handler = $resultResource;
     }
 
     /** Call free() if handler is set. */

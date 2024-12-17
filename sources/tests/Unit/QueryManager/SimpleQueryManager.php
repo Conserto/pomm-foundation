@@ -43,7 +43,7 @@ class SimpleQueryManager extends FoundationSessionAtoum
     public function testQueryWithExtraParameter(): void
     {
         $session = $this->buildSession();
-        $this->exception(function () use ($session) {
+        $this->exception(function () use ($session): void {
             $this->getQueryManager($session)->query('select true', ['extra']);
         })
             ->isInstanceOf(SqlException::class);
@@ -90,7 +90,7 @@ SQL;
         $session = $this->buildSession('test session');
         $listener_tester = new ListenerTester();
         $session->getClientUsingPooler('listener', 'query')
-            ->attachAction([$listener_tester, 'call']);
+            ->attachAction($listener_tester->call(...));
 
         $this->getQueryManager($session)->query('select $*::bool as one', [true]);
 

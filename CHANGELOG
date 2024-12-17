@@ -1,3 +1,9 @@
+== VERSION 4.0.0
+
+ * Minimal PHP version : 8.4
+ * Add rector
+ * Add missing types
+
 == VERSION 3.2.4
 
  * Add option to SqlException::getSqlErrorMessage() to get only primary message

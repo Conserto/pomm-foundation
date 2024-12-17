@@ -28,8 +28,6 @@ use Psr\Log\LoggerInterface;
  */
 class Session implements LoggerAwareInterface
 {
-    protected ClientHolder $clientHolder;
-
     /** @var array<string, ClientPoolerInterface> */
     protected array $clientPoolers = [];
     protected bool $isShutdown = false;
@@ -41,7 +39,7 @@ class Session implements LoggerAwareInterface
      */
     public function __construct(
         protected Connection $connection,
-        ?ClientHolder $clientHolder = null,
+        protected ?ClientHolder $clientHolder = null,
         protected ?string $stamp = null
     ) {
         $this->clientHolder = $clientHolder ?? new ClientHolder;
