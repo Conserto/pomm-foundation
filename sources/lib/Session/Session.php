@@ -11,7 +11,6 @@ namespace PommProject\Foundation\Session;
 
 use PommProject\Foundation\Client\ClientHolder;
 use PommProject\Foundation\Client\ClientInterface;
-use PommProject\Foundation\Client\ClientPooler;
 use PommProject\Foundation\Client\ClientPoolerInterface;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Inflector;

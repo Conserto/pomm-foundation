@@ -100,7 +100,7 @@ class Pomm extends Atoum
     {
         $pomm = $this->getPomm();
         $this->object($pomm->getSession('db_one'))
-        ->isInstanceOf(Session::class)
+            ->isInstanceOf(Session::class)
             ->object($pomm->getSession('db_two'))
             ->isInstanceOf(PommTestSession::class)
             ->exception(fn() => $pomm->getSession('whatever'))
