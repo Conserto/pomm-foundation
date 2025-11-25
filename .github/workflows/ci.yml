@@ -20,6 +20,10 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-24.04
 
+    strategy:
+      matrix:
+        php-version: ['8.4', '8.5']
+
     services:
       # Label used to access the service container
       postgres:
@@ -43,7 +47,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: ${{ matrix.php-version }}
       - name: Build
         run: |
           psql -c 'CREATE DATABASE pomm_test' -U postgres -h 127.0.0.1 postgres
