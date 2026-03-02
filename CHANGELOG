@@ -1,3 +1,7 @@
+== VERSION 4.0.2
+
+ * Fix DSN parsing for encoded urls
+
 == VERSION 4.0.1
 
  * Add CI tests for PHP version : 8.5
