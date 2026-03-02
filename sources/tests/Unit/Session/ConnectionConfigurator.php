@@ -72,7 +72,27 @@ class ConnectionConfigurator extends \Atoum
             [
                 'pgsql://user:p4ssW0rD@172.18.210.109/dbname',
                 'user=user dbname=dbname host=172.18.210.109 password=p4ssW0rD',
-            ]
+            ],
+            [
+                'pgsql://user:p%40ssW0rD@aHost/dbname',
+                'user=user dbname=dbname host=aHost password=p@ssW0rD',
+            ],
+            [
+                'pgsql://user:p%40ssW0rD@aHost:5432/dbname',
+                'user=user dbname=dbname host=aHost port=5432 password=p@ssW0rD',
+            ],
+            [
+                'pgsql://user:p.ssW0rD@aHost/dbname',
+                'user=user dbname=dbname host=aHost password=p.ssW0rD',
+            ],
+            [
+                'pgsql://user:p~ssW0rD@aHost/dbname',
+                'user=user dbname=dbname host=aHost password=p~ssW0rD',
+            ],
+            [
+                'pgsql://user.name:p4ssW0rD@aHost/dbname',
+                'user=user.name dbname=dbname host=aHost password=p4ssW0rD',
+            ],
         ];
     }
 
