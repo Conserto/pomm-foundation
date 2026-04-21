@@ -12,7 +12,7 @@ namespace PommProject\Foundation\Test\Unit\Converter;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Test\Unit\Enum\BackedEnum;
 use PommProject\Foundation\Test\Unit\Enum\IntBackedEnum;
-use PommProject\Foundation\Test\Unit\Enum\PureEnum;
+use PommProject\Foundation\Test\Unit\Enum\UnitEnum;
 
 class PgInteger extends BaseConverter
 {
@@ -51,10 +51,10 @@ class PgInteger extends BaseConverter
                 "Enum '%s' is not compatible with Pg type 'int4'.",
                 BackedEnum::class
             ))
-            ->exception(fn() => $this->newTestedInstance()->toPg(PureEnum::Active, 'int4', $session))
+            ->exception(fn() => $this->newTestedInstance()->toPg(UnitEnum::Active, 'int4', $session))
             ->hasMessage(sprintf(
                 "Enum '%s' is not compatible with Pg type 'int4'.",
-                PureEnum::class
+                UnitEnum::class
             ));
     }
 
@@ -77,10 +77,10 @@ class PgInteger extends BaseConverter
                 "Enum '%s' is not compatible with Pg type 'int4'.",
                 BackedEnum::class
             ))
-            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(PureEnum::Active, 'int4', $session))
+            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(UnitEnum::Active, 'int4', $session))
             ->hasMessage(sprintf(
                 "Enum '%s' is not compatible with Pg type 'int4'.",
-                PureEnum::class
+                UnitEnum::class
             ));
     }
 }

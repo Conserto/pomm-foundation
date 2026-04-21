@@ -12,7 +12,7 @@ namespace PommProject\Foundation\Test\Unit\Converter;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Test\Unit\Enum\BackedEnum;
 use PommProject\Foundation\Test\Unit\Enum\IntBackedEnum;
-use PommProject\Foundation\Test\Unit\Enum\PureEnum;
+use PommProject\Foundation\Test\Unit\Enum\UnitEnum;
 
 class PgFloat extends BaseConverter
 {
@@ -51,10 +51,10 @@ class PgFloat extends BaseConverter
                 "Enum '%s' is not compatible with Pg type 'float8'.",
                 BackedEnum::class
             ))
-            ->exception(fn() => $this->newTestedInstance()->toPg(PureEnum::Active, 'float8', $session))
+            ->exception(fn() => $this->newTestedInstance()->toPg(UnitEnum::Active, 'float8', $session))
             ->hasMessage(sprintf(
                 "Enum '%s' is not compatible with Pg type 'float8'.",
-                PureEnum::class
+                UnitEnum::class
             ));
     }
 
@@ -77,10 +77,10 @@ class PgFloat extends BaseConverter
                 "Enum '%s' is not compatible with Pg type 'float8'.",
                 BackedEnum::class
             ))
-            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(PureEnum::Active, 'float8', $session))
+            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(UnitEnum::Active, 'float8', $session))
             ->hasMessage(sprintf(
                 "Enum '%s' is not compatible with Pg type 'float8'.",
-                PureEnum::class
+                UnitEnum::class
             ));
     }
 }
