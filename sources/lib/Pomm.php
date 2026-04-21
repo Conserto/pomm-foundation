@@ -221,7 +221,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
         $session = $this->sessions[$name];
 
         foreach ($this->postConfigurations[$name] as $callable) {
-            call_user_func($callable, $session);
+            $callable($session);
         }
 
         if ($this->logger !== null) {

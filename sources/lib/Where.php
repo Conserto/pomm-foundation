@@ -286,6 +286,6 @@ class Where implements \Stringable
             $values[] = $where->getValues();
         }
 
-        return call_user_func_array('array_merge', $values);
+        return array_merge(...$values);
     }
 }

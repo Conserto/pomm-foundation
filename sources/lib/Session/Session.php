@@ -58,9 +58,9 @@ class Session implements LoggerAwareInterface
     {
         $exceptions = $this->clientHolder->shutdown();
 
-        if ($this->hasLogger()) {
+        if ($this->logger !== null) {
             foreach ($exceptions as $exception) {
-                printf("Exception caught during shutdown: %s\n", $exception);
+                $this->logger->error('Exception caught during shutdown', ['exception' => $exception]);
             }
 
             $this->logger = null;
@@ -80,7 +80,7 @@ class Session implements LoggerAwareInterface
     /** Return the session's stamp if any */
     public function getStamp(): ?string
     {
-        return $this->stamp === null ? null : (string) $this->stamp;
+        return $this->stamp;
     }
 
     /** Return the database connection. */
