@@ -2,7 +2,7 @@
 
 namespace PommProject\Foundation\Test\Unit\Enum;
 
-enum PureEnum
+enum UnitEnum
 {
     case Active;
 }
