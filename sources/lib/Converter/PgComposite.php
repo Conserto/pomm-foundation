@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Pomm package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
@@ -49,7 +51,7 @@ class PgComposite extends ArrayTypeConverter
 
         $values = str_getcsv(stripcslashes(trim($data, '()')), escape: "\\");
 
-        return $this->convertArray(array_combine(array_keys($this->structure), $values), $session, 'fromPg');
+        return $this->convertArrayFromPg(array_combine(array_keys($this->structure), $values), $session);
     }
 
     /**
@@ -66,7 +68,7 @@ class PgComposite extends ArrayTypeConverter
 
         return sprintf(
             "ROW(%s)::%s",
-            join(',', $this->convertArray($data, $session, 'toPg')),
+            join(',', $this->convertArrayToPg($data, $session)),
             $type
         );
     }
@@ -84,37 +86,73 @@ class PgComposite extends ArrayTypeConverter
         $this->checkArray($data);
 
         return
-            sprintf("(%s)",
-                join(',', array_map(fn(mixed $val): mixed => match (true)
-                {
-                    (null === $val) => '',
-                    ('' === $val) => '""',
-                    (bool) preg_match('/[,\s()]/', (string) $val) =>
-                        sprintf('"%s"', str_replace('"', '""', $val)),
-                    default => $val,
-                }, $this->convertArray($data, $session, 'toPgStandardFormat')
+            sprintf(
+                "(%s)",
+                join(',', array_map(
+                    fn (mixed $val): mixed => match (true) {
+                        (null === $val) => '',
+                        ('' === $val) => '""',
+                        (bool) preg_match('/[,\s()]/', (string) $val) =>
+                            sprintf('"%s"', str_replace('"', '""', $val)),
+                        default => $val,
+                    },
+                    $this->convertArrayToPgStandardFormat($data, $session)
                 ))
             );
     }
 
     /**
-     * Convert the given array of values.
-     *
      * @throws FoundationException
      *
      * @param array<string, mixed> $data
-     * @param Session $session
-     * @param string $method
      * @return array<string, mixed>
      */
-    private function convertArray(array $data, Session $session, string $method): array
+    private function convertArrayFromPg(array $data, Session $session): array
     {
         $values = [];
 
         foreach ($this->structure as $name => $subtype) {
-            $values[$name] = isset($data[$name])
-                ? $this->getSubtypeConverter($subtype, $session)->$method($data[$name], $subtype, $session)
-                : $this->getSubtypeConverter($subtype, $session)->$method(null, $subtype, $session);
+            $values[$name] = $this
+                ->getSubtypeConverter($subtype, $session)
+                ->fromPg($data[$name] ?? null, $subtype, $session);
+        }
+
+        return $values;
+    }
+
+    /**
+     * @throws FoundationException
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, string>
+     */
+    private function convertArrayToPg(array $data, Session $session): array
+    {
+        $values = [];
+
+        foreach ($this->structure as $name => $subtype) {
+            $values[$name] = $this
+                ->getSubtypeConverter($subtype, $session)
+                ->toPg($data[$name] ?? null, $subtype, $session);
+        }
+
+        return $values;
+    }
+
+    /**
+     * @throws FoundationException
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, ?string>
+     */
+    private function convertArrayToPgStandardFormat(array $data, Session $session): array
+    {
+        $values = [];
+
+        foreach ($this->structure as $name => $subtype) {
+            $values[$name] = $this
+                ->getSubtypeConverter($subtype, $session)
+                ->toPgStandardFormat($data[$name] ?? null, $subtype, $session);
         }
 
         return $values;

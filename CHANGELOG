@@ -13,6 +13,10 @@
  * Add Dependabot monthly updates for composer and github-actions
  * Add .editorconfig for consistent formatting across editors
  * AGENTS.md: refresh command list to use composer scripts, document BC policy for public/protected signatures
+ * PgHstore::fromPg no longer uses @eval; the Postgres hstore text output is now parsed by an explicit state machine
+ * PgComposite: split the string-dispatched convertArray() into convertArrayFromPg/ToPg/ToPgStandardFormat for static-analysis-friendly dispatch
+ * Document the intentional caching divergence between SimpleQueryManager::prepareArguments and PreparedQuery::prepareValues (inline + AGENTS.md)
+ * AGENTS.md: precise the ConverterHolder clone semantics (shallow clone, implications for ArrayTypeConverter caches when overriding built-in leaf converters per session)
 
 == VERSION 4.0.2
 

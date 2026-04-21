@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) and other coding age
 
 ## Project
 
-Conserto's fork of Pomm Foundation — a PostgreSQL DBAL for PHP. Requires PHP >= 8.4 and `ext-pgsql` (NOT PDO — the library uses the native `pgsql` extension directly). Package name: `conserto/pomm-foundation`.
+Conserto's fork of Pomm Foundation — a PostgreSQL DBAL for PHP. The supported PHP version and runtime extensions are declared in [`composer.json`](./composer.json) (`require` section); in particular the library uses the native `pgsql` extension directly, not PDO.
 
 ## Commands
 
@@ -19,14 +19,14 @@ composer install
 # Full unit test suite — requires a live Postgres DB (see "Test database" below)
 composer test
 
-# Static analysis (PHPStan level 6, scope = sources/lib only)
+# Static analysis — level and paths in phpstan.neon
 composer stan
 
-# Rector preview / apply (configured for PHP 8.4; see rector.php)
+# Rector preview / apply — target PHP version and active sets in rector.php
 composer rector
 composer rector:fix
 
-# PHP-CS-Fixer preview / apply (config in .php-cs-fixer.dist.php)
+# PHP-CS-Fixer preview / apply — rules in .php-cs-fixer.dist.php
 composer cs
 composer cs:fix
 
@@ -64,9 +64,20 @@ All subsystems (QueryManager, PreparedQuery, Converter, Observer, Listener, Insp
 
 ### Converters
 
-Registered in `SessionBuilder::initializeConverterHolder()`. Each converter implements `ConverterInterface` (`fromPg`/`toPg`) and is associated with one or more PG type names. `ConverterHolder` is cloned per session so per-session registrations don't leak. Composite/array/range converters wrap base converters, so registration order and the sub-converter lookup through the session matter.
+Registered in `SessionBuilder::initializeConverterHolder()`. Each converter implements `ConverterInterface` (`fromPg`/`toPg`) and is associated with one or more PG type names. Composite/array/range converters wrap base converters, so registration order and the sub-converter lookup through the session matter.
+
+**ConverterHolder ownership** — the Foundation `SessionBuilder::postConfigure()` passes `clone $this->converterHolder` to every `ConverterPooler`, so each session sees a distinct holder instance and session-level `registerConverter` calls do not leak. The clone is **shallow**: the `ConverterInterface` objects inside the holder are shared across sessions. That is fine for the built-in leaf converters (they are stateless), but note that `ArrayTypeConverter` subclasses cache their sub-converter lookups on the instance — a session that overrides a built-in type with its own converter will still see the originally-cached leaf if the array/composite/hstore converter was already used by another session. Replacing built-in leaf types per-session is therefore only reliable on fresh sessions.
 
 Known limitation documented in README: `ConvertedResultIterator` can't resolve custom composite types defined outside the `public` schema (`pg_type` doesn't return the schema).
+
+### Query parameter conversion
+
+`SimpleQueryManager::prepareArguments()` and `PreparedQuery::prepareValues()` run the same per-parameter conversion (`toPgStandardFormat` looked up through the converter pooler), but with deliberately different caching:
+
+- **SimpleQueryManager** re-resolves the `ConverterClient` on every call — simple queries are one-shot by design.
+- **PreparedQuery** builds closure converters once in `prepareConverters()` and reuses them for every `execute()`, since the SQL is fixed for the lifetime of the prepared statement.
+
+Do not try to factor this into a shared helper by forcing a single caching policy — the divergence is the point.
 
 ### Testing helpers
 
@@ -74,9 +85,11 @@ Tests extending `Tester\VanillaSessionAtoum` or `Tester\FoundationSessionAtoum` 
 
 ## Conventions
 
-- PHP 8.4+ features and strict types are expected (Rector enforces the `UP_TO_PHP_84` level set).
-- PHPStan level 6 over `sources/lib` only — tests are not statically analyzed.
-- PHP-CS-Fixer (`@PSR12` + `@PHP84Migration`) is available via `composer cs` / `composer cs:fix`; run the dry-run before opening a PR.
-- Rector skips `AddOverrideAttributeToOverriddenMethodsRector` (noisy) and `NewInInitializerRector` (incompatible with Atoum).
+- PHP strict types are expected everywhere. The minimum PHP version and extension constraints live in [`composer.json`](./composer.json).
+- Modern PHP syntax is enforced by Rector — see [`rector.php`](./rector.php) for the active sets and skipped rules.
+- Static analysis level and scope are defined in [`phpstan.neon`](./phpstan.neon) (tests are currently excluded).
+- Style is enforced by PHP-CS-Fixer — rules live in [`.php-cs-fixer.dist.php`](./.php-cs-fixer.dist.php); run `composer cs` (dry-run) before opening a PR.
 - This is a **library** with downstream subclass users: do not change public or protected signatures, even for cleanup (see the Pager / Session / Client API shapes — they are part of the contract).
-- CI matrix runs on PHP 8.4 and 8.5; keep both green.
+- File headers (`@author` / `@copyright` docblocks and top-of-file comments) start out crediting Grégoire HUBERT. When a file has been substantially rewritten on the fork, it is fine to update the authorship to Conserto — either by replacing the block for wholly new files, or by adding a Conserto line alongside the original for heavily edited ones. Never remove the pre-existing Grégoire HUBERT notice from a file whose origin content survives (MIT requires preserving the original copyright for substantial portions of the work); the repository-wide notice in [`LICENSE`](./LICENSE) already lists both parties.
+- CI matrix (PHP versions, services, steps) is defined in [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) — keep every matrix entry green.
+- Always update [`CHANGELOG`](./CHANGELOG) as part of the same change that modifies behaviour, tooling, docs or infra. Add a concise bullet under the in-progress version block — do not batch multiple unrelated changes into a single entry, and do not leave the CHANGELOG to be filled at release time.

@@ -163,6 +163,11 @@ class PreparedQuery extends Client
     /**
      * Prepare parameters to be sent.
      *
+     * The per-index converter closures are built once on the first call via
+     * {@see prepareConverters()} and reused for every subsequent execute.
+     * SimpleQueryManager::prepareArguments() does the same transformation
+     * without caching because it targets one-shot queries.
+     *
      * @param array<int, mixed> $values
      * @return array<int, null|string> $prepared_values
      * @throws FoundationException
