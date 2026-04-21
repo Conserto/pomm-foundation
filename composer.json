@@ -29,6 +29,7 @@
     },
     "require-dev": {
         "atoum/atoum" : "^4.0",
+        "friendsofphp/php-cs-fixer": "^3.65",
         "phpstan/phpstan": "^2.0",
         "rector/rector": "^2.0"
     },
@@ -46,13 +47,17 @@
         "test": "atoum --no-code-coverage -d sources/tests/Unit/",
         "stan": "phpstan analyse -c phpstan.neon",
         "rector": "rector process --dry-run",
-        "rector:fix": "rector process"
+        "rector:fix": "rector process",
+        "cs": "php-cs-fixer fix --dry-run --diff",
+        "cs:fix": "php-cs-fixer fix"
     },
     "scripts-descriptions": {
         "test": "Run the atoum unit test suite (requires a live PostgreSQL DSN in sources/tests/config.php).",
         "stan": "Run PHPStan static analysis against sources/lib.",
         "rector": "Run Rector in dry-run mode to preview suggested changes.",
-        "rector:fix": "Apply Rector's suggested changes to sources/."
+        "rector:fix": "Apply Rector's suggested changes to sources/.",
+        "cs": "Run PHP-CS-Fixer in dry-run mode with a diff preview.",
+        "cs:fix": "Apply PHP-CS-Fixer style fixes in place."
     },
     "minimum-stability": "stable"
 }

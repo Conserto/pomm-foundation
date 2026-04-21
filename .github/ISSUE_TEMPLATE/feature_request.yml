@@ -1,0 +1,43 @@
+name: Feature request
+description: Propose a new feature or enhancement.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening a feature request, please check the existing issues
+        and the CHANGELOG to see if it's already tracked or deliberately
+        out of scope for the fork.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What pain point or use case is this feature solving?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How you'd like pomm-foundation to behave. API sketches welcome.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds, other libraries, or different API shapes you thought about.
+
+  - type: checkboxes
+    id: bc-impact
+    attributes:
+      label: Backwards compatibility
+      description: |
+        This fork treats public/protected API stability seriously. Does your
+        proposal require any signature change?
+      options:
+        - label: My proposal is fully backwards-compatible
+        - label: My proposal requires a breaking change (please explain above)
