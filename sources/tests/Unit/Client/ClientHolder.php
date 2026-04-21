@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit\Client;
 
 use Atoum;
@@ -32,7 +34,7 @@ class ClientHolder extends Atoum
 
     protected function getClientMock($identifier, $type = 'test'): ClientInterface
     {
-        $client = new ClientInterface;
+        $client = new ClientInterface();
         $client->getMockController()->getClientIdentifier = $identifier;
         $client->getMockController()->getClientType = $type;
 
@@ -83,7 +85,7 @@ class ClientHolder extends Atoum
             ->add($client_1)
             ->add($client_2);
         $this->object($exception = ($clientHolder->shutdown()[0]))
-            ->isInstanceOf(\PommProject\Foundation\Exception\FoundationException::class)
+            ->isInstanceOf(FoundationException::class)
             ->string($exception->getMessage())->contains('plop')
             ->mock($client_1)
             ->call('shutdown')

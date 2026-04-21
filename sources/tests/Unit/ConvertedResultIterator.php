@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit;
 
 use PommProject\Foundation\Exception\FoundationException;
@@ -54,18 +56,18 @@ class ConvertedResultIterator extends FoundationSessionAtoum
     protected function getPikaSql(): string
     {
         return <<<SQL
-select
-    p.id,
-    p.pika,
-    p.chu
-from
-  (values
-    (1::int4, 'a'::text, null::int4[]),
-    (null, 'b', array[null]::int4[]),
-    (3, 'c', array[1]),
-    (4, 'd', array[2, 2])
-  ) p (id, pika, chu)
-SQL;
+            select
+                p.id,
+                p.pika,
+                p.chu
+            from
+              (values
+                (1::int4, 'a'::text, null::int4[]),
+                (null, 'b', array[null]::int4[]),
+                (3, 'c', array[1]),
+                (4, 'd', array[2, 2])
+              ) p (id, pika, chu)
+            SQL;
     }
 
     /** @throws FoundationException */

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -7,10 +8,11 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit;
 
-use PommProject\Foundation\Inflector as PommInflector;
 use Atoum;
+use PommProject\Foundation\Inflector as PommInflector;
 
 class Inflector extends Atoum
 {

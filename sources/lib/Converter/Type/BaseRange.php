@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of PommProject's Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Converter\Type;
 
 /**
@@ -19,9 +21,9 @@ namespace PommProject\Foundation\Converter\Type;
  */
 abstract class BaseRange implements \Stringable
 {
-    final const string INFINITY_MAX = 'infinity';
-    final const string INFINITY_MIN = '-infinity';
-    final const string EMPTY_RANGE  = 'empty';
+    final public const string INFINITY_MAX = 'infinity';
+    final public const string INFINITY_MIN = '-infinity';
+    final public const string EMPTY_RANGE  = 'empty';
 
     public mixed $startLimit;
     public mixed $endLimit;

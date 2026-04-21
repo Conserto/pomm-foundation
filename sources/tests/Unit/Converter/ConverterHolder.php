@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Pomm's Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit\Converter;
 
 use Atoum;
@@ -83,7 +85,8 @@ class ConverterHolder extends Atoum
             ->exception(
                 function () use ($converterHolder): void {
                     $converterHolder->addTypeToConverter('No', 'pika.chu');
-                })
+                }
+            )
             ->isInstanceOf(FoundationException::class)
             ->message->contains('No such converter');
     }

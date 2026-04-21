@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -7,15 +8,16 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit;
 
 use Atoum;
+use Mock\PommProject\Foundation\Session\Session as MockSession;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Session\SessionBuilder;
 use PommProject\Foundation\Test\Fixture\PommTestSession;
 use PommProject\Foundation\Test\Fixture\PommTestSessionBuilder;
-use \Mock\PommProject\Foundation\Session\Session as MockSession;
 use PommProject\Foundation\Test\Unit\Session\ConnectionConfigurator;
 
 class Pomm extends Atoum
@@ -37,15 +39,17 @@ class Pomm extends Atoum
                     "second_db_config" => [
                         "dsn" => "pgsql://user:pass@host:5432/db_name",
                     ],
-                ])->getSessionBuilders())
+                ])->getSessionBuilders()
+            )
             ->size->isEqualTo(2)
-            ->exception(fn() => $this->newTestedInstance(
+            ->exception(fn () => $this->newTestedInstance(
                 [
                     "db_three" => [
                         "dsn" => "pgsql://user:pass@host:5432/db_name",
                         "class:session_builder" => "\\Whatever\\Unexistent\\Class",
                     ],
-                ]))
+                ]
+            ))
             ->isInstanceOf(FoundationException::class)
             ->message->contains('Could not instantiate');
     }
@@ -103,7 +107,7 @@ class Pomm extends Atoum
             ->isInstanceOf(Session::class)
             ->object($pomm->getSession('db_two'))
             ->isInstanceOf(PommTestSession::class)
-            ->exception(fn() => $pomm->getSession('whatever'))
+            ->exception(fn () => $pomm->getSession('whatever'))
             ->isInstanceOf(FoundationException::class)
             ->message->contains("{'db_one', 'db_two'}")
             ->array($pomm->getSession('db_one')->getRegisterPoolersNames())
@@ -150,7 +154,7 @@ class Pomm extends Atoum
 
     public function testDefault(): void
     {
-        $this->exception(fn() => $this->newTestedInstance()->getDefaultSession())
+        $this->exception(fn () => $this->newTestedInstance()->getDefaultSession())
             ->message->contains("No default session builder set.")
             ->object($this->getPomm()->getDefaultSession())
             ->isInstanceOf(Session::class)
@@ -158,7 +162,7 @@ class Pomm extends Atoum
             ->contains('db_two')
             ->string($this->newTestedInstance(['one' => ['dsn' => ConnectionConfigurator::DSN_TEST]])->getDefaultSession()->getStamp())
             ->contains('one')
-            ->exception(fn() => $this->getPomm()->setDefaultBuilder('none'))
+            ->exception(fn () => $this->getPomm()->setDefaultBuilder('none'))
             ->message->contains("No such builder")
             ->string($this->getPomm()->setDefaultBuilder('db_one')->getDefaultSession()->getStamp())
             ->contains('db_one');
@@ -168,7 +172,7 @@ class Pomm extends Atoum
     {
         $pomm = $this->newTestedInstance([
             'one' => ['dsn' => ConnectionConfigurator::DSN_TEST],
-            'two' => ['dsn' => ConnectionConfigurator::DSN_TEST]
+            'two' => ['dsn' => ConnectionConfigurator::DSN_TEST],
         ]);
 
         $this->boolean($pomm->isDefaultSession('one'))
@@ -183,7 +187,7 @@ class Pomm extends Atoum
     {
         $pomm = $this->newTestedInstance([
             'one' => ['dsn' => ConnectionConfigurator::DSN_TEST, 'class:session' => MockSession::class],
-            'two' => ['dsn' => ConnectionConfigurator::DSN_TEST]
+            'two' => ['dsn' => ConnectionConfigurator::DSN_TEST],
         ]);
         $session_mock = $pomm['one'];
 
@@ -194,7 +198,7 @@ class Pomm extends Atoum
             ->once()
             ->object($pomm->shutdown(['one', 'two']))
             ->isInstanceOf(\PommProject\Foundation\Pomm::class)
-            ->exception(fn() => $pomm->shutdown(['one', 'four']))
+            ->exception(fn () => $pomm->shutdown(['one', 'four']))
             ->isInstanceOf(FoundationException::class)
             ->message->contains("No such builder");
     }

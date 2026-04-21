@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Pomm's Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\FoundationException;
@@ -84,7 +86,7 @@ class PgArray extends ArrayTypeConverter
 
         return sprintf(
             'ARRAY[%s]::%s[]',
-            join(',', array_map(fn(mixed $val): string => $converter->toPg($val, $type, $session), $data)),
+            join(',', array_map(fn (mixed $val): string => $converter->toPg($val, $type, $session), $data)),
             $type
         );
     }
@@ -104,7 +106,8 @@ class PgArray extends ArrayTypeConverter
         $data = $this->checkArray($data);
 
         return
-            sprintf('{%s}', join(',',
+            sprintf('{%s}', join(
+                ',',
                 array_map(function (mixed $val) use ($converter, $type, $session): ?string {
                     if ($val === null) {
                         return 'NULL';
