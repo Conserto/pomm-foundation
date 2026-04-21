@@ -44,14 +44,16 @@ class PgFloat extends BaseConverter
             ->isEqualTo("float8 '0'")
             ->string($this->newTestedInstance()->toPg(IntBackedEnum::TWO, 'float8', $session))
             ->isEqualTo("float8 '2'")
+            ->string($this->newTestedInstance()->toPg(BackedEnum::NUMERIC, 'float8', $session))
+            ->isEqualTo("float8 '42.5'")
             ->exception(fn() => $this->newTestedInstance()->toPg(BackedEnum::A, 'float8', $session))
             ->hasMessage(sprintf(
-                "Enum '%s' cannot be converted to float type 'float8' (requires an int-backed enum).",
+                "Enum '%s' is not compatible with Pg type 'float8'.",
                 BackedEnum::class
             ))
             ->exception(fn() => $this->newTestedInstance()->toPg(PureEnum::Active, 'float8', $session))
             ->hasMessage(sprintf(
-                "Enum '%s' cannot be converted to float type 'float8' (requires an int-backed enum).",
+                "Enum '%s' is not compatible with Pg type 'float8'.",
                 PureEnum::class
             ));
     }
@@ -68,14 +70,16 @@ class PgFloat extends BaseConverter
             ->isNull()
             ->string($this->newTestedInstance()->toPgStandardFormat(IntBackedEnum::TWO, 'float8', $session))
             ->isEqualTo('2')
+            ->string($this->newTestedInstance()->toPgStandardFormat(BackedEnum::NUMERIC, 'float8', $session))
+            ->isEqualTo('42.5')
             ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(BackedEnum::A, 'float8', $session))
             ->hasMessage(sprintf(
-                "Enum '%s' cannot be converted to float type 'float8' (requires an int-backed enum).",
+                "Enum '%s' is not compatible with Pg type 'float8'.",
                 BackedEnum::class
             ))
             ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(PureEnum::Active, 'float8', $session))
             ->hasMessage(sprintf(
-                "Enum '%s' cannot be converted to float type 'float8' (requires an int-backed enum).",
+                "Enum '%s' is not compatible with Pg type 'float8'.",
                 PureEnum::class
             ));
     }

@@ -42,16 +42,18 @@ class PgInteger extends BaseConverter
             ->isEqualTo("NULL::int4")
             ->string($this->newTestedInstance()->toPg(0, 'int4', $session))
             ->isEqualTo("int4 '0'")
+            ->string($this->newTestedInstance()->toPg(-42, 'int4', $session))
+            ->isEqualTo("int4 '-42'")
             ->string($this->newTestedInstance()->toPg(IntBackedEnum::TWO, 'int4', $session))
             ->isEqualTo("int4 '2'")
             ->exception(fn() => $this->newTestedInstance()->toPg(BackedEnum::A, 'int4', $session))
             ->hasMessage(sprintf(
-                "Enum '%s' cannot be converted to integer type 'int4' (requires an int-backed enum).",
+                "Enum '%s' is not compatible with Pg type 'int4'.",
                 BackedEnum::class
             ))
             ->exception(fn() => $this->newTestedInstance()->toPg(PureEnum::Active, 'int4', $session))
             ->hasMessage(sprintf(
-                "Enum '%s' cannot be converted to integer type 'int4' (requires an int-backed enum).",
+                "Enum '%s' is not compatible with Pg type 'int4'.",
                 PureEnum::class
             ));
     }
@@ -66,16 +68,18 @@ class PgInteger extends BaseConverter
             ->isEqualTo("1")
             ->variable($this->newTestedInstance()->toPgStandardFormat(null, 'int4', $session))
             ->isNull()
+            ->string($this->newTestedInstance()->toPgStandardFormat(-42, 'int4', $session))
+            ->isEqualTo('-42')
             ->string($this->newTestedInstance()->toPgStandardFormat(IntBackedEnum::TWO, 'int4', $session))
             ->isEqualTo('2')
             ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(BackedEnum::A, 'int4', $session))
             ->hasMessage(sprintf(
-                "Enum '%s' cannot be converted to integer type 'int4' (requires an int-backed enum).",
+                "Enum '%s' is not compatible with Pg type 'int4'.",
                 BackedEnum::class
             ))
             ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(PureEnum::Active, 'int4', $session))
             ->hasMessage(sprintf(
-                "Enum '%s' cannot be converted to integer type 'int4' (requires an int-backed enum).",
+                "Enum '%s' is not compatible with Pg type 'int4'.",
                 PureEnum::class
             ));
     }

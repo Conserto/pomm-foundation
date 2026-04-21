@@ -23,7 +23,7 @@ class PgBackedEnum implements ConverterInterface
     public function __construct(private readonly string $enumFqcn)
     {
         if (!enum_exists($this->enumFqcn) || !is_a($this->enumFqcn, \BackedEnum::class, true)) {
-            throw new ConverterException(sprintf('BackedEnum "%s" does not exists', $this->enumFqcn));
+            throw new ConverterException(sprintf('BackedEnum "%s" does not exist', $this->enumFqcn));
         }
     }
 
@@ -42,15 +42,25 @@ class PgBackedEnum implements ConverterInterface
         return $enum;
     }
 
+    /** @throws ConverterException */
     public function toPg(mixed $data, string $type, Session $session): string
     {
         if ($data === null) {
             return sprintf("NULL::%s", $type);
         }
 
-        return $data->value;
+        if (!$data instanceof $this->enumFqcn) {
+            throw new ConverterException(sprintf(
+                'Expected instance of "%s", got "%s".',
+                $this->enumFqcn,
+                get_debug_type($data)
+            ));
+        }
+
+        return (string) $data->value;
     }
 
+    /** @throws ConverterException */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
         return $this->toPg($data, $type, $session);

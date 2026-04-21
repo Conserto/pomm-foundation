@@ -54,7 +54,7 @@ class PgString extends BaseConverter
             ->isEqualTo("varchar 'Active'")
             ->exception(fn() => $this->newTestedInstance()->toPg(IntBackedEnum::TWO, 'varchar', $session))
             ->hasMessage(sprintf(
-                "BackedEnum '%s' is int-backed and cannot be converted to string type 'varchar'.",
+                "Enum '%s' is not compatible with Pg type 'varchar'.",
                 IntBackedEnum::class
             ));
     }
@@ -80,7 +80,7 @@ class PgString extends BaseConverter
             ->isEqualTo('Active')
             ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(IntBackedEnum::TWO, 'varchar', $session))
             ->hasMessage(sprintf(
-                "BackedEnum '%s' is int-backed and cannot be converted to string type 'varchar'.",
+                "Enum '%s' is not compatible with Pg type 'varchar'.",
                 IntBackedEnum::class
             ));
     }

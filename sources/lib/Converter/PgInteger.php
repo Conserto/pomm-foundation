@@ -22,6 +22,8 @@ use PommProject\Foundation\Session\Session;
  */
 class PgInteger implements ConverterInterface
 {
+    use UnwrapsEnum;
+
     /** @see ConverterInterface */
     public function fromPg(?string $data, string $type, Session $session): ?int
     {
@@ -43,9 +45,9 @@ class PgInteger implements ConverterInterface
      */
     public function toPg(mixed $data, string $type, Session $session): string
     {
-        $data = $this->normalizeEnum($data, $type);
+        $data = $this->unwrapEnum($data, $type);
 
-        return $data !== null ? sprintf("%s '%u'", $type, $data) : sprintf("NULL::%s", $type);
+        return $data !== null ? sprintf("%s '%d'", $type, $data) : sprintf("NULL::%s", $type);
     }
 
     /**
@@ -54,26 +56,13 @@ class PgInteger implements ConverterInterface
      */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
-        $data = $this->normalizeEnum($data, $type);
+        $data = $this->unwrapEnum($data, $type);
 
-        return $data !== null ? sprintf('%u', $data) : null;
+        return $data !== null ? sprintf('%d', $data) : null;
     }
 
-    /** @throws ConverterException */
-    private function normalizeEnum(mixed $data, string $type): mixed
+    protected function acceptsEnum(\UnitEnum $enum): bool
     {
-        if ($data instanceof \UnitEnum) {
-            if (!$data instanceof \BackedEnum || !is_int($data->value)) {
-                throw new ConverterException(sprintf(
-                    "Enum '%s' cannot be converted to integer type '%s' (requires an int-backed enum).",
-                    $data::class,
-                    $type
-                ));
-            }
-
-            return $data->value;
-        }
-
-        return $data;
+        return $enum instanceof \BackedEnum && is_int($enum->value);
     }
 }

@@ -24,13 +24,15 @@ use PommProject\Foundation\Session\Session;
  */
 class PgString implements ConverterInterface
 {
+    use UnwrapsEnum;
+
     /**
      * @throws ConnectionException|ConverterException|FoundationException
      * @see ConverterInterface
      */
     public function toPg(mixed $data, string $type, Session $session): string
     {
-        $data = $this->normalizeEnum($data, $type);
+        $data = $this->unwrapEnum($data, $type);
 
         return $data !== null
             ? sprintf("%s %s",  $type, $session->getConnection()->escapeLiteral($data))
@@ -43,34 +45,17 @@ class PgString implements ConverterInterface
      */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
-        return $this->normalizeEnum($data, $type);
-    }
-
-    /** @throws ConverterException */
-    private function normalizeEnum(mixed $data, string $type): ?string
-    {
-        if ($data instanceof \BackedEnum) {
-            if (!is_string($data->value)) {
-                throw new ConverterException(sprintf(
-                    "BackedEnum '%s' is int-backed and cannot be converted to string type '%s'.",
-                    $data::class,
-                    $type
-                ));
-            }
-
-            return $data->value;
-        }
-
-        if ($data instanceof \UnitEnum) {
-            return $data->name;
-        }
-
-        return $data;
+        return $this->unwrapEnum($data, $type);
     }
 
     /** @see ConverterInterface */
     public function fromPg(?string $data, string $type, Session $session): ?string
     {
         return $data;
+    }
+
+    protected function acceptsEnum(\UnitEnum $enum): bool
+    {
+        return !$enum instanceof \BackedEnum || is_string($enum->value);
     }
 }

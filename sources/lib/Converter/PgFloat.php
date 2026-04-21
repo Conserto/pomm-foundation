@@ -22,6 +22,8 @@ use PommProject\Foundation\Session\Session;
  */
 class PgFloat implements ConverterInterface
 {
+    use UnwrapsEnum;
+
     /** @see ConverterInterface */
     public function fromPg(?string $data, string $type, Session $session): ?float
     {
@@ -43,7 +45,7 @@ class PgFloat implements ConverterInterface
      */
     public function toPg(mixed $data, string $type, Session $session): string
     {
-        $data = $this->normalizeEnum($data, $type);
+        $data = $this->unwrapEnum($data, $type);
 
         return $data !== null ? sprintf("%s '%s'", $type, $data) : sprintf("NULL::%s", $type);
     }
@@ -54,26 +56,13 @@ class PgFloat implements ConverterInterface
      */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
-        $data = $this->normalizeEnum($data, $type);
+        $data = $this->unwrapEnum($data, $type);
 
         return $data !== null ? sprintf('%s', $data) : null;
     }
 
-    /** @throws ConverterException */
-    private function normalizeEnum(mixed $data, string $type): mixed
+    protected function acceptsEnum(\UnitEnum $enum): bool
     {
-        if ($data instanceof \UnitEnum) {
-            if (!$data instanceof \BackedEnum || !is_int($data->value)) {
-                throw new ConverterException(sprintf(
-                    "Enum '%s' cannot be converted to float type '%s' (requires an int-backed enum).",
-                    $data::class,
-                    $type
-                ));
-            }
-
-            return $data->value;
-        }
-
-        return $data;
+        return $enum instanceof \BackedEnum && is_numeric($enum->value);
     }
 }
