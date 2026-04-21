@@ -1,3 +1,9 @@
+== VERSION 4.0.3
+
+ * Accept PHP enums in PgString, PgInteger and PgFloat converters (scalar unwrapping with per-converter compatibility check; PgString also handles pure UnitEnum via ->name)
+ * Fix PgInteger serializing negative numbers as unsigned overflow (use %d instead of %u)
+ * Harden PgBackedEnum::toPg with an explicit instance check and string cast on the backing value
+
 == VERSION 4.0.2
 
  * Fix DSN parsing for encoded urls

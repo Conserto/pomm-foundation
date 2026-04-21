@@ -9,6 +9,7 @@
  */
 namespace PommProject\Foundation\Converter;
 
+use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -21,6 +22,8 @@ use PommProject\Foundation\Session\Session;
  */
 class PgInteger implements ConverterInterface
 {
+    use UnwrapsEnum;
+
     /** @see ConverterInterface */
     public function fromPg(?string $data, string $type, Session $session): ?int
     {
@@ -36,15 +39,30 @@ class PgInteger implements ConverterInterface
         return (int) $data;
     }
 
-    /** @see ConverterInterface */
+    /**
+     * @throws ConverterException
+     * @see ConverterInterface
+     */
     public function toPg(mixed $data, string $type, Session $session): string
     {
-        return $data !== null ? sprintf("%s '%u'", $type, $data) : sprintf("NULL::%s", $type);
+        $data = $this->unwrapEnum($data, $type);
+
+        return $data !== null ? sprintf("%s '%d'", $type, $data) : sprintf("NULL::%s", $type);
     }
 
-    /** @see ConverterInterface */
+    /**
+     * @throws ConverterException
+     * @see ConverterInterface
+     */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
-        return $data !== null ? sprintf('%u', $data) : null;
+        $data = $this->unwrapEnum($data, $type);
+
+        return $data !== null ? sprintf('%d', $data) : null;
+    }
+
+    protected function acceptsEnum(\UnitEnum $enum): bool
+    {
+        return $enum instanceof \BackedEnum && is_int($enum->value);
     }
 }
