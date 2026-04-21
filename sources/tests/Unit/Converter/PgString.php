@@ -10,6 +10,9 @@
 namespace PommProject\Foundation\Test\Unit\Converter;
 
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Test\Unit\Enum\BackedEnum;
+use PommProject\Foundation\Test\Unit\Enum\IntBackedEnum;
+use PommProject\Foundation\Test\Unit\Enum\PureEnum;
 
 class PgString extends BaseConverter
 {
@@ -44,7 +47,16 @@ class PgString extends BaseConverter
             ->string($this->newTestedInstance()->toPg('', 'bpchar', $session))
             ->isEqualTo("bpchar ''")
             ->string($this->newTestedInstance()->toPg('10.2.3.4', 'inet', $session))
-            ->isEqualTo("inet '10.2.3.4'");
+            ->isEqualTo("inet '10.2.3.4'")
+            ->string($this->newTestedInstance()->toPg(BackedEnum::A, 'varchar', $session))
+            ->isEqualTo("varchar 'a'")
+            ->string($this->newTestedInstance()->toPg(PureEnum::Active, 'varchar', $session))
+            ->isEqualTo("varchar 'Active'")
+            ->exception(fn() => $this->newTestedInstance()->toPg(IntBackedEnum::TWO, 'varchar', $session))
+            ->hasMessage(sprintf(
+                "BackedEnum '%s' is int-backed and cannot be converted to string type 'varchar'.",
+                IntBackedEnum::class
+            ));
     }
 
     /** @throws FoundationException */
@@ -61,6 +73,15 @@ class PgString extends BaseConverter
             ->string($this->newTestedInstance()->toPgStandardFormat('', 'bpchar', $session))
             ->isEqualTo('')
             ->string($this->newTestedInstance()->toPgStandardFormat('10.2.3.4', 'inet', $session))
-            ->isEqualTo('10.2.3.4');
+            ->isEqualTo('10.2.3.4')
+            ->string($this->newTestedInstance()->toPgStandardFormat(BackedEnum::A, 'varchar', $session))
+            ->isEqualTo('a')
+            ->string($this->newTestedInstance()->toPgStandardFormat(PureEnum::Active, 'varchar', $session))
+            ->isEqualTo('Active')
+            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(IntBackedEnum::TWO, 'varchar', $session))
+            ->hasMessage(sprintf(
+                "BackedEnum '%s' is int-backed and cannot be converted to string type 'varchar'.",
+                IntBackedEnum::class
+            ));
     }
 }

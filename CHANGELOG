@@ -1,3 +1,7 @@
+== VERSION 4.0.3
+
+ * Accept PHP enums in PgString, PgInteger and PgFloat converters (BackedEnum unwrapped to value with backing-type check, UnitEnum converted via name for PgString)
+
 == VERSION 4.0.2
 
  * Fix DSN parsing for encoded urls

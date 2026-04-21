@@ -9,6 +9,7 @@
  */
 namespace PommProject\Foundation\Converter;
 
+use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -36,15 +37,43 @@ class PgInteger implements ConverterInterface
         return (int) $data;
     }
 
-    /** @see ConverterInterface */
+    /**
+     * @throws ConverterException
+     * @see ConverterInterface
+     */
     public function toPg(mixed $data, string $type, Session $session): string
     {
+        $data = $this->normalizeEnum($data, $type);
+
         return $data !== null ? sprintf("%s '%u'", $type, $data) : sprintf("NULL::%s", $type);
     }
 
-    /** @see ConverterInterface */
+    /**
+     * @throws ConverterException
+     * @see ConverterInterface
+     */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
+        $data = $this->normalizeEnum($data, $type);
+
         return $data !== null ? sprintf('%u', $data) : null;
+    }
+
+    /** @throws ConverterException */
+    private function normalizeEnum(mixed $data, string $type): mixed
+    {
+        if ($data instanceof \UnitEnum) {
+            if (!$data instanceof \BackedEnum || !is_int($data->value)) {
+                throw new ConverterException(sprintf(
+                    "Enum '%s' cannot be converted to integer type '%s' (requires an int-backed enum).",
+                    $data::class,
+                    $type
+                ));
+            }
+
+            return $data->value;
+        }
+
+        return $data;
     }
 }

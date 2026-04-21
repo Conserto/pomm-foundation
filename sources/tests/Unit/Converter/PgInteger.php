@@ -10,6 +10,9 @@
 namespace PommProject\Foundation\Test\Unit\Converter;
 
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Test\Unit\Enum\BackedEnum;
+use PommProject\Foundation\Test\Unit\Enum\IntBackedEnum;
+use PommProject\Foundation\Test\Unit\Enum\PureEnum;
 
 class PgInteger extends BaseConverter
 {
@@ -38,7 +41,19 @@ class PgInteger extends BaseConverter
             ->string($this->newTestedInstance()->toPg(null, 'int4', $session))
             ->isEqualTo("NULL::int4")
             ->string($this->newTestedInstance()->toPg(0, 'int4', $session))
-            ->isEqualTo("int4 '0'");
+            ->isEqualTo("int4 '0'")
+            ->string($this->newTestedInstance()->toPg(IntBackedEnum::TWO, 'int4', $session))
+            ->isEqualTo("int4 '2'")
+            ->exception(fn() => $this->newTestedInstance()->toPg(BackedEnum::A, 'int4', $session))
+            ->hasMessage(sprintf(
+                "Enum '%s' cannot be converted to integer type 'int4' (requires an int-backed enum).",
+                BackedEnum::class
+            ))
+            ->exception(fn() => $this->newTestedInstance()->toPg(PureEnum::Active, 'int4', $session))
+            ->hasMessage(sprintf(
+                "Enum '%s' cannot be converted to integer type 'int4' (requires an int-backed enum).",
+                PureEnum::class
+            ));
     }
 
     /** @throws FoundationException */
@@ -50,6 +65,18 @@ class PgInteger extends BaseConverter
             ->string($this->newTestedInstance()->toPgStandardFormat(1.6180339887499, 'int4', $session))
             ->isEqualTo("1")
             ->variable($this->newTestedInstance()->toPgStandardFormat(null, 'int4', $session))
-            ->isNull();
+            ->isNull()
+            ->string($this->newTestedInstance()->toPgStandardFormat(IntBackedEnum::TWO, 'int4', $session))
+            ->isEqualTo('2')
+            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(BackedEnum::A, 'int4', $session))
+            ->hasMessage(sprintf(
+                "Enum '%s' cannot be converted to integer type 'int4' (requires an int-backed enum).",
+                BackedEnum::class
+            ))
+            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(PureEnum::Active, 'int4', $session))
+            ->hasMessage(sprintf(
+                "Enum '%s' cannot be converted to integer type 'int4' (requires an int-backed enum).",
+                PureEnum::class
+            ));
     }
 }

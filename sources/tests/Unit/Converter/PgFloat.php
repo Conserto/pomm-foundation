@@ -10,6 +10,9 @@
 namespace PommProject\Foundation\Test\Unit\Converter;
 
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Test\Unit\Enum\BackedEnum;
+use PommProject\Foundation\Test\Unit\Enum\IntBackedEnum;
+use PommProject\Foundation\Test\Unit\Enum\PureEnum;
 
 class PgFloat extends BaseConverter
 {
@@ -38,7 +41,19 @@ class PgFloat extends BaseConverter
             ->string($this->newTestedInstance()->toPg(null, 'float8', $session))
             ->isEqualTo("NULL::float8")
             ->string($this->newTestedInstance()->toPg(0, 'float8', $session))
-            ->isEqualTo("float8 '0'");
+            ->isEqualTo("float8 '0'")
+            ->string($this->newTestedInstance()->toPg(IntBackedEnum::TWO, 'float8', $session))
+            ->isEqualTo("float8 '2'")
+            ->exception(fn() => $this->newTestedInstance()->toPg(BackedEnum::A, 'float8', $session))
+            ->hasMessage(sprintf(
+                "Enum '%s' cannot be converted to float type 'float8' (requires an int-backed enum).",
+                BackedEnum::class
+            ))
+            ->exception(fn() => $this->newTestedInstance()->toPg(PureEnum::Active, 'float8', $session))
+            ->hasMessage(sprintf(
+                "Enum '%s' cannot be converted to float type 'float8' (requires an int-backed enum).",
+                PureEnum::class
+            ));
     }
 
     /** @throws FoundationException */
@@ -50,6 +65,18 @@ class PgFloat extends BaseConverter
             ->string($this->newTestedInstance()->toPgStandardFormat(1.6180339887499, 'float8', $session))
             ->isEqualTo("1.6180339887499")
             ->variable($this->newTestedInstance()->toPgStandardFormat(null, 'float8', $session))
-            ->isNull();
+            ->isNull()
+            ->string($this->newTestedInstance()->toPgStandardFormat(IntBackedEnum::TWO, 'float8', $session))
+            ->isEqualTo('2')
+            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(BackedEnum::A, 'float8', $session))
+            ->hasMessage(sprintf(
+                "Enum '%s' cannot be converted to float type 'float8' (requires an int-backed enum).",
+                BackedEnum::class
+            ))
+            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(PureEnum::Active, 'float8', $session))
+            ->hasMessage(sprintf(
+                "Enum '%s' cannot be converted to float type 'float8' (requires an int-backed enum).",
+                PureEnum::class
+            ));
     }
 }
