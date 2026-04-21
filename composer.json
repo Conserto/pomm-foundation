@@ -42,5 +42,17 @@
             "PommProject\\Foundation\\Test\\": "sources/tests"
         }
     },
+    "scripts": {
+        "test": "atoum --no-code-coverage -d sources/tests/Unit/",
+        "stan": "phpstan analyse -c phpstan.neon",
+        "rector": "rector process --dry-run",
+        "rector:fix": "rector process"
+    },
+    "scripts-descriptions": {
+        "test": "Run the atoum unit test suite (requires a live PostgreSQL DSN in sources/tests/config.php).",
+        "stan": "Run PHPStan static analysis against sources/lib.",
+        "rector": "Run Rector in dry-run mode to preview suggested changes.",
+        "rector:fix": "Apply Rector's suggested changes to sources/."
+    },
     "minimum-stability": "stable"
 }
