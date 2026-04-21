@@ -1,11 +1,19 @@
-# Foundation
+# Foundation (Conserto fork)
 
 [![Latest Stable Version](https://poser.pugx.org/conserto/pomm-foundation/v/stable)](https://packagist.org/packages/conserto/pomm-foundation)
 ![CI Status](https://github.com/conserto/pomm-foundation/actions/workflows/ci.yml/badge.svg)
-[![Monthly Downloads](https://poser.pugx.org/conserto/pomm-foundation/d/monthly.png)](https://packagist.org/packages/conserto/pomm-foundation) 
+[![Monthly Downloads](https://poser.pugx.org/conserto/pomm-foundation/d/monthly.png)](https://packagist.org/packages/conserto/pomm-foundation)
 [![License](https://poser.pugx.org/conserto/pomm-foundation/license.svg)](https://packagist.org/packages/conserto/pomm-foundation)
 
-This is a fork of the foundation component of [Pomm Project](http://www.pomm-project.org).
+> **This is a maintained fork** of [pomm-project/foundation](https://github.com/pomm-project/foundation) by Grégoire HUBERT. Conserto maintains this fork to keep the library working on modern PHP versions, ship bug fixes, and extend the converter stack. Issues and pull requests should be filed against **this** repository.
+
+## Differences from upstream
+
+ * PHP 8.4+ required (upstream targeted PHP 8.1).
+ * Rector-driven modernization of type declarations and PHP 8.x syntax.
+ * Extra converters and enum compatibility: `PgBackedEnum`, enum-aware `PgString` / `PgInteger` / `PgFloat`.
+ * Active CI on PHP 8.4 and 8.5.
+ * See [CHANGELOG](CHANGELOG) for the detailed release history.
 
 ## What is Foundation ?
 
@@ -20,25 +28,25 @@ Foundation provides out of the box:
  * LISTEN / NOTIFY asynchronous messages support.
  * Service manager for easy integration with dependency injection containers.
 
-[See more with code examples on this blog post](http://www.pomm-project.org/news/a-short-focus-on-pomm-s-foundation.html).
-
 ## Requirements
 
- * PHP 8.1
-    * mod-pgsql (not PDO)
- * Postgresql 9.4
-
-Pomm might work with older versions of PHP or Postgres but this is not tested and can be broken any time.
+ * PHP >= 8.4
+    * ext-pgsql (not PDO)
+ * PostgreSQL (tested on recent versions; older ones may work but are not covered by CI)
 
 ## Installation
 
-Pomm components are available on [packagist](https://packagist.org/packages/pomm-project/) using [composer](https://packagist.org/). To install and use Pomm's foundation, add a require line to `"conserto/pomm-foundation"` in your `composer.json` file.
+This fork is distributed on Packagist as [`conserto/pomm-foundation`](https://packagist.org/packages/conserto/pomm-foundation). Add it with Composer:
+
+```bash
+composer require conserto/pomm-foundation
+```
 
 **Note:** It is important the PHP configuration file defines the correct [timezone](http://php.net/manual/en/datetime.configuration.php) setting. Pomm also sets the PostgreSQL connection to this timezone to prevent time shifts between the application and the database.
 
 ## Documentation
 
-Foundation’s documentation is available [either online](https://github.com/conserto/pomm-foundation/blob/master/documentation/foundation.rst) or directly in the `documentation` folder of the project.
+Foundation’s documentation is available [either online](https://github.com/conserto/pomm-foundation/blob/main/documentation/foundation.rst) or directly in the `documentation` folder of the project.
 
 ## Tests
 
@@ -53,3 +61,7 @@ Making your test class to extend one of these will grant them with a `buildSessi
 
 Unfortunately there is a bug we can not fix easily or without degrading performances of the whole stack:
 * The `ConvertedResultIterator` can not recognize custom composite types when they are defined in schemas other than `public`. This is because the `pg_type` function does not return the schema the type belongs to. There are not turns around unless the schema is inspected manually by issuing a lot of queries. (see #53)
+
+## License
+
+Foundation is released under the MIT license — see [LICENSE](LICENSE). Original copyright © 2014 Grégoire HUBERT, fork maintenance © 2022-present Conserto.

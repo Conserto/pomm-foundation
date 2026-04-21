@@ -4,9 +4,24 @@
     "type": "library",
     "description":  "Pomm connection manager for Postgresql",
     "keywords": ["framework", "postgresql", "database", "pomm"],
-    "homepage": "http://www.pomm-project.org",
+    "homepage": "https://github.com/Conserto/pomm-foundation",
     "license":  "MIT",
-    "authors":  [ { "name": "Grégoire HUBERT", "email": "hubert.greg@gmail.com" } ],
+    "authors": [
+        {
+            "name": "Grégoire HUBERT",
+            "email": "hubert.greg@gmail.com",
+            "role": "Original author"
+        },
+        {
+            "name": "Conserto",
+            "homepage": "https://www.conserto.pro",
+            "role": "Maintainer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/Conserto/pomm-foundation/issues",
+        "source": "https://github.com/Conserto/pomm-foundation"
+    },
     "require": {
         "php": ">=8.4",
         "ext-pgsql": "*",
