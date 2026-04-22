@@ -8,3 +8,4 @@ composer.lock
 
 # IDE - PhpStorm
 .idea
+.phpunit.cache/
