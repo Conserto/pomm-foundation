@@ -46,12 +46,12 @@ class PgFloatTest extends BaseConverterTestCase
         self::assertSame("float8 '42.5'", $converter->toPg(BackedEnum::NUMERIC, 'float8', $session));
 
         self::assertIncompatibleEnum(
-            fn () => $converter->toPg(BackedEnum::A, 'float8', $session),
+            fn (): string => $converter->toPg(BackedEnum::A, 'float8', $session),
             BackedEnum::class,
             'float8'
         );
         self::assertIncompatibleEnum(
-            fn () => $converter->toPg(UnitEnum::Active, 'float8', $session),
+            fn (): string => $converter->toPg(UnitEnum::Active, 'float8', $session),
             UnitEnum::class,
             'float8'
         );
@@ -69,12 +69,12 @@ class PgFloatTest extends BaseConverterTestCase
         self::assertSame('42.5', $converter->toPgStandardFormat(BackedEnum::NUMERIC, 'float8', $session));
 
         self::assertIncompatibleEnum(
-            fn () => $converter->toPgStandardFormat(BackedEnum::A, 'float8', $session),
+            fn (): ?string => $converter->toPgStandardFormat(BackedEnum::A, 'float8', $session),
             BackedEnum::class,
             'float8'
         );
         self::assertIncompatibleEnum(
-            fn () => $converter->toPgStandardFormat(UnitEnum::Active, 'float8', $session),
+            fn (): ?string => $converter->toPgStandardFormat(UnitEnum::Active, 'float8', $session),
             UnitEnum::class,
             'float8'
         );

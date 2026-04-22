@@ -46,12 +46,12 @@ class PgIntegerTest extends BaseConverterTestCase
         self::assertSame("int4 '2'", $converter->toPg(IntBackedEnum::TWO, 'int4', $session));
 
         self::assertIncompatibleEnum(
-            fn () => $converter->toPg(BackedEnum::A, 'int4', $session),
+            fn (): string => $converter->toPg(BackedEnum::A, 'int4', $session),
             BackedEnum::class,
             'int4'
         );
         self::assertIncompatibleEnum(
-            fn () => $converter->toPg(UnitEnum::Active, 'int4', $session),
+            fn (): string => $converter->toPg(UnitEnum::Active, 'int4', $session),
             UnitEnum::class,
             'int4'
         );
@@ -69,12 +69,12 @@ class PgIntegerTest extends BaseConverterTestCase
         self::assertSame('2', $converter->toPgStandardFormat(IntBackedEnum::TWO, 'int4', $session));
 
         self::assertIncompatibleEnum(
-            fn () => $converter->toPgStandardFormat(BackedEnum::A, 'int4', $session),
+            fn (): ?string => $converter->toPgStandardFormat(BackedEnum::A, 'int4', $session),
             BackedEnum::class,
             'int4'
         );
         self::assertIncompatibleEnum(
-            fn () => $converter->toPgStandardFormat(UnitEnum::Active, 'int4', $session),
+            fn (): ?string => $converter->toPgStandardFormat(UnitEnum::Active, 'int4', $session),
             UnitEnum::class,
             'int4'
         );

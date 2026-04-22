@@ -94,6 +94,15 @@ class PgTsRangeTest extends BaseConverterTestCase
         );
     }
 
+    /**
+     * @return iterable<string, array{
+     *     textRange: string,
+     *     expectedStartLimit: string|null,
+     *     expectedEndLimit: string|null,
+     *     expectedStartIncl: bool|null,
+     *     expectedEndIncl: bool|null,
+     * }>
+     */
     public static function fromPgDataProvider(): iterable
     {
         yield 'Test with infinity and null' => [

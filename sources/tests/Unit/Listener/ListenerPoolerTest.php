@@ -13,7 +13,6 @@
 namespace PommProject\Foundation\Tests\Unit\Listener;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PommProject\Foundation\Listener\Listener;
 use PommProject\Foundation\Listener\ListenerPooler;
 use PommProject\Foundation\Session\Session;
@@ -22,9 +21,6 @@ use PommProject\Foundation\Tester\FoundationSessionTestCase;
 #[CoversClass(ListenerPooler::class)]
 class ListenerPoolerTest extends FoundationSessionTestCase
 {
-    /** @var array<string, Listener&MockObject> */
-    private array $listenerMocks = [];
-
     /** @var array<string, array<int, string>> captured notify() arguments per listener identifier */
     private array $notifyCalls = [];
 
@@ -99,7 +95,6 @@ class ListenerPoolerTest extends FoundationSessionTestCase
                     }
                 );
 
-            $this->listenerMocks[$identifier] = $mock;
             $session->registerClient($mock);
         }
     }

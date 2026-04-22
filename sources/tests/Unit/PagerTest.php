@@ -52,6 +52,12 @@ class PagerTest extends FoundationSessionTestCase
         self::assertSame($expected['next'], $pager->isNextPage());
     }
 
+    /**
+     * @return iterable<string, array{
+     *     input: array{start: int, end: int, totalCount: int, maxPerPage: int, page: int},
+     *     expected: array{min: int, max: int, lastPage: int, maxPerPage: int, previous: bool, next: bool},
+     * }>
+     */
     public static function pageStatsProvider(): iterable
     {
         yield 'single page, partial' => [
@@ -76,6 +82,9 @@ class PagerTest extends FoundationSessionTestCase
     {
     }
 
+    /**
+     * @return ConvertedResultIterator<array{row: int}>
+     */
     private function getResultIterator(int $end, int $start = 1): ConvertedResultIterator
     {
         return $this->buildSession()

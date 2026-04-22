@@ -17,10 +17,15 @@ class ListenerTester
 {
     public bool $is_called = false;
     public ?string $sql = null;
+
+    /** @var array<int, mixed> */
     public array $parameters = [];
     public ?string $session_stamp = null;
     public ?int $result_count = null;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function call(string $event, array $data, Session $session): void
     {
         $this->is_called = true;

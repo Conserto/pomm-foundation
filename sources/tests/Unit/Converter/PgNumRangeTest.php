@@ -88,6 +88,15 @@ class PgNumRangeTest extends BaseConverterTestCase
         self::assertNull($converter->toPgStandardFormat(null, 'myrange', $session));
     }
 
+    /**
+     * @return iterable<string, array{
+     *     textRange: string,
+     *     expectedStartLimit: int|float|string|null,
+     *     expectedEndLimit: int|float|string|null,
+     *     expectedStartIncl: bool|null,
+     *     expectedEndIncl: bool|null,
+     * }>
+     */
     public static function fromPgDataProvider(): iterable
     {
         yield 'Test with value and null' => [

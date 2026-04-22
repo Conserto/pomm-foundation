@@ -20,6 +20,8 @@ use PommProject\Foundation\Session\ResultHandler;
 class InspectorFixture extends Client
 {
     /**
+     * @return ResultHandler|array<int, ResultHandler>
+     *
      * @throws SqlException|FoundationException|ConnectionException
      */
     protected function executeAnonymousQuery(string $sql): ResultHandler|array
@@ -65,7 +67,7 @@ class InspectorFixture extends Client
     /**
      * @throws SqlException|FoundationException|ConnectionException
      */
-    public function renamePks($table, $old_pk, $new_pk): void
+    public function renamePks(string $table, string $old_pk, string $new_pk): void
     {
         $sql = sprintf(
             'alter table inspector_test."%s" rename "%s" to "%s"',

@@ -30,11 +30,13 @@ class ObserverTest extends VanillaSessionTestCase
         $this->notify('pika');
         // getNotification() consumes the pending event, so capture it once before asserting.
         $first = $session->getObserver('pika')->getNotification();
+        self::assertIsArray($first);
         self::assertContains('pika', $first);
         self::assertContains('', $first);
 
         $this->notify('pika', 'chu');
         $second = $session->getObserver('pika')->getNotification();
+        self::assertIsArray($second);
         self::assertContains('pika', $second);
         self::assertContains('chu', $second);
         self::assertNull($session->getObserver('pika')->getNotification());

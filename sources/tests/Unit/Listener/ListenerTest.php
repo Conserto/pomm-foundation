@@ -27,7 +27,7 @@ class ListenerTest extends FoundationSessionTestCase
 
         self::assertInstanceOf(
             Listener::class,
-            $listener->attachAction(fn ($name, $data, $session): true => true)
+            $listener->attachAction(fn (string $name, array $data, ?Session $session): true => true)
         );
         self::assertInstanceOf(
             Listener::class,
@@ -42,12 +42,12 @@ class ListenerTest extends FoundationSessionTestCase
         $flag = null;
 
         $listener
-            ->attachAction(fn ($name, $data, $session): true => true)
-            ->attachAction(function ($name, $data, $session) use (&$flag): void {
+            ->attachAction(fn (string $name, array $data, ?Session $session): true => true)
+            ->attachAction(function (string $name, array $data, ?Session $session) use (&$flag): void {
                 $flag = $name;
             });
 
-        self::assertInstanceOf(Listener::class, $listener->notify('pika', ['chu' => true], null));
+        self::assertInstanceOf(Listener::class, $listener->notify('pika', ['chu' => true]));
         self::assertSame('pika', $flag);
     }
 

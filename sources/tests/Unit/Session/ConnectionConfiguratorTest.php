@@ -48,6 +48,9 @@ class ConnectionConfiguratorTest extends TestCase
         self::assertSame($connectionString, $configurator->getConnectionString());
     }
 
+    /**
+     * @return iterable<int|string, array{0: string, 1: string}>
+     */
     public static function goodDsnProvider(): iterable
     {
         yield ['pgsql://user:p4ssW0rD@aHost:5432/dbname', 'user=user dbname=dbname host=aHost port=5432 password=p4ssW0rD'];

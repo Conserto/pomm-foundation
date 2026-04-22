@@ -128,7 +128,7 @@ class PommTest extends TestCase
     public function testPostConfiguration(): void
     {
         $pomm = $this->getPomm()
-            ->addPostConfiguration('db_two', function ($session): void {
+            ->addPostConfiguration('db_two', function (Session $session): void {
                 $session->getListener('pika');
             });
 
@@ -208,6 +208,9 @@ class PommTest extends TestCase
         ShutdownSpySession::$shutdownCalls = 0;
     }
 
+    /**
+     * @param array<string, array<string, mixed>>|null $configuration
+     */
     private function getPomm(?array $configuration = null): Pomm
     {
         $configuration ??= [
@@ -222,6 +225,9 @@ class PommTest extends TestCase
         return new Pomm($configuration);
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     private function getSessionBuilder(array $config = []): SessionBuilder
     {
         return new SessionBuilder($config);
