@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace PommProject\Foundation\Test\Fixture;
+namespace PommProject\Foundation\Tests\Fixture;
 
 use PommProject\Foundation\Converter\ConverterInterface;
 use PommProject\Foundation\Session\Session;

@@ -10,7 +10,7 @@
          failOnRisky="true">
     <testsuites>
         <testsuite name="default">
-            <directory>sources/tests/PhpUnit</directory>
+            <directory>sources/tests/Unit</directory>
         </testsuite>
     </testsuites>
     <source>
