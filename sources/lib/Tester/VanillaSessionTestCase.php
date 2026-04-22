@@ -38,7 +38,11 @@ abstract class VanillaSessionTestCase extends TestCase
     private function getSessionBuilder(): SessionBuilder
     {
         if ($this->sessionBuilder === null) {
-            $this->sessionBuilder = $this->createSessionBuilder($GLOBALS['pomm_db1']);
+            // connection:persist => true forces pg_connect(..., FORCE_NEW) so every test
+            // gets its own backend; without this the shared pg_pconnect pool leaks prepared
+            // statements across tests since PHPUnit keeps the process alive.
+            $configuration = ['connection:persist' => true] + $GLOBALS['pomm_db1'];
+            $this->sessionBuilder = $this->createSessionBuilder($configuration);
         }
 
         return $this->sessionBuilder;
