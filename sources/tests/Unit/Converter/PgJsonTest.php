@@ -32,7 +32,7 @@ class PgJsonTest extends BaseConverterTestCase
         );
         self::assertNull($converter->fromPg(null, 'json', $session));
 
-        $object = (new PgJson(false))->fromPg($json, 'json', $session);
+        $object = new PgJson(false)->fromPg($json, 'json', $session);
         self::assertInstanceOf(\stdClass::class, $object);
         self::assertInstanceOf(\stdClass::class, $object->az);
         self::assertSame([' c ', 'd\\":'], $object->az->b);

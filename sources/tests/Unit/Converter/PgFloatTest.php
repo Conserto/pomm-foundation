@@ -30,7 +30,7 @@ class PgFloatTest extends BaseConverterTestCase
     public function testFromPg(?string $input, string $pgType, ?float $expected): void
     {
         $session = $this->buildSession();
-        self::assertSame($expected, (new PgFloat())->fromPg($input, $pgType, $session));
+        self::assertSame($expected, new PgFloat()->fromPg($input, $pgType, $session));
     }
 
     public function testToPg(): void

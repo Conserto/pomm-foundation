@@ -1,5 +1,5 @@
 {
-    "version": "4.0.3",
+    "version": "5.0.0",
     "name": "conserto/pomm-foundation",
     "type": "library",
     "description":  "Pomm connection manager for Postgresql",

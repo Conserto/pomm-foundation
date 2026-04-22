@@ -30,7 +30,7 @@ class PgTsRangeTest extends BaseConverterTestCase
         ?bool $expectedEndIncl,
     ): void {
         $session = $this->buildSession();
-        $instance = (new PgTsRange())->fromPg($textRange, 'tstzrange', $session);
+        $instance = new PgTsRange()->fromPg($textRange, 'tstzrange', $session);
 
         self::assertInstanceOf(TsRange::class, $instance);
         self::assertSame($expectedStartLimit, $instance->startLimit);

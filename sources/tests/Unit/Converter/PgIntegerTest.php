@@ -30,7 +30,7 @@ class PgIntegerTest extends BaseConverterTestCase
     public function testFromPg(?string $input, ?int $expected): void
     {
         $session = $this->buildSession();
-        self::assertSame($expected, (new PgInteger())->fromPg($input, 'int4', $session));
+        self::assertSame($expected, new PgInteger()->fromPg($input, 'int4', $session));
     }
 
     public function testToPg(): void

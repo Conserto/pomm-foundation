@@ -138,7 +138,7 @@ class PommTest extends TestCase
     public function testDefault(): void
     {
         try {
-            (new Pomm())->getDefaultSession();
+            new Pomm()->getDefaultSession();
             self::fail('Expected FoundationException was not thrown.');
         } catch (FoundationException $e) {
             self::assertStringContainsString('No default session builder set.', $e->getMessage());
@@ -149,7 +149,7 @@ class PommTest extends TestCase
 
         self::assertStringContainsString(
             'one',
-            (new Pomm(['one' => ['dsn' => ConnectionConfiguratorTest::DSN_TEST]]))->getDefaultSession()->getStamp()
+            new Pomm(['one' => ['dsn' => ConnectionConfiguratorTest::DSN_TEST]])->getDefaultSession()->getStamp()
         );
 
         try {

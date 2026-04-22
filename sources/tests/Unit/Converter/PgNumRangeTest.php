@@ -34,7 +34,7 @@ class PgNumRangeTest extends BaseConverterTestCase
         ?bool $expectedEndIncl,
     ): void {
         $session = $this->buildSession();
-        $instance = (new PgNumRange())->fromPg($textRange, 'tstzrange', $session);
+        $instance = new PgNumRange()->fromPg($textRange, 'tstzrange', $session);
 
         self::assertInstanceOf(NumRange::class, $instance);
         self::assertSame($expectedStartLimit, $instance->startLimit);

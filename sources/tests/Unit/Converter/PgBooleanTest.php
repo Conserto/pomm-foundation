@@ -26,7 +26,7 @@ class PgBooleanTest extends BaseConverterTestCase
     public function testFromPg(?string $input, ?bool $expected): void
     {
         $session = $this->buildSession();
-        self::assertSame($expected, (new PgBoolean())->fromPg($input, 'bool', $session));
+        self::assertSame($expected, new PgBoolean()->fromPg($input, 'bool', $session));
     }
 
     public function testFromPgInvalid(): void
@@ -36,7 +36,7 @@ class PgBooleanTest extends BaseConverterTestCase
         $this->expectException(ConverterException::class);
         $this->expectExceptionMessage('Unknown bool data');
 
-        (new PgBoolean())->fromPg('whatever', 'bool', $session);
+        new PgBoolean()->fromPg('whatever', 'bool', $session);
     }
 
     #[TestWith([true, "bool 'true'"])]
@@ -45,7 +45,7 @@ class PgBooleanTest extends BaseConverterTestCase
     public function testToPg(?bool $input, string $expected): void
     {
         $session = $this->buildSession();
-        self::assertSame($expected, (new PgBoolean())->toPg($input, 'bool', $session));
+        self::assertSame($expected, new PgBoolean()->toPg($input, 'bool', $session));
     }
 
     #[TestWith([true, 't'])]
@@ -54,6 +54,6 @@ class PgBooleanTest extends BaseConverterTestCase
     public function testToPgStandardFormat(?bool $input, ?string $expected): void
     {
         $session = $this->buildSession();
-        self::assertSame($expected, (new PgBoolean())->toPgStandardFormat($input, 'bool', $session));
+        self::assertSame($expected, new PgBoolean()->toPgStandardFormat($input, 'bool', $session));
     }
 }
