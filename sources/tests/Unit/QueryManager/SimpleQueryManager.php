@@ -14,7 +14,11 @@ use PommProject\Foundation\Converter\Type\Circle;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\Session\Session;
+use PommProject\Foundation\Test\Unit\Enum\BackedEnum;
+use PommProject\Foundation\Test\Unit\Enum\IntBackedEnum;
+use PommProject\Foundation\Test\Unit\Enum\UnitEnum as TestUnitEnum;
 use PommProject\Foundation\Tester\FoundationSessionAtoum;
+use PommProject\Foundation\Where;
 
 class SimpleQueryManager extends FoundationSessionAtoum
 {
@@ -104,6 +108,31 @@ SQL;
             ->isEqualTo('test session')
             ->integer($listener_tester->result_count)
             ->isEqualTo(1);
+    }
+
+    /**
+     * @throws FoundationException
+     *
+     * Bare $* placeholders (e.g. those built by Where::createWhereIn) carry no
+     * type cast, so the value must still reach the driver as a scalar when it's
+     * a PHP enum rather than a primitive.
+     */
+    public function testQueryWithEnumOnUntypedPlaceholder(): void
+    {
+        $session = $this->buildSession();
+
+        $where = Where::createWhereIn("'a'::text", [BackedEnum::A, BackedEnum::NUMERIC]);
+        $iterator = $this->getQueryManager($session)
+            ->query(sprintf('select %s as match', (string) $where), $where->getValues());
+        $this->boolean($iterator->current()['match'])->isTrue();
+
+        $iterator = $this->getQueryManager($session)
+            ->query('select $* as v', [IntBackedEnum::TWO]);
+        $this->variable($iterator->current()['v'])->isEqualTo(IntBackedEnum::TWO->value);
+
+        $iterator = $this->getQueryManager($session)
+            ->query('select $* as v', [TestUnitEnum::Active]);
+        $this->variable($iterator->current()['v'])->isEqualTo(TestUnitEnum::Active->name);
     }
 
     protected function initializeSession(Session $session): void
