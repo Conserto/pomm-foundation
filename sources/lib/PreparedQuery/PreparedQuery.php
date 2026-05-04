@@ -176,6 +176,8 @@ class PreparedQuery extends Client
         foreach ($values as $index => $value) {
             if (isset($this->converters[$index])) {
                 $values[$index] = call_user_func($this->converters[$index], $value);
+            } elseif ($value instanceof \UnitEnum) {
+                $values[$index] = $value instanceof \BackedEnum ? $value->value : $value->name;
             }
         }
 
