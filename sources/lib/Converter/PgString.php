@@ -10,6 +10,7 @@
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConnectionException;
+use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Session\Session;
 
@@ -23,26 +24,38 @@ use PommProject\Foundation\Session\Session;
  */
 class PgString implements ConverterInterface
 {
+    use UnwrapsEnum;
+
     /**
-     * @throws ConnectionException|FoundationException
+     * @throws ConnectionException|ConverterException|FoundationException
      * @see ConverterInterface
      */
     public function toPg(mixed $data, string $type, Session $session): string
     {
+        $data = $this->unwrapEnum($data, $type);
+
         return $data !== null
             ? sprintf("%s %s",  $type, $session->getConnection()->escapeLiteral($data))
             : sprintf("NULL::%s", $type);
     }
 
-    /** @see ConverterInterface */
+    /**
+     * @throws ConverterException
+     * @see ConverterInterface
+     */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
-        return $data;
+        return $this->unwrapEnum($data, $type);
     }
 
     /** @see ConverterInterface */
     public function fromPg(?string $data, string $type, Session $session): ?string
     {
         return $data;
+    }
+
+    protected function acceptsEnum(\UnitEnum $enum): bool
+    {
+        return !$enum instanceof \BackedEnum || is_string($enum->value);
     }
 }
