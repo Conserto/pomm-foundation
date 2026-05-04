@@ -84,6 +84,8 @@ class SimpleQueryManager extends QueryManagerClient
                     ->getClientUsingPooler('converter', $types[$index]);
 
                 $parameters[$index] = $converterClient->toPgStandardFormat($value, $types[$index]);
+            } elseif ($value instanceof \UnitEnum) {
+                $parameters[$index] = $value instanceof \BackedEnum ? $value->value : $value->name;
             }
         }
 

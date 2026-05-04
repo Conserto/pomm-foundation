@@ -102,10 +102,9 @@ class Where implements \Stringable
     protected static function extractValues(array $values): array
     {
         $array = [];
-
-        foreach (new \RecursiveIteratorIterator(new \RecursiveArrayIterator($values)) as $value) {
+        array_walk_recursive($values, function (mixed $value) use (&$array): void {
             $array[] = $value;
-        }
+        });
 
         return $array;
     }
