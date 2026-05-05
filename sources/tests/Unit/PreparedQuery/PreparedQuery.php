@@ -15,6 +15,9 @@ use PommProject\Foundation\Converter\Type\Circle;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\PreparedQuery\PreparedQuery as TestedPreparedQuery;
 use PommProject\Foundation\Session\Session;
+use PommProject\Foundation\Test\Unit\Enum\BackedEnum;
+use PommProject\Foundation\Test\Unit\Enum\IntBackedEnum;
+use PommProject\Foundation\Test\Unit\Enum\UnitEnum as TestUnitEnum;
 use PommProject\Foundation\Tester\FoundationSessionAtoum;
 
 class PreparedQuery extends FoundationSessionAtoum
@@ -55,6 +58,28 @@ class PreparedQuery extends FoundationSessionAtoum
         );
 
         $this->integer($result->countRows())->isEqualTo(2);
+    }
+
+    /**
+     * @throws FoundationException
+     *
+     * Untyped $* placeholders must accept PHP enums and forward their scalar
+     * value (or name for unit enums) to the driver, since the converter pooler
+     * is not invoked when no type hint is present.
+     */
+    public function testExecuteWithEnumOnUntypedPlaceholder(): void
+    {
+        $session = $this->buildSession();
+
+        $query = $this->newTestedInstance('select $* as v');
+        $session->registerClient($query);
+
+        $this->variable($query->execute([BackedEnum::A])->fetchRow(0)['v'])
+            ->isEqualTo(BackedEnum::A->value);
+        $this->variable($query->execute([IntBackedEnum::TWO])->fetchRow(0)['v'])
+            ->isEqualTo((string) IntBackedEnum::TWO->value);
+        $this->variable($query->execute([TestUnitEnum::Active])->fetchRow(0)['v'])
+            ->isEqualTo(TestUnitEnum::Active->name);
     }
 
     protected function initializeSession(Session $session): void

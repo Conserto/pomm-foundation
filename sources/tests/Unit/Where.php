@@ -12,6 +12,9 @@
 namespace PommProject\Foundation\Test\Unit;
 
 use Atoum;
+use PommProject\Foundation\Test\Unit\Enum\BackedEnum;
+use PommProject\Foundation\Test\Unit\Enum\IntBackedEnum;
+use PommProject\Foundation\Test\Unit\Enum\UnitEnum as TestUnitEnum;
 use PommProject\Foundation\Where as PommWhere;
 
 class Where extends Atoum
@@ -34,6 +37,24 @@ class Where extends Atoum
             ->isEqualTo('b IN ($*, $*, $*, $*)')
             ->string($where2->__toString())
             ->isEqualTo('(a, b) IN (($*, $*), ($*, $*))');
+    }
+
+    /**
+     * Enum values must be carried as-is through extractValues — RecursiveArrayIterator
+     * rejects enum instances on PHP 8.1+, so the flattening step must not descend into
+     * objects.
+     */
+    public function testCreateWhereInWithEnumValues(): void
+    {
+        $where = PommWhere::createWhereIn('col', [BackedEnum::A, BackedEnum::NUMERIC]);
+        $this->string($where->__toString())
+            ->isEqualTo('col IN ($*, $*)')
+            ->array($where->getValues())
+            ->isIdenticalTo([BackedEnum::A, BackedEnum::NUMERIC]);
+
+        $where = PommWhere::createWhereIn('col', [IntBackedEnum::TWO, TestUnitEnum::Active]);
+        $this->array($where->getValues())
+            ->isIdenticalTo([IntBackedEnum::TWO, TestUnitEnum::Active]);
     }
 
     public function testCreateWhereNotIn(): void
