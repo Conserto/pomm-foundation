@@ -1,13 +1,5 @@
-== VERSION 4.0.4
+== VERSION 4.0.5
 
- * Fix Where::createWhereIn / createWhereNotIn crashing on PHP enum values (RecursiveArrayIterator rejects enums on PHP 8.1+); flatten via array_walk_recursive instead
- * Unwrap PHP enums to scalars on bare $* placeholders in SimpleQueryManager and PreparedQuery (BackedEnum->value, UnitEnum->name) so untyped IN clauses with enums work end-to-end
-
-== VERSION 4.0.3
-
- * Accept PHP enums in PgString, PgInteger and PgFloat converters (scalar unwrapping with per-converter compatibility check; PgString also handles pure UnitEnum via ->name)
- * Fix PgInteger serializing negative numbers as unsigned overflow (use %d instead of %u)
- * Harden PgBackedEnum::toPg with an explicit instance check and string cast on the backing value
  * Session::shutdown now forwards caught exceptions to the PSR-3 logger instead of printf-ing to stdout
  * Fix ResultHandler::getFieldNumber advancing the result cursor and risking a fatal when reporting an invalid field name
  * Modernize internals: direct invocation instead of call_user_func*, typed class constants on BaseRange
@@ -23,6 +15,17 @@
  * Document the intentional caching divergence between SimpleQueryManager::prepareArguments and PreparedQuery::prepareValues (inline + AGENTS.md)
  * AGENTS.md: precise the ConverterHolder clone semantics (shallow clone, implications for ArrayTypeConverter caches when overriding built-in leaf converters per session)
  * Normalize code style across sources/ via composer cs:fix (PSR-12 + PHP84Migration ruleset): blank line after <?php, typed final constants written `final public const string`, alphabetical use ordering, minor spacing tweaks
+
+== VERSION 4.0.4
+
+ * Fix Where::createWhereIn / createWhereNotIn crashing on PHP enum values (RecursiveArrayIterator rejects enums on PHP 8.1+); flatten via array_walk_recursive instead
+ * Unwrap PHP enums to scalars on bare $* placeholders in SimpleQueryManager and PreparedQuery (BackedEnum->value, UnitEnum->name) so untyped IN clauses with enums work end-to-end
+
+== VERSION 4.0.3
+
+ * Accept PHP enums in PgString, PgInteger and PgFloat converters (scalar unwrapping with per-converter compatibility check; PgString also handles pure UnitEnum via ->name)
+ * Fix PgInteger serializing negative numbers as unsigned overflow (use %d instead of %u)
+ * Harden PgBackedEnum::toPg with an explicit instance check and string cast on the backing value
 
 == VERSION 4.0.2
 
