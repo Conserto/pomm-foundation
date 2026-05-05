@@ -15,11 +15,15 @@ namespace PommProject\Foundation\Tests\Unit\Converter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\PgHstore;
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Session\Session;
 
 #[CoversClass(PgHstore::class)]
 class PgHstoreTest extends BaseConverterTestCase
 {
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg(): void
     {
         $session = $this->buildSession();
@@ -36,6 +40,9 @@ class PgHstoreTest extends BaseConverterTestCase
         self::assertNull($converter->fromPg(null, 'hstore', $session));
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg(): void
     {
         $session = $this->buildSession();
@@ -55,6 +62,9 @@ class PgHstoreTest extends BaseConverterTestCase
         }
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();
@@ -81,6 +91,9 @@ class PgHstoreTest extends BaseConverterTestCase
         self::assertSame($hstore, $this->sendToPostgres($hstore, 'hstore', $session));
     }
 
+    /**
+     * @throws FoundationException from getPoolerForType() / registerConverter()
+     */
     protected function initializeSession(Session $session): void
     {
         parent::initializeSession($session);

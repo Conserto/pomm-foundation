@@ -14,6 +14,8 @@ namespace PommProject\Foundation\Tests\Unit\Session;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use PommProject\Foundation\Exception\ConnectionException;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\Session\Connection;
 use PommProject\Foundation\Session\ResultHandler;
@@ -21,6 +23,11 @@ use PommProject\Foundation\Session\ResultHandler;
 #[CoversClass(Connection::class)]
 class ConnectionTest extends TestCase
 {
+    /**
+     * @throws ConnectionException from getConnection()
+     * @throws FoundationException|SqlException propagated from executeAnonymousQuery (the
+     *         final statement re-uses expectException so its exception is the caught one).
+     */
     public function testExecuteAnonymousQuery(): void
     {
         $connection = $this->getConnection();
@@ -43,9 +50,16 @@ class ConnectionTest extends TestCase
         $connection->executeAnonymousQuery('select true; bad query');
     }
 
+    /**
+     * @throws ConnectionException from getConnection()
+     * @throws FoundationException|SqlException from sendQueryWithParameters on the happy path.
+     */
     public function testSendQueryWithParameters(): void
     {
         $badQuery = 'select n where true = $1';
+        // true is kept unquoted here: Connection::sendQueryWithParameters is expected to
+        // coerce scalars to their Postgres text form transparently, and the SqlException
+        // path must preserve the raw parameters as supplied (asserted below).
         $parameters = [true];
 
         $connection = $this->getConnection();
@@ -65,6 +79,10 @@ class ConnectionTest extends TestCase
         }
     }
 
+    /**
+     * @throws ConnectionException if the pgsql extension is missing
+     * @throws FoundationException propagated from Connection's constructor
+     */
     private function getConnection(): Connection
     {
         return new Connection(

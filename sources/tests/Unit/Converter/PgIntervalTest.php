@@ -15,10 +15,14 @@ namespace PommProject\Foundation\Tests\Unit\Converter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\PgInterval;
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgInterval::class)]
 class PgIntervalTest extends BaseConverterTestCase
 {
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg(): void
     {
         $session = $this->buildSession();
@@ -40,6 +44,9 @@ class PgIntervalTest extends BaseConverterTestCase
         }
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg(): void
     {
         $session = $this->buildSession();
@@ -59,6 +66,9 @@ class PgIntervalTest extends BaseConverterTestCase
         }
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();

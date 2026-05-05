@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PommProject\Foundation\Converter\PgNumRange;
 use PommProject\Foundation\Converter\Type\BaseRange;
 use PommProject\Foundation\Converter\Type\NumRange;
+use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgNumRange::class)]
 class PgNumRangeTest extends BaseConverterTestCase
@@ -43,6 +44,9 @@ class PgNumRangeTest extends BaseConverterTestCase
         self::assertSame($expectedEndIncl, $instance->endIncl);
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg(): void
     {
         $session = $this->buildSession();
@@ -64,6 +68,9 @@ class PgNumRangeTest extends BaseConverterTestCase
         self::assertTrue($floatRange->endIncl);
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg(): void
     {
         $session = $this->buildSession();
@@ -76,6 +83,9 @@ class PgNumRangeTest extends BaseConverterTestCase
         self::assertSame('NULL::myrange', $converter->toPg(null, 'myrange', $session));
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();

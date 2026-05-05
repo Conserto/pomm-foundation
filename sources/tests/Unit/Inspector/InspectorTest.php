@@ -13,7 +13,9 @@
 namespace PommProject\Foundation\Tests\Unit\Inspector;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\Inspector\Inspector;
 use PommProject\Foundation\ResultIterator;
 use PommProject\Foundation\Session\Session;
@@ -25,22 +27,34 @@ class InspectorTest extends FoundationSessionTestCase
 {
     private ?Session $session = null;
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from the fixture schema setup
+     */
     protected function setUp(): void
     {
         $this->getFixture()->createSchema();
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from the fixture schema teardown
+     */
     protected function tearDown(): void
     {
         $this->getFixture()->dropSchema();
     }
 
+    /**
+     * @throws FoundationException from getInspector() / getSchemas()
+     */
     public function testGetSchemas(): void
     {
         self::assertInstanceOf(ResultIterator::class, $this->getInspector()->getSchemas());
         self::assertContains('inspector_test', $this->getInspector()->getSchemas()->slice('name'));
     }
 
+    /**
+     * @throws FoundationException from getInspector() / getTableOid()
+     */
     public function testGetTableOid(): void
     {
         $inspector = $this->getInspector();
@@ -50,6 +64,9 @@ class InspectorTest extends FoundationSessionTestCase
         self::assertNull($inspector->getTableOid('inspector_test', 'no table'));
     }
 
+    /**
+     * @throws FoundationException from getInspector() / getTableFieldInformation()
+     */
     public function testGetTableFieldInformation(): void
     {
         $complexInfo = $this->getInspector()
@@ -75,6 +92,9 @@ class InspectorTest extends FoundationSessionTestCase
         );
     }
 
+    /**
+     * @throws FoundationException from getInspector() / getPrimaryKey() / getTableOid()
+     */
     public function testGetPrimaryKey(): void
     {
         $inspector = $this->getInspector();
@@ -90,8 +110,15 @@ class InspectorTest extends FoundationSessionTestCase
         );
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from fixture renamePks()
+     *         and the getPrimaryKey / getTableOid inspector calls
+     */
     public function testChangePrimaryKey(): void
     {
+        // Mutate the fixture schema in place: renamed PK columns must round-trip to the
+        // same tear-down schema, otherwise the shared teardown (dropSchema) can fail if
+        // an assertion throws mid-test and leaves the DB in an inconsistent state.
         $this->getFixture()->renamePks('with_simple_pk', 'with_simple_pk_id', 'with_simple_pk_id_renamed');
         $this->getFixture()->renamePks('with_complex_pk', 'another_id', 'another_id_renamed');
 
@@ -113,6 +140,9 @@ class InspectorTest extends FoundationSessionTestCase
         }
     }
 
+    /**
+     * @throws FoundationException from getInspector() / getSchemaOid()
+     */
     public function testGetSchemaOid(): void
     {
         $inspector = $this->getInspector();
@@ -121,6 +151,9 @@ class InspectorTest extends FoundationSessionTestCase
         self::assertNull($inspector->getSchemaOid('whatever'));
     }
 
+    /**
+     * @throws FoundationException from getInspector() / getSchemaRelations() / getSchemaOid()
+     */
     public function testGetSchemaRelations(): void
     {
         $inspector = $this->getInspector();
@@ -141,6 +174,9 @@ class InspectorTest extends FoundationSessionTestCase
         self::assertNull($tablesInfo->get(1)['comment']);
     }
 
+    /**
+     * @throws FoundationException from getInspector() / getTableComment() / getTableOid()
+     */
     public function testGetTableComment(): void
     {
         $inspector = $this->getInspector();
@@ -152,6 +188,9 @@ class InspectorTest extends FoundationSessionTestCase
         );
     }
 
+    /**
+     * @throws FoundationException from getInspector() / getTypeInformation() / getTypeEnumValues()
+     */
     public function testGetTypeEnumValues(): void
     {
         $inspector = $this->getInspector();
@@ -164,16 +203,25 @@ class InspectorTest extends FoundationSessionTestCase
         self::assertNull($inspector->getTypeEnumValues(1));
     }
 
+    /**
+     * @throws FoundationException from getInspector() / getVersion()
+     */
     public function testGetVersion(): void
     {
         self::assertSame(1, version_compare($this->getInspector()->getVersion(), '9.1.0'));
     }
 
+    /**
+     * @throws FoundationException from registerClient()
+     */
     protected function initializeSession(Session $session): void
     {
         $session->registerClient(new InspectorFixture());
     }
 
+    /**
+     * @throws FoundationException from buildSession()
+     */
     private function getSession(): Session
     {
         if ($this->session === null) {
@@ -183,11 +231,18 @@ class InspectorTest extends FoundationSessionTestCase
         return $this->session;
     }
 
+    /**
+     * @throws FoundationException from getSession() / getInspector()
+     */
     private function getInspector(): Inspector
     {
         return $this->getSession()->getInspector();
     }
 
+    /**
+     * @throws FoundationException from getSession() / getClient() — also when the fixture client
+     *         is absent so we surface a clear message rather than a NullPointerException downstream
+     */
     private function getFixture(): InspectorFixture
     {
         $fixture = $this->getSession()->getClient('fixture', 'inspector');
@@ -200,7 +255,7 @@ class InspectorTest extends FoundationSessionTestCase
     }
 
     /**
-     * @throws FoundationException
+     * @throws FoundationException from getInspector() / getTableOid()
      */
     private function getTableOid(string $tableName): ?int
     {

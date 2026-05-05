@@ -13,8 +13,8 @@
 namespace PommProject\Foundation\Tests\Unit\QueryManager;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PommProject\Foundation\ConvertedResultIterator;
 use PommProject\Foundation\Converter\Type\Circle;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\QueryManager\SimpleQueryManager;
 use PommProject\Foundation\Session\Session;
@@ -28,16 +28,21 @@ use PommProject\Foundation\Where;
 #[CoversClass(SimpleQueryManager::class)]
 class SimpleQueryManagerTest extends FoundationSessionTestCase
 {
+    /**
+     * @throws FoundationException|SqlException from buildSession() / query()
+     */
     public function testSimpleQuery(): void
     {
         $session = $this->buildSession();
         $iterator = $this->getQueryManager($session)->query('select true as "one one", null::int4 as "TWO"');
 
-        self::assertInstanceOf(ConvertedResultIterator::class, $iterator);
         self::assertTrue($iterator->current()['one one']);
         self::assertNull($iterator->current()['TWO']);
     }
 
+    /**
+     * @throws FoundationException from buildSession() and registerClient()
+     */
     public function testQueryWithExtraParameter(): void
     {
         $session = $this->buildSession();
@@ -46,6 +51,9 @@ class SimpleQueryManagerTest extends FoundationSessionTestCase
         $this->getQueryManager($session)->query('select true', ['extra']);
     }
 
+    /**
+     * @throws FoundationException|SqlException from buildSession() / query()
+     */
     public function testParametrizedQuery(): void
     {
         $session = $this->buildSession();
@@ -74,6 +82,9 @@ class SimpleQueryManagerTest extends FoundationSessionTestCase
         self::assertSame([2, 3], $iteratorFromBool->slice('id'));
     }
 
+    /**
+     * @throws FoundationException|SqlException from buildSession() / getClientUsingPooler() / query()
+     */
     public function testSendNotification(): void
     {
         $session = $this->buildSession('test session');
@@ -117,6 +128,9 @@ class SimpleQueryManagerTest extends FoundationSessionTestCase
     {
     }
 
+    /**
+     * @throws FoundationException from registerClient()
+     */
     private function getQueryManager(Session $session): SimpleQueryManager
     {
         $queryManager = new SimpleQueryManager();

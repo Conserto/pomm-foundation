@@ -14,10 +14,14 @@ namespace PommProject\Foundation\Tests\Unit\Converter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\PgArray;
+use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgArray::class)]
 class PgArrayTest extends BaseConverterTestCase
 {
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg(): void
     {
         $session = $this->buildSession();
@@ -53,6 +57,9 @@ class PgArrayTest extends BaseConverterTestCase
         );
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg(): void
     {
         $session = $this->buildSession();
@@ -76,8 +83,8 @@ class PgArrayTest extends BaseConverterTestCase
             "ARRAY[bool 'true',bool 'true',bool 'false',NULL::bool]::bool[]",
             $converter->toPg([true, true, false, null], 'bool', $session)
         );
-        // The original atoum test exercises the call without asserting the exact output;
-        // we do the same but capture the return to confirm it does not throw.
+        // DateTime array serialization is exercised here to confirm it does not throw;
+        // the exact output format is not part of the public contract.
         $converter->toPg(
             [
                 new \DateTime('2014-09-29 18:24:54.591767'),
@@ -89,6 +96,9 @@ class PgArrayTest extends BaseConverterTestCase
         );
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();

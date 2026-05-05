@@ -13,6 +13,7 @@
 namespace PommProject\Foundation\Tests\Unit\Listener;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Listener\Listener;
 use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\FoundationSessionTestCase;
@@ -20,6 +21,9 @@ use PommProject\Foundation\Tester\FoundationSessionTestCase;
 #[CoversClass(Listener::class)]
 class ListenerTest extends FoundationSessionTestCase
 {
+    /**
+     * @throws FoundationException from buildSession() / registerClient()
+     */
     public function testAttachAction(): void
     {
         $listener = new Listener('pika');
@@ -35,6 +39,9 @@ class ListenerTest extends FoundationSessionTestCase
         );
     }
 
+    /**
+     * @throws FoundationException from buildSession() / registerClient() / notify()
+     */
     public function testNotify(): void
     {
         $listener = new Listener('pika');

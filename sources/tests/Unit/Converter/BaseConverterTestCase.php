@@ -12,6 +12,8 @@
 
 namespace PommProject\Foundation\Tests\Unit\Converter;
 
+use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\FoundationSessionTestCase;
 
@@ -21,6 +23,9 @@ abstract class BaseConverterTestCase extends FoundationSessionTestCase
     {
     }
 
+    /**
+     * @throws FoundationException from getInspector() / getVersion()
+     */
     public function isPgVersionAtLeast(string $version, Session $session): bool
     {
         $current = $session->getInspector()->getVersion();
@@ -28,11 +33,17 @@ abstract class BaseConverterTestCase extends FoundationSessionTestCase
         return version_compare($version, $current) <= 0;
     }
 
+    /**
+     * @throws FoundationException from getInspector() / getTypeInformation()
+     */
     protected function doesTypeExist(string $type, Session $session): bool
     {
         return $session->getInspector()->getTypeInformation($type, 'public') !== null;
     }
 
+    /**
+     * @throws FoundationException|SqlException from getQueryManager() / QueryManager::query()
+     */
     protected function sendToPostgres(mixed $value, mixed $type, Session $session): mixed
     {
         $result = $session->getQueryManager()

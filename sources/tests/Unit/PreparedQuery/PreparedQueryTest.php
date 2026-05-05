@@ -14,7 +14,9 @@ namespace PommProject\Foundation\Tests\Unit\PreparedQuery;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\Type\Circle;
+use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\PreparedQuery\PreparedQuery;
 use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\FoundationSessionTestCase;
@@ -25,6 +27,9 @@ use PommProject\Foundation\Tests\Fixture\Enum\UnitEnum as TestUnitEnum;
 #[CoversClass(PreparedQuery::class)]
 class PreparedQueryTest extends FoundationSessionTestCase
 {
+    /**
+     * @throws FoundationException from the happy-path PreparedQuery::__construct call
+     */
     public function testConstruct(): void
     {
         try {
@@ -35,10 +40,15 @@ class PreparedQueryTest extends FoundationSessionTestCase
         }
 
         $query = new PreparedQuery('abcd');
-        self::assertInstanceOf(PreparedQuery::class, $query);
+        // The client identifier must match the stable per-SQL signature so the
+        // PreparedQueryPooler can key its cache on it.
         self::assertSame(PreparedQuery::getSignatureFor('abcd'), $query->getClientIdentifier());
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from buildSession() /
+     *         registerClient() and PreparedQuery::execute()
+     */
     public function testExecute(): void
     {
         $session = $this->buildSession();

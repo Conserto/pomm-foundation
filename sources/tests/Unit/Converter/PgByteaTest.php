@@ -14,12 +14,16 @@ namespace PommProject\Foundation\Tests\Unit\Converter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\PgBytea;
+use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgBytea::class)]
 class PgByteaTest extends BaseConverterTestCase
 {
     private const string HEX = '\x001b5c27200d';
 
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg(): void
     {
         $session = $this->buildSession();
@@ -33,6 +37,9 @@ class PgByteaTest extends BaseConverterTestCase
         self::assertNull($converter->fromPg(null, 'bytea', $session));
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg(): void
     {
         $session = $this->buildSession();
@@ -45,6 +52,9 @@ class PgByteaTest extends BaseConverterTestCase
         self::assertSame('NULL::bytea', $converter->toPg(null, 'bytea', $session));
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();

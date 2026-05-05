@@ -39,13 +39,16 @@ class ConnectionConfiguratorTest extends TestCase
         new ConnectionConfigurator($dsn);
     }
 
+    /**
+     * @throws ConnectionException if a DSN in goodDsnProvider regresses into the parser's reject set.
+     */
     #[DataProvider('goodDsnProvider')]
     public function testGoodDsn(string $dsn, string $connectionString): void
     {
-        $configurator = new ConnectionConfigurator($dsn);
-
-        self::assertInstanceOf(ConnectionConfigurator::class, $configurator);
-        self::assertSame($connectionString, $configurator->getConnectionString());
+        self::assertSame(
+            $connectionString,
+            new ConnectionConfigurator($dsn)->getConnectionString()
+        );
     }
 
     /**
@@ -69,6 +72,9 @@ class ConnectionConfiguratorTest extends TestCase
         yield ['pgsql://user.name:p4ssW0rD@aHost/dbname', 'user=user.name dbname=dbname host=aHost password=p4ssW0rD'];
     }
 
+    /**
+     * @throws ConnectionException
+     */
     public function testGetConfiguration(): void
     {
         $configurator = new ConnectionConfigurator(self::DSN_TEST);
@@ -76,6 +82,9 @@ class ConnectionConfiguratorTest extends TestCase
         self::assertEmpty($configurator->getConfiguration());
     }
 
+    /**
+     * @throws ConnectionException
+     */
     public function testAddConfiguration(): void
     {
         $configurator = new ConnectionConfigurator(self::DSN_TEST);
@@ -88,6 +97,9 @@ class ConnectionConfiguratorTest extends TestCase
         self::assertSame($configuration, $configurator->getConfiguration());
     }
 
+    /**
+     * @throws ConnectionException
+     */
     public function testSet(): void
     {
         $configurator = new ConnectionConfigurator(self::DSN_TEST);

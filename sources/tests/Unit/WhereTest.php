@@ -24,8 +24,12 @@ class WhereTest extends TestCase
 {
     public function testCreate(): void
     {
-        self::assertInstanceOf(Where::class, Where::create());
-        self::assertInstanceOf(Where::class, Where::create('a = pika($*, $*)', [1, 2]));
+        // Smoke test for the two public factory overloads — exceptions would surface here.
+        self::assertSame('true', Where::create()->__toString());
+        self::assertSame(
+            'a = pika($*, $*)',
+            Where::create('a = pika($*, $*)', [1, 2])->__toString()
+        );
     }
 
     public function testCreateWhereIn(): void
@@ -33,7 +37,6 @@ class WhereTest extends TestCase
         $where1 = Where::createWhereIn('b', [1, 2, 3, 4]);
         $where2 = Where::createWhereIn('(a, b)', [[1, 2], [3, 4]]);
 
-        self::assertInstanceOf(Where::class, $where1);
         self::assertSame('b IN ($*, $*, $*, $*)', $where1->__toString());
         self::assertSame('(a, b) IN (($*, $*), ($*, $*))', $where2->__toString());
     }
@@ -58,7 +61,6 @@ class WhereTest extends TestCase
     {
         $where = Where::createWhereNotIn('(a, b)', [[1, 2], [3, 4]]);
 
-        self::assertInstanceOf(Where::class, $where);
         self::assertSame('(a, b) NOT IN (($*, $*), ($*, $*))', $where->__toString());
     }
 

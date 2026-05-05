@@ -25,11 +25,12 @@ use PommProject\Foundation\Tests\Unit\Session\ConnectionConfiguratorTest;
 #[CoversClass(Pomm::class)]
 class PommTest extends TestCase
 {
+    /**
+     * @throws FoundationException from Pomm::__construct on the bad-class arm
+     */
     public function testConstructor(): void
     {
-        $empty = new Pomm([]);
-        self::assertInstanceOf(Pomm::class, $empty);
-        self::assertSame([], $empty->getSessionBuilders());
+        self::assertSame([], new Pomm([])->getSessionBuilders());
 
         $twoConfigs = new Pomm([
             'first_db_config' => ['dsn' => 'pgsql://user:pass@host:5432/db_name'],
@@ -50,6 +51,9 @@ class PommTest extends TestCase
         }
     }
 
+    /**
+     * @throws FoundationException from addBuilder() and getSessionBuilder()
+     */
     public function testAddBuilder(): void
     {
         $pomm = new Pomm([]);
@@ -64,6 +68,9 @@ class PommTest extends TestCase
         );
     }
 
+    /**
+     * @throws FoundationException from getBuilder() on the happy-path arm
+     */
     public function testGetBuilder(): void
     {
         $pomm = $this->getPomm();
@@ -79,6 +86,9 @@ class PommTest extends TestCase
         }
     }
 
+    /**
+     * @throws FoundationException from getSession() and getRegisterPoolersNames()
+     */
     public function testGetSession(): void
     {
         $pomm = $this->getPomm();
@@ -99,6 +109,9 @@ class PommTest extends TestCase
         );
     }
 
+    /**
+     * @throws FoundationException from getSession()
+     */
     public function testCreateSession(): void
     {
         $pomm = $this->getPomm();
@@ -107,6 +120,9 @@ class PommTest extends TestCase
         self::assertInstanceOf(PommTestSession::class, $pomm->getSession('db_two'));
     }
 
+    /**
+     * @throws FoundationException from getSession() and removeSession()
+     */
     public function testRemoveSession(): void
     {
         $pomm = $this->getPomm();
@@ -125,6 +141,9 @@ class PommTest extends TestCase
         }
     }
 
+    /**
+     * @throws FoundationException from addPostConfiguration() and the session materialization
+     */
     public function testPostConfiguration(): void
     {
         $pomm = $this->getPomm()
@@ -135,6 +154,9 @@ class PommTest extends TestCase
         self::assertTrue($pomm['db_two']->hasClient('listener', 'pika'));
     }
 
+    /**
+     * @throws FoundationException from getDefaultSession() and setDefaultBuilder() on the happy paths
+     */
     public function testDefault(): void
     {
         try {
@@ -165,6 +187,9 @@ class PommTest extends TestCase
         );
     }
 
+    /**
+     * @throws FoundationException from Pomm::__construct
+     */
     public function testIsDefault(): void
     {
         $pomm = new Pomm([
@@ -177,6 +202,9 @@ class PommTest extends TestCase
         self::assertFalse($pomm->isDefaultSession('three'));
     }
 
+    /**
+     * @throws FoundationException from $pomm[] and shutdown() on the happy-path arms
+     */
     public function testShutdown(): void
     {
         // class:session lets Pomm instantiate an arbitrary Session subclass — we use a
@@ -209,28 +237,27 @@ class PommTest extends TestCase
     }
 
     /**
-     * @param array<string, array<string, mixed>>|null $configuration
+     * @throws FoundationException from Pomm::__construct if a class:session_builder cannot be loaded
      */
-    private function getPomm(?array $configuration = null): Pomm
+    private function getPomm(): Pomm
     {
-        $configuration ??= [
+        return new Pomm([
             'db_one' => ['dsn' => 'pgsql://user:pass@host:5432/db_name'],
             'db_two' => [
                 'dsn' => 'pgsql://user:pass@host:5432/db_name',
                 'class:session_builder' => PommTestSessionBuilder::class,
                 'pomm:default' => true,
             ],
-        ];
-
-        return new Pomm($configuration);
+        ]);
     }
 
     /**
-     * @param array<string, mixed> $config
+     * @throws FoundationException from the SessionBuilder constructor if `dsn` is missing
+     *         once the empty configuration is fed through preConfigure()
      */
-    private function getSessionBuilder(array $config = []): SessionBuilder
+    private function getSessionBuilder(): SessionBuilder
     {
-        return new SessionBuilder($config);
+        return new SessionBuilder([]);
     }
 }
 

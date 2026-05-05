@@ -14,6 +14,9 @@ namespace PommProject\Foundation\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\ConvertedResultIterator;
+use PommProject\Foundation\Exception\ConnectionException;
+use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\Session\ResultHandler;
 use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\FoundationSessionTestCase;
@@ -21,6 +24,9 @@ use PommProject\Foundation\Tester\FoundationSessionTestCase;
 #[CoversClass(ConvertedResultIterator::class)]
 class ConvertedResultIteratorTest extends FoundationSessionTestCase
 {
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from buildSession() / getResultResource()
+     */
     public function testConstructor(): void
     {
         $iterator = new ConvertedResultIterator(
@@ -28,11 +34,13 @@ class ConvertedResultIteratorTest extends FoundationSessionTestCase
             $this->buildSession()
         );
 
-        self::assertInstanceOf(ConvertedResultIterator::class, $iterator);
         self::assertInstanceOf(\Countable::class, $iterator);
         self::assertInstanceOf(\Iterator::class, $iterator);
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from buildSession() / getResultResource()
+     */
     public function testGet(): void
     {
         $iterator = new ConvertedResultIterator(
@@ -44,6 +52,9 @@ class ConvertedResultIteratorTest extends FoundationSessionTestCase
         self::assertSame(['id' => 3, 'pika' => 'c', 'chu' => [1]], $iterator->get(2));
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from buildSession() / getResultResource()
+     */
     public function testGetWithArray(): void
     {
         $sql = 'select array[1, 2, 3, null]::int4[] as array_one, array[null, null]::int4[] as array_two';
@@ -57,6 +68,9 @@ class ConvertedResultIteratorTest extends FoundationSessionTestCase
         self::assertSame([null, null], $iterator->current()['array_two']);
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from buildSession() / getResultResource()
+     */
     public function testGetWithNoType(): void
     {
         $sql = 'select null as one, array[null, null] as two';
@@ -70,6 +84,9 @@ class ConvertedResultIteratorTest extends FoundationSessionTestCase
         self::assertSame([null, null], $iterator->current()['two']);
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from buildSession() / getResultResource()
+     */
     public function testSlice(): void
     {
         $iterator = new ConvertedResultIterator(
@@ -81,6 +98,9 @@ class ConvertedResultIteratorTest extends FoundationSessionTestCase
         self::assertSame([1, null, 3, 4], $iterator->slice('id'));
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from buildSession() / getResultResource()
+     */
     public function testExtract(): void
     {
         $iterator = new ConvertedResultIterator(
@@ -104,11 +124,11 @@ class ConvertedResultIteratorTest extends FoundationSessionTestCase
     }
 
     /**
-     * @param array<int, mixed> $params
+     * @throws ConnectionException|FoundationException|SqlException from sendQueryWithParameters()
      */
-    private function getResultResource(string $sql, array $params = []): ResultHandler
+    private function getResultResource(string $sql): ResultHandler
     {
-        return $this->buildSession()->getConnection()->sendQueryWithParameters($sql, $params);
+        return $this->buildSession()->getConnection()->sendQueryWithParameters($sql, []);
     }
 
     private function getPikaSql(): string

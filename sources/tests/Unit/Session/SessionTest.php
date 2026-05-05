@@ -16,7 +16,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PommProject\Foundation\Client\ClientInterface;
 use PommProject\Foundation\Client\ClientPoolerInterface;
+use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\Session\Connection as FoundationConnection;
 use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\VanillaSessionTestCase;
@@ -24,17 +26,26 @@ use PommProject\Foundation\Tester\VanillaSessionTestCase;
 #[CoversClass(Session::class)]
 class SessionTest extends VanillaSessionTestCase
 {
+    /**
+     * @throws FoundationException from buildSession()
+     */
     public function testGetStamp(): void
     {
         self::assertNull($this->buildSession()->getStamp());
         self::assertSame('a stamp', $this->buildSession('a stamp')->getStamp());
     }
 
+    /**
+     * @throws FoundationException from buildSession()
+     */
     public function testGetConnection(): void
     {
         self::assertInstanceOf(FoundationConnection::class, $this->buildSession()->getConnection());
     }
 
+    /**
+     * @throws FoundationException from buildSession(), registerClient() and getClient()
+     */
     public function testGetClient(): void
     {
         $session = $this->buildSession();
@@ -47,6 +58,9 @@ class SessionTest extends VanillaSessionTestCase
         self::assertNull($session->getClient(null, 'two'));
     }
 
+    /**
+     * @throws FoundationException from buildSession(), registerClient() and getClient()
+     */
     public function testRegisterClient(): void
     {
         $session = $this->buildSession();
@@ -61,6 +75,9 @@ class SessionTest extends VanillaSessionTestCase
         self::assertSame($clientMock, $session->getClient('test', 'one'));
     }
 
+    /**
+     * @throws FoundationException from buildSession() and registerClientPooler()
+     */
     public function testRegisterPooler(): void
     {
         $session = $this->buildSession();
@@ -74,6 +91,9 @@ class SessionTest extends VanillaSessionTestCase
         self::assertTrue($session->hasPoolerForType('test'));
     }
 
+    /**
+     * @throws FoundationException from buildSession() and registerClientPooler()
+     */
     public function testGetPoolerForType(): void
     {
         $session = $this->buildSession();
@@ -92,6 +112,9 @@ class SessionTest extends VanillaSessionTestCase
         );
     }
 
+    /**
+     * @throws FoundationException from buildSession() and getClientUsingPooler() on the happy path
+     */
     public function testGetClientUsingPooler(): void
     {
         $clientPoolerMock = $this->getClientPoolerInterfaceMock('test');
@@ -107,6 +130,9 @@ class SessionTest extends VanillaSessionTestCase
         }
     }
 
+    /**
+     * @throws FoundationException from buildSession() and the happy-path magic getTest() call
+     */
     public function testUnderscoreCall(): void
     {
         $clientPoolerMock = $this->getClientPoolerInterfaceMock('test');
@@ -131,6 +157,11 @@ class SessionTest extends VanillaSessionTestCase
         self::assertInstanceOf(ClientInterface::class, $session->getTest('ok'));
     }
 
+    /**
+     * @throws ConnectionException from executeAnonymousQuery()
+     * @throws FoundationException from buildSession() / registerClientPooler()
+     * @throws SqlException from executeAnonymousQuery()
+     */
     public function testShutdown(): void
     {
         $clientPoolerMock = $this->getClientPoolerInterfaceMock('test');

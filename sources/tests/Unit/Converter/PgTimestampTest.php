@@ -14,6 +14,7 @@ namespace PommProject\Foundation\Tests\Unit\Converter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\PgTimestamp;
+use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgTimestamp::class)]
 class PgTimestampTest extends BaseConverterTestCase
@@ -21,6 +22,9 @@ class PgTimestampTest extends BaseConverterTestCase
     private const string PG_TS = '2014-09-27 18:51:35.678406+00';
     private const string PG_STANDARD = '2014-09-27 18:51:35.678406+00:00';
 
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg(): void
     {
         $session = $this->buildSession();
@@ -33,6 +37,9 @@ class PgTimestampTest extends BaseConverterTestCase
         self::assertNull($converter->fromPg(null, 'timestamptz', $session));
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg(): void
     {
         $session = $this->buildSession();
@@ -49,6 +56,9 @@ class PgTimestampTest extends BaseConverterTestCase
         self::assertSame('NULL::timestamptz', $converter->toPg(null, 'timestamptz', $session));
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();

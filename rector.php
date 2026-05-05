@@ -22,5 +22,8 @@ return RectorConfig::configure()
     ])
     ->withSkip([
         AddOverrideAttributeToOverriddenMethodsRector::class,
-        NewInInitializerRector::class, // Non compatible avec Atoum
+        // Session::__construct previously coerced a null $clientHolder to a fresh instance
+        // inside the body; moving the default into the signature would break callers that
+        // explicitly pass null. Keep the existing behaviour.
+        NewInInitializerRector::class,
     ]);

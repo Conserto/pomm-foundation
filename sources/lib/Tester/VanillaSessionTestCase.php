@@ -18,9 +18,9 @@ use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Session\SessionBuilder;
 
 /**
- * PHPUnit equivalent of {@see VanillaSessionAtoum}. Exposes the same
- * `buildSession()` contract so downstream packages can migrate their
- * tests in place without losing the helper semantics.
+ * Base PHPUnit test case that builds a vanilla {@see Session} (no poolers or
+ * converters registered). Subclasses implement {@see initializeSession()} to
+ * plug in any clients required by the test.
  */
 abstract class VanillaSessionTestCase extends TestCase
 {

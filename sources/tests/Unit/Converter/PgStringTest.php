@@ -22,10 +22,15 @@ use PommProject\Foundation\Tests\Fixture\Enum\UnitEnum;
 #[CoversClass(PgString::class)]
 class PgStringTest extends BaseConverterTestCase
 {
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg(): void
     {
         $session = $this->buildSession();
         $converter = new PgString();
+        // fromPg is a passthrough for text types: whatever Postgres emitted should come
+        // back byte-for-byte, including embedded backslashes, single quotes and CRs.
         $string = <<<_
             \\" ''\r
             _;
@@ -36,6 +41,9 @@ class PgStringTest extends BaseConverterTestCase
         self::assertSame('', $converter->fromPg('', 'text', $session));
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg(): void
     {
         $session = $this->buildSession();
@@ -62,6 +70,9 @@ class PgStringTest extends BaseConverterTestCase
         }
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();

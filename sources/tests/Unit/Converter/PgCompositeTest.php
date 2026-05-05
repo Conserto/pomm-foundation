@@ -14,6 +14,9 @@ namespace PommProject\Foundation\Tests\Unit\Converter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\PgComposite;
+use PommProject\Foundation\Exception\ConnectionException;
+use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\Session\Session;
 
 #[CoversClass(PgComposite::class)]
@@ -21,6 +24,9 @@ class PgCompositeTest extends BaseConverterTestCase
 {
     private const array STRUCTURE = ['a' => 'int4', 'b' => 'varchar[]', 'c' => 'text'];
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from buildSession() / executeAnonymousQuery()
+     */
     protected function setUp(): void
     {
         $this->buildSession()
@@ -28,6 +34,9 @@ class PgCompositeTest extends BaseConverterTestCase
             ->executeAnonymousQuery('create type test_type as (a int4, b varchar[], c text)');
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from buildSession() / executeAnonymousQuery()
+     */
     protected function tearDown(): void
     {
         $this->buildSession()
@@ -35,6 +44,9 @@ class PgCompositeTest extends BaseConverterTestCase
             ->executeAnonymousQuery('drop type test_type cascade');
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg(): void
     {
         $session = $this->buildSession();
@@ -51,6 +63,9 @@ class PgCompositeTest extends BaseConverterTestCase
         );
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg(): void
     {
         $session = $this->buildSession();
@@ -67,6 +82,9 @@ class PgCompositeTest extends BaseConverterTestCase
         self::assertSame('NULL::test_type', $converter->toPg(null, 'test_type', $session));
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();
@@ -85,6 +103,9 @@ class PgCompositeTest extends BaseConverterTestCase
         self::assertSame($data, $this->sendToPostgres($data, 'test_type', $session));
     }
 
+    /**
+     * @throws FoundationException from getPoolerForType() / registerConverter()
+     */
     protected function initializeSession(Session $session): void
     {
         parent::initializeSession($session);

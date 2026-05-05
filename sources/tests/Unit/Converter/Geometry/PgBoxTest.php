@@ -16,11 +16,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\Geometry\PgBox;
 use PommProject\Foundation\Converter\Type\Box;
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Tests\Unit\Converter\BaseConverterTestCase;
 
 #[CoversClass(PgBox::class)]
 class PgBoxTest extends BaseConverterTestCase
 {
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg(): void
     {
         $session = $this->buildSession();
@@ -39,6 +43,9 @@ class PgBoxTest extends BaseConverterTestCase
         self::assertSame(-10.98765, $box->bottomY);
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg(): void
     {
         $session = $this->buildSession();
@@ -59,6 +66,9 @@ class PgBoxTest extends BaseConverterTestCase
         $converter->toPg('azsdf', 'box', $session);
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();

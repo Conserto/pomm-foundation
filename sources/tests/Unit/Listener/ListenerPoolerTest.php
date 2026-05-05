@@ -13,6 +13,7 @@
 namespace PommProject\Foundation\Tests\Unit\Listener;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Listener\Listener;
 use PommProject\Foundation\Listener\ListenerPooler;
 use PommProject\Foundation\Session\Session;
@@ -24,6 +25,9 @@ class ListenerPoolerTest extends FoundationSessionTestCase
     /** @var array<string, array<int, string>> captured notify() arguments per listener identifier */
     private array $notifyCalls = [];
 
+    /**
+     * @throws FoundationException from buildSession() / registerClientPooler() / getPoolerForType()
+     */
     public function testNotifySingleListener(): void
     {
         $session = $this->buildSession();
@@ -38,6 +42,9 @@ class ListenerPoolerTest extends FoundationSessionTestCase
         self::assertArrayNotHasKey('chu', $this->notifyCalls);
     }
 
+    /**
+     * @throws FoundationException from buildSession() / registerClientPooler() / getPoolerForType()
+     */
     public function testNotifyMultipleListeners(): void
     {
         $session = $this->buildSession();
@@ -49,6 +56,9 @@ class ListenerPoolerTest extends FoundationSessionTestCase
         self::assertContains('chu', $this->notifyCalls['chu']);
     }
 
+    /**
+     * @throws FoundationException from buildSession() / registerClientPooler() / getPoolerForType()
+     */
     public function testNotifyAllListeners(): void
     {
         $session = $this->buildSession();
@@ -63,6 +73,9 @@ class ListenerPoolerTest extends FoundationSessionTestCase
         self::assertContains('*', $this->notifyCalls['chu']);
     }
 
+    /**
+     * @throws FoundationException from buildSession() / registerClientPooler() / getPoolerForType()
+     */
     public function testNotifyWithSubspace(): void
     {
         $session = $this->buildSession();
@@ -77,8 +90,16 @@ class ListenerPoolerTest extends FoundationSessionTestCase
         self::assertArrayNotHasKey('chu', $this->notifyCalls);
     }
 
+    /**
+     * @throws FoundationException from registerClient()
+     */
     protected function initializeSession(Session $session): void
     {
+        // Partial mocks: setConstructorArgs lets the ClientHolder accept these as real
+        // Listener instances (Session::registerClient asks getClientIdentifier()), while
+        // onlyMethods(['notify']) isolates the one observable we care about. Each
+        // dispatched event name is pushed into $notifyCalls so the test body can assert
+        // what was dispatched to which listener without relying on expects() ordering.
         foreach (['pika', 'chu'] as $identifier) {
             $mock = $this->getMockBuilder(Listener::class)
                 ->setConstructorArgs([$identifier])

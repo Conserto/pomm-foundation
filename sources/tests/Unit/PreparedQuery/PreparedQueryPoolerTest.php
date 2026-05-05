@@ -13,6 +13,7 @@
 namespace PommProject\Foundation\Tests\Unit\PreparedQuery;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\PreparedQuery\PreparedQuery;
 use PommProject\Foundation\PreparedQuery\PreparedQueryPooler;
 use PommProject\Foundation\Session\Session;
@@ -21,6 +22,9 @@ use PommProject\Foundation\Tester\VanillaSessionTestCase;
 #[CoversClass(PreparedQueryPooler::class)]
 class PreparedQueryPoolerTest extends VanillaSessionTestCase
 {
+    /**
+     * @throws FoundationException from buildSession() / getPoolerForType() / getClient() / getClientUsingPooler()
+     */
     public function testGetClient(): void
     {
         $session = $this->buildSession();
@@ -32,6 +36,9 @@ class PreparedQueryPoolerTest extends VanillaSessionTestCase
         self::assertEquals($query, $session->getClientUsingPooler('prepared_query', $sql));
     }
 
+    /**
+     * @throws FoundationException from registerClientPooler()
+     */
     protected function initializeSession(Session $session): void
     {
         $session->registerClientPooler(new PreparedQueryPooler());

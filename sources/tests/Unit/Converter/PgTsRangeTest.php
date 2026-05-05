@@ -17,10 +17,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PommProject\Foundation\Converter\PgTsRange;
 use PommProject\Foundation\Converter\Type\BaseRange;
 use PommProject\Foundation\Converter\Type\TsRange;
+use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgTsRange::class)]
 class PgTsRangeTest extends BaseConverterTestCase
 {
+    /**
+     * @throws FoundationException
+     */
     #[DataProvider('fromPgDataProvider')]
     public function testExtraFromPg(
         string $textRange,
@@ -39,10 +43,15 @@ class PgTsRangeTest extends BaseConverterTestCase
         self::assertSame($expectedEndIncl, $instance->endIncl);
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg(): void
     {
         $session = $this->buildSession();
         $converter = new PgTsRange();
+        // Postgres can emit either form depending on how the range literal was produced;
+        // both variants must round-trip to an equivalent TsRange.
         $textRange = '["2014-08-15 15:29:24.395639+00","2014-10-15 15:29:24.395639+00")';
         $textRangeWithoutQuotes = '[2014-08-15 15:29:24.395639+00,2014-10-15 15:29:24.395639+00)';
 
@@ -57,6 +66,9 @@ class PgTsRangeTest extends BaseConverterTestCase
         self::assertInstanceOf(\DateTime::class, $rangeWithoutQuotes->startLimit);
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg(): void
     {
         $session = $this->buildSession();
@@ -71,6 +83,9 @@ class PgTsRangeTest extends BaseConverterTestCase
         self::assertSame('NULL::mytsrange', $converter->toPg(null, 'mytsrange', $session));
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();

@@ -15,8 +15,8 @@ namespace PommProject\Foundation\Tester;
 use PommProject\Foundation\SessionBuilder;
 
 /**
- * PHPUnit equivalent of {@see FoundationSessionAtoum}: provides a session
- * pre-wired with Foundation's default poolers and converters.
+ * Base PHPUnit test case that builds a {@see Session} pre-wired with
+ * Foundation's default poolers and converters.
  *
  * @see VanillaSessionTestCase
  */

@@ -14,10 +14,14 @@ namespace PommProject\Foundation\Tests\Unit\Converter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\PgJson;
+use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgJson::class)]
 class PgJsonTest extends BaseConverterTestCase
 {
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg(): void
     {
         $session = $this->buildSession();
@@ -38,6 +42,9 @@ class PgJsonTest extends BaseConverterTestCase
         self::assertSame([' c ', 'd\\":'], $object->az->b);
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg(): void
     {
         $session = $this->buildSession();
@@ -51,6 +58,9 @@ class PgJsonTest extends BaseConverterTestCase
         self::assertSame('NULL::json', $converter->toPg(null, 'json', $session));
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();
@@ -70,6 +80,9 @@ class PgJsonTest extends BaseConverterTestCase
         self::assertSame($data, $this->sendToPostgres($data, 'json', $session));
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testFromPgWithBooleanPrimitive(): void
     {
         $session = $this->buildSession();
@@ -79,6 +92,9 @@ class PgJsonTest extends BaseConverterTestCase
         self::assertTrue($converter->fromPg('true', 'json', $session));
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testFromPgWithNull(): void
     {
         $session = $this->buildSession();

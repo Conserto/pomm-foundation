@@ -13,6 +13,9 @@
 namespace PommProject\Foundation\Tests\Unit\Observer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PommProject\Foundation\Exception\ConnectionException;
+use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\Observer\Observer;
 use PommProject\Foundation\Observer\ObserverPooler;
 use PommProject\Foundation\Session\Session;
@@ -21,6 +24,10 @@ use PommProject\Foundation\Tester\VanillaSessionTestCase;
 #[CoversClass(Observer::class)]
 class ObserverTest extends VanillaSessionTestCase
 {
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from buildSession() /
+     *         registerClient() / getObserver() and the NOTIFY query issued by notify()
+     */
     public function testGetNotification(): void
     {
         $session = $this->buildSession()->registerClient(new Observer('pika'));
@@ -42,6 +49,10 @@ class ObserverTest extends VanillaSessionTestCase
         self::assertNull($session->getObserver('pika')->getNotification());
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from buildSession() /
+     *         registerClient() / getObserver() / throwNotification() and the NOTIFY query
+     */
     public function testThrowNotification(): void
     {
         $session = $this->buildSession()->registerClient(new Observer('an identifier'));
@@ -59,11 +70,18 @@ class ObserverTest extends VanillaSessionTestCase
         self::assertInstanceOf(Observer::class, $session->getObserver('an identifier')->throwNotification());
     }
 
+    /**
+     * @throws FoundationException from registerClientPooler()
+     */
     protected function initializeSession(Session $session): void
     {
         $session->registerClientPooler(new ObserverPooler());
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from buildSession() /
+     *         executeAnonymousQuery() / escape* helpers
+     */
     private function notify(string $channel, ?string $data = null): void
     {
         $session = $this->buildSession();

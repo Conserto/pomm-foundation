@@ -17,11 +17,15 @@ use PommProject\Foundation\Converter\Geometry\PgCircle;
 use PommProject\Foundation\Converter\Type\Circle;
 use PommProject\Foundation\Converter\Type\Point;
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Tests\Unit\Converter\BaseConverterTestCase;
 
 #[CoversClass(PgCircle::class)]
 class PgCircleTest extends BaseConverterTestCase
 {
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg(): void
     {
         $session = $this->buildSession();
@@ -39,6 +43,9 @@ class PgCircleTest extends BaseConverterTestCase
         self::assertSame(3.141596, $circle->radius);
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg(): void
     {
         $session = $this->buildSession();
@@ -59,6 +66,9 @@ class PgCircleTest extends BaseConverterTestCase
         $converter->toPg('azsdf', 'circle', $session);
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();

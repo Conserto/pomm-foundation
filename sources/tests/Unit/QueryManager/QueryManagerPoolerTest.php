@@ -22,6 +22,9 @@ use PommProject\Foundation\Tester\VanillaSessionTestCase;
 #[CoversClass(QueryManagerPooler::class)]
 class QueryManagerPoolerTest extends VanillaSessionTestCase
 {
+    /**
+     * @throws FoundationException from buildSession() / getPoolerForType() / getClient() on the happy path
+     */
     public function testGetClient(): void
     {
         $session = $this->buildSession();
@@ -37,6 +40,9 @@ class QueryManagerPoolerTest extends VanillaSessionTestCase
         }
     }
 
+    /**
+     * @throws FoundationException from registerClientPooler()
+     */
     protected function initializeSession(Session $session): void
     {
         $session->registerClientPooler(new QueryManagerPooler());

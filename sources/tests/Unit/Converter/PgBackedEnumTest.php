@@ -14,13 +14,18 @@ namespace PommProject\Foundation\Tests\Unit\Converter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\PgBackedEnum;
+use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tests\Fixture\Enum\BackedEnum;
 
 #[CoversClass(PgBackedEnum::class)]
 class PgBackedEnumTest extends BaseConverterTestCase
 {
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from buildSession() / executeAnonymousQuery()
+     */
     protected function setUp(): void
     {
         $this->buildSession()
@@ -28,6 +33,9 @@ class PgBackedEnumTest extends BaseConverterTestCase
             ->executeAnonymousQuery("CREATE TYPE test_type_1 AS ENUM ('a','b')");
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from buildSession() / executeAnonymousQuery()
+     */
     protected function tearDown(): void
     {
         $this->buildSession()
@@ -35,6 +43,9 @@ class PgBackedEnumTest extends BaseConverterTestCase
             ->executeAnonymousQuery('DROP TYPE test_type_1 CASCADE');
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg(): void
     {
         $converter = new PgBackedEnum(BackedEnum::class);
@@ -53,6 +64,9 @@ class PgBackedEnumTest extends BaseConverterTestCase
         }
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg(): void
     {
         $converter = new PgBackedEnum(BackedEnum::class);
@@ -62,6 +76,9 @@ class PgBackedEnumTest extends BaseConverterTestCase
         self::assertSame('NULL::test_type_1', $converter->toPg(null, 'test_type_1', $session));
     }
 
+    /**
+     * @throws FoundationException from getPoolerForType() / registerConverter()
+     */
     protected function initializeSession(Session $session): void
     {
         parent::initializeSession($session);

@@ -16,11 +16,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\Geometry\PgPoint;
 use PommProject\Foundation\Converter\Type\Point;
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Tests\Unit\Converter\BaseConverterTestCase;
 
 #[CoversClass(PgPoint::class)]
 class PgPointTest extends BaseConverterTestCase
 {
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg(): void
     {
         $session = $this->buildSession();
@@ -34,6 +38,9 @@ class PgPointTest extends BaseConverterTestCase
         self::assertSame(-9.87654, $point->y);
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg(): void
     {
         $session = $this->buildSession();
@@ -51,6 +58,9 @@ class PgPointTest extends BaseConverterTestCase
         $converter->toPg('azsdf', 'point', $session);
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();

@@ -13,6 +13,9 @@
 namespace PommProject\Foundation\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PommProject\Foundation\Exception\ConnectionException;
+use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\ResultIterator;
 use PommProject\Foundation\Session\ResultHandler;
 use PommProject\Foundation\Session\Session;
@@ -21,15 +24,20 @@ use PommProject\Foundation\Tester\VanillaSessionTestCase;
 #[CoversClass(ResultIterator::class)]
 class ResultIteratorTest extends VanillaSessionTestCase
 {
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from getResultResource()
+     */
     public function testConstructor(): void
     {
         $iterator = new ResultIterator($this->getResultResource('select true::boolean'));
 
-        self::assertInstanceOf(ResultIterator::class, $iterator);
         self::assertInstanceOf(\Countable::class, $iterator);
         self::assertInstanceOf(\Iterator::class, $iterator);
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from getResultResource()
+     */
     public function testGet(): void
     {
         $iterator = new ResultIterator($this->getResultResource($this->getPikaSql()));
@@ -46,6 +54,9 @@ class ResultIteratorTest extends VanillaSessionTestCase
         }
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from getResultResource()
+     */
     public function testGetOnEmptyResult(): void
     {
         $iterator = new ResultIterator($this->getResultResource('select true where false'));
@@ -57,6 +68,9 @@ class ResultIteratorTest extends VanillaSessionTestCase
         self::assertNull($iterator->isFirst());
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from getResultResource()
+     */
     public function testHasAndCount(): void
     {
         $iterator = new ResultIterator($this->getResultResource($this->getPikaSql()));
@@ -66,6 +80,9 @@ class ResultIteratorTest extends VanillaSessionTestCase
         self::assertFalse($iterator->has(4));
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from getResultResource()
+     */
     public function testIterator(): void
     {
         $iterator = new ResultIterator($this->getResultResource($this->getPikaSql()));
@@ -85,6 +102,9 @@ class ResultIteratorTest extends VanillaSessionTestCase
         }
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from getResultResource()
+     */
     public function testSlice(): void
     {
         $iterator = new ResultIterator($this->getResultResource($this->getPikaSql()));
@@ -100,6 +120,9 @@ class ResultIteratorTest extends VanillaSessionTestCase
         }
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from getResultResource()
+     */
     public function testExtract(): void
     {
         $iterator = new ResultIterator($this->getResultResource($this->getPikaSql()));
@@ -118,6 +141,10 @@ class ResultIteratorTest extends VanillaSessionTestCase
         self::assertSame([], $emptyIterator->extract());
     }
 
+    /**
+     * @throws ConnectionException|FoundationException|SqlException from getResultResource()
+     * @throws \JsonException from json_encode()
+     */
     public function testJsonSerializable(): void
     {
         $iterator = new ResultIterator($this->getResultResource($this->getPikaSql()));
@@ -133,11 +160,11 @@ class ResultIteratorTest extends VanillaSessionTestCase
     }
 
     /**
-     * @param array<int, mixed> $params
+     * @throws ConnectionException|FoundationException|SqlException from sendQueryWithParameters()
      */
-    private function getResultResource(string $sql, array $params = []): ResultHandler
+    private function getResultResource(string $sql): ResultHandler
     {
-        return $this->buildSession()->getConnection()->sendQueryWithParameters($sql, $params);
+        return $this->buildSession()->getConnection()->sendQueryWithParameters($sql, []);
     }
 
     private function getPikaSql(): string

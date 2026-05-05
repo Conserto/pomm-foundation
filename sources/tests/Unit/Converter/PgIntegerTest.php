@@ -23,6 +23,9 @@ use PommProject\Foundation\Tests\Fixture\Enum\UnitEnum;
 #[CoversClass(PgInteger::class)]
 class PgIntegerTest extends BaseConverterTestCase
 {
+    /**
+     * @throws FoundationException from buildSession() / PgInteger::fromPg()
+     */
     #[TestWith([null, null])]
     #[TestWith(['0', 0])]
     #[TestWith(['2015', 2015])]
@@ -33,6 +36,9 @@ class PgIntegerTest extends BaseConverterTestCase
         self::assertSame($expected, new PgInteger()->fromPg($input, 'int4', $session));
     }
 
+    /**
+     * @throws FoundationException from buildSession() / PgInteger::toPg()
+     */
     public function testToPg(): void
     {
         $session = $this->buildSession();
@@ -57,6 +63,9 @@ class PgIntegerTest extends BaseConverterTestCase
         );
     }
 
+    /**
+     * @throws FoundationException from buildSession() / PgInteger::toPgStandardFormat()
+     */
     public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();

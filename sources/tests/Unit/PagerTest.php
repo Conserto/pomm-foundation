@@ -15,6 +15,7 @@ namespace PommProject\Foundation\Tests\Unit;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PommProject\Foundation\ConvertedResultIterator;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Pager;
 use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\FoundationSessionTestCase;
@@ -22,6 +23,9 @@ use PommProject\Foundation\Tester\FoundationSessionTestCase;
 #[CoversClass(Pager::class)]
 class PagerTest extends FoundationSessionTestCase
 {
+    /**
+     * @throws FoundationException from buildSession() / QueryManager::query()
+     */
     public function testGetters(): void
     {
         $iterator = $this->getResultIterator(10);
@@ -37,6 +41,8 @@ class PagerTest extends FoundationSessionTestCase
     /**
      * @param array{start: int, end: int, totalCount: int, maxPerPage: int, page: int} $input
      * @param array{min: int, max: int, lastPage: int, maxPerPage: int, previous: bool, next: bool} $expected
+     *
+     * @throws FoundationException from buildSession() / QueryManager::query()
      */
     #[DataProvider('pageStatsProvider')]
     public function testPageStats(array $input, array $expected): void
@@ -84,6 +90,8 @@ class PagerTest extends FoundationSessionTestCase
 
     /**
      * @return ConvertedResultIterator<array{row: int}>
+     *
+     * @throws FoundationException from buildSession() / QueryManager::query()
      */
     private function getResultIterator(int $end, int $start = 1): ConvertedResultIterator
     {

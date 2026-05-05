@@ -16,10 +16,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestWith;
 use PommProject\Foundation\Converter\PgBoolean;
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgBoolean::class)]
 class PgBooleanTest extends BaseConverterTestCase
 {
+    /**
+     * @throws FoundationException from buildSession() / PgBoolean::fromPg()
+     */
     #[TestWith(['t', true])]
     #[TestWith(['f', false])]
     #[TestWith([null, null])]
@@ -29,6 +33,9 @@ class PgBooleanTest extends BaseConverterTestCase
         self::assertSame($expected, new PgBoolean()->fromPg($input, 'bool', $session));
     }
 
+    /**
+     * @throws FoundationException from buildSession(); ConverterException is the asserted one
+     */
     public function testFromPgInvalid(): void
     {
         $session = $this->buildSession();
@@ -39,6 +46,9 @@ class PgBooleanTest extends BaseConverterTestCase
         new PgBoolean()->fromPg('whatever', 'bool', $session);
     }
 
+    /**
+     * @throws FoundationException from buildSession() / PgBoolean::toPg()
+     */
     #[TestWith([true, "bool 'true'"])]
     #[TestWith([false, "bool 'false'"])]
     #[TestWith([null, 'NULL::bool'])]
@@ -48,6 +58,9 @@ class PgBooleanTest extends BaseConverterTestCase
         self::assertSame($expected, new PgBoolean()->toPg($input, 'bool', $session));
     }
 
+    /**
+     * @throws FoundationException from buildSession() / PgBoolean::toPgStandardFormat()
+     */
     #[TestWith([true, 't'])]
     #[TestWith([false, 'f'])]
     #[TestWith([null, null])]

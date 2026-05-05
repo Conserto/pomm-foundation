@@ -14,10 +14,14 @@ namespace PommProject\Foundation\Tests\Unit\Converter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\PgLtree;
+use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgLtree::class)]
 class PgLtreeTest extends BaseConverterTestCase
 {
+    /**
+     * @throws FoundationException
+     */
     public function testFromPg(): void
     {
         $session = $this->buildSession();
@@ -27,6 +31,9 @@ class PgLtreeTest extends BaseConverterTestCase
         self::assertNull($converter->fromPg(null, 'ltree', $session));
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPg(): void
     {
         $session = $this->buildSession();
@@ -36,6 +43,9 @@ class PgLtreeTest extends BaseConverterTestCase
         self::assertSame('NULL::ltree', $converter->toPg(null, 'ltree', $session));
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testToPgStandardFormat(): void
     {
         $session = $this->buildSession();

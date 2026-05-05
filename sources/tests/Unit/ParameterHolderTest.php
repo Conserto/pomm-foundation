@@ -74,6 +74,9 @@ class ParameterHolderTest extends TestCase
         self::assertNull($parameterHolder->getParameter('chu'));
     }
 
+    /**
+     * @throws FoundationException if mustHave() raises on the happy path (not expected).
+     */
     public function testMustHave(): void
     {
         $parameterHolder = new ParameterHolder(['pika' => 'one']);
@@ -110,6 +113,9 @@ class ParameterHolderTest extends TestCase
         );
     }
 
+    /**
+     * @throws FoundationException if mustBeOneOf() raises on the happy path (not expected).
+     */
     public function testMustBeOneOf(): void
     {
         $parameterHolder = new ParameterHolder(['pika' => 'one', 'chu' => 'two']);

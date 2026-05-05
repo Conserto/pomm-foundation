@@ -21,6 +21,9 @@ use PommProject\Foundation\Tests\Fixture\DumbConverter;
 #[CoversClass(ConverterHolder::class)]
 class ConverterHolderTest extends TestCase
 {
+    /**
+     * @throws FoundationException
+     */
     public function testRegisterConverter(): void
     {
         $holder = new ConverterHolder();
@@ -33,6 +36,9 @@ class ConverterHolderTest extends TestCase
         self::assertInstanceOf(DumbConverter::class, $holder->getConverterForType('public.dumb'));
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testHasConverterName(): void
     {
         $holder = new ConverterHolder();
@@ -44,6 +50,9 @@ class ConverterHolderTest extends TestCase
         );
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testGetConverter(): void
     {
         $holder = new ConverterHolder();
@@ -56,6 +65,9 @@ class ConverterHolderTest extends TestCase
         );
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testGetConverterNames(): void
     {
         $holder = new ConverterHolder();
@@ -67,6 +79,9 @@ class ConverterHolderTest extends TestCase
         );
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testAddTypeToConverter(): void
     {
         $holder = new ConverterHolder();
@@ -89,6 +104,9 @@ class ConverterHolderTest extends TestCase
         }
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testGetConverterForType(): void
     {
         $holder = new ConverterHolder();
@@ -104,6 +122,9 @@ class ConverterHolderTest extends TestCase
         }
     }
 
+    /**
+     * @throws FoundationException
+     */
     public function testHasType(): void
     {
         $holder = new ConverterHolder();

@@ -49,14 +49,18 @@ class ClientHolderTest extends TestCase
         $clientOne = $this->getClientMock('one');
         $clientTwo = $this->getClientMock('two');
 
-        // atoum: ->mock($client_1)->call('shutdown')->once() — PHPUnit expects this up-front
+        // clear('test', 'one') is expected to invoke shutdown() on that client and
+        // leave 'two' untouched. Expectations must be declared before the action
+        // so the mock can observe the call as it happens.
         $clientOne->expects(self::once())->method('shutdown');
+        $clientTwo->expects(self::never())->method('shutdown');
 
         $returned = $clientHolder->add($clientOne)
             ->add($clientTwo)
             ->clear('test', 'one');
 
-        self::assertInstanceOf(ClientHolder::class, $returned);
+        // clear() must return $this so it stays fluently chainable.
+        self::assertSame($clientHolder, $returned);
         self::assertFalse($clientHolder->has('test', 'one'));
         self::assertTrue($clientHolder->has('test', 'two'));
     }
@@ -69,6 +73,8 @@ class ClientHolderTest extends TestCase
 
         $clientOne->expects(self::once())->method('shutdown');
         $clientTwo->expects(self::once())->method('shutdown');
+        // clientThree throws; ClientHolder::shutdown() is expected to collect the exception,
+        // keep going, and return it alongside the completed shutdowns of one and two.
         $clientThree->method('shutdown')->willThrowException(new FoundationException('plop'));
 
         $clientHolder = $this->getClientHolder()
@@ -97,11 +103,11 @@ class ClientHolderTest extends TestCase
         return new ClientHolder();
     }
 
-    private function getClientMock(string $identifier, string $type = 'test'): ClientInterface&MockObject
+    private function getClientMock(string $identifier): ClientInterface&MockObject
     {
         $client = $this->createMock(ClientInterface::class);
         $client->method('getClientIdentifier')->willReturn($identifier);
-        $client->method('getClientType')->willReturn($type);
+        $client->method('getClientType')->willReturn('test');
 
         return $client;
     }
