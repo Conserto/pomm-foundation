@@ -5,7 +5,7 @@
  * The new `*TestCase` helpers force `connection:persist => true` so each `buildSession()` call opens a fresh `pg_connect(..., FORCE_NEW)` backend. Without this, PHPUnit's single-process execution would leak prepared statements across tests through `pg_pconnect`'s pooled connection.
  * Test assertions are now strict (`assertSame` by default); `assertEquals` is reserved for value equality on `DateTime` / `DateInterval` instances. The migration also introduces `#[DataProvider]` / `#[TestWith]` attributes to consolidate repetitive table-driven tests (Inflector, PgBoolean, PgInteger, PgFloat, Pager, PgNumRange, PgTsRange, ConnectionConfigurator).
 
-== VERSION 4.0.3
+== VERSION 4.0.5
 
  * Session::shutdown now forwards caught exceptions to the PSR-3 logger instead of printf-ing to stdout
  * Fix ResultHandler::getFieldNumber advancing the result cursor and risking a fatal when reporting an invalid field name
