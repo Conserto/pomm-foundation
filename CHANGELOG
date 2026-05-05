@@ -8,6 +8,20 @@
  * Accept PHP enums in PgString, PgInteger and PgFloat converters (scalar unwrapping with per-converter compatibility check; PgString also handles pure UnitEnum via ->name)
  * Fix PgInteger serializing negative numbers as unsigned overflow (use %d instead of %u)
  * Harden PgBackedEnum::toPg with an explicit instance check and string cast on the backing value
+ * Session::shutdown now forwards caught exceptions to the PSR-3 logger instead of printf-ing to stdout
+ * Fix ResultHandler::getFieldNumber advancing the result cursor and risking a fatal when reporting an invalid field name
+ * Modernize internals: direct invocation instead of call_user_func*, typed class constants on BaseRange
+ * Document the Conserto fork: attribution block in README, Conserto added to composer authors with a support section, Conserto copyright line added to LICENSE, dead pomm-project.org links redirected
+ * Expose composer scripts (test, stan, rector, rector:fix); CI uses actions/checkout v4 and caches the Composer download directory
+ * Add PHP-CS-Fixer config (.php-cs-fixer.dist.php, @PSR12 + @PHP84Migration) with composer cs / cs:fix scripts
+ * Add GitHub issue templates (bug_report, feature_request) and pull request template
+ * Add Dependabot monthly updates for composer and github-actions
+ * Add .editorconfig for consistent formatting across editors
+ * AGENTS.md: refresh command list to use composer scripts, document BC policy for public/protected signatures
+ * PgHstore::fromPg no longer uses @eval; the Postgres hstore text output is now parsed by an explicit state machine
+ * PgComposite: split the string-dispatched convertArray() into convertArrayFromPg/ToPg/ToPgStandardFormat for static-analysis-friendly dispatch
+ * Document the intentional caching divergence between SimpleQueryManager::prepareArguments and PreparedQuery::prepareValues (inline + AGENTS.md)
+ * AGENTS.md: precise the ConverterHolder clone semantics (shallow clone, implications for ArrayTypeConverter caches when overriding built-in leaf converters per session)
 
 == VERSION 4.0.2
 

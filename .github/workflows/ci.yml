@@ -42,18 +42,31 @@ jobs:
           - 5432:5432
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php-version }}-composer-
+
       - name: Build
         run: |
           psql -c 'CREATE DATABASE pomm_test' -U postgres -h 127.0.0.1 postgres
           psql -c 'CREATE EXTENSION hstore' -U postgres -h 127.0.0.1 pomm_test
           psql -c 'CREATE EXTENSION ltree' -U postgres  -h 127.0.0.1 pomm_test
-          composer install --dev
+          composer install --no-interaction --prefer-dist
           cp sources/tests/config.github.php sources/tests/config.php
       - name: PHPStan Static Analysis
         uses: php-actions/phpstan@v2

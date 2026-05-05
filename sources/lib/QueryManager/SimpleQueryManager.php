@@ -67,6 +67,11 @@ class SimpleQueryManager extends QueryManagerClient
     /**
      * Prepare and convert $parameters if needed.
      *
+     * Mirrors the conversion step done in PreparedQuery::prepareValues() but
+     * deliberately re-resolves the ConverterClient on every call: simple
+     * queries are one-shot by design, so caching would just add bookkeeping
+     * without payoff. Repeated queries should go through PreparedQuery.
+     *
      * @throws FoundationException
      * @param string $sql
      * @param array<int, mixed> $parameters

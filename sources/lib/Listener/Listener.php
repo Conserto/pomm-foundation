@@ -67,7 +67,7 @@ class Listener extends Client
     public function notify(string $name, array $data): Listener
     {
         foreach ($this->actions as $action) {
-            call_user_func($action, $name, $data, $this->getSession());
+            $action($name, $data, $this->getSession());
         }
 
         return $this;

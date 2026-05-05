@@ -19,9 +19,9 @@ namespace PommProject\Foundation\Converter\Type;
  */
 abstract class BaseRange implements \Stringable
 {
-    final const INFINITY_MAX = 'infinity';
-    final const INFINITY_MIN = '-infinity';
-    final const EMPTY_RANGE  = 'empty';
+    final const string INFINITY_MAX = 'infinity';
+    final const string INFINITY_MIN = '-infinity';
+    final const string EMPTY_RANGE  = 'empty';
 
     public mixed $startLimit;
     public mixed $endLimit;

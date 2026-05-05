@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Upstream Pomm project
+    url: https://github.com/pomm-project
+    about: For issues that are not specific to the Conserto fork, you may also want to check the upstream organization.

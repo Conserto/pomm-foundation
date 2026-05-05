@@ -37,7 +37,7 @@ class Circle implements \Stringable
             PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
         );
 
-        if ((is_countable($elts) ? count($elts) : 0) !== 2) {
+        if ($elts === false || count($elts) !== 2) {
             throw new \InvalidArgumentException(
                 sprintf("Could not parse circle description '%s'.", $description)
             );

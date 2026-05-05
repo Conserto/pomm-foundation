@@ -3,5 +3,8 @@ vendor/*
 sources/tests/config.php
 composer.lock
 
+# PHP-CS-Fixer cache
+.php-cs-fixer.cache
+
 # IDE - PhpStorm
 .idea
