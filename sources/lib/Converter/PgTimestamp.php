@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of PommProject's Foundation package.
  *
@@ -7,10 +8,11 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Converter;
 
-use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Session\Session;
 
 /**
  * Date and timestamp converter
@@ -22,7 +24,7 @@ use PommProject\Foundation\Exception\ConverterException;
  */
 class PgTimestamp implements ConverterInterface
 {
-    final const string TS_FORMAT = 'Y-m-d H:i:s.uP';
+    final public const string TS_FORMAT = 'Y-m-d H:i:s.uP';
 
     /**
      * @throws \Exception

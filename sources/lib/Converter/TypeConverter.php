@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Pomm's Foundation package.
  *
@@ -7,10 +8,10 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
-use PommProject\Foundation\Converter\Type\BaseRange;
 use PommProject\Foundation\Session\Session;
 
 /**

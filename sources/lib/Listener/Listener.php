@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -7,11 +8,12 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Listener;
 
-use PommProject\Foundation\Exception\FoundationException;
-use PommProject\Foundation\Client\ClientInterface;
 use PommProject\Foundation\Client\Client;
+use PommProject\Foundation\Client\ClientInterface;
+use PommProject\Foundation\Exception\FoundationException;
 
 /**
  * Listener client.

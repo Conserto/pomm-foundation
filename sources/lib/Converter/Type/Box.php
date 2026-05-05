@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of PommProject's Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Converter\Type;
 
 /**
@@ -39,7 +41,6 @@ class Box implements \Stringable
         $this->topY = (float) $matches[2];
         $this->bottomX = (float) $matches[3];
         $this->bottomY = (float) $matches[4];
-
     }
 
     /** Return a string representation of Box. */

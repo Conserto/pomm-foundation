@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of PommProject's Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit\Converter\Geometry;
 
 use PommProject\Foundation\Converter\Type\Point;
@@ -38,7 +40,7 @@ class PgPoint extends BaseConverter
             ->isEqualTo('point(1.2345,-9.87654)')
             ->string($this->newTestedInstance()->toPg('(1.2345,-9.87654)', 'point', $session))
             ->isEqualTo('point(1.2345,-9.87654)')
-            ->exception(fn() => $this->newTestedInstance()->toPg('azsdf', 'point', $session))
+            ->exception(fn () => $this->newTestedInstance()->toPg('azsdf', 'point', $session))
             ->isInstanceOf(ConverterException::class)
             ->string($this->newTestedInstance()->toPg(null, 'subpoint', $session))
             ->isEqualTo('NULL::subpoint');
@@ -52,7 +54,7 @@ class PgPoint extends BaseConverter
             ->isEqualTo('(1.2345,-9.87654)')
             ->string($this->newTestedInstance()->toPgStandardFormat('(1.2345,-9.87654)', 'point', $session))
             ->isEqualTo('(1.2345,-9.87654)')
-            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat('azsdf', 'point', $session))
+            ->exception(fn () => $this->newTestedInstance()->toPgStandardFormat('azsdf', 'point', $session))
             ->isInstanceOf(ConverterException::class)
             ->variable($this->newTestedInstance()->toPgStandardFormat(null, 'subpoint', $session))
             ->isNull();

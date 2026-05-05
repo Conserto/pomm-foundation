@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -7,15 +8,16 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\PreparedQuery;
 
+use PommProject\Foundation\Client\Client;
 use PommProject\Foundation\Converter\ConverterClient;
 use PommProject\Foundation\Exception\ConnectionException;
-use PommProject\Foundation\Exception\SqlException;
-use PommProject\Foundation\QueryManager\QueryParameterParserTrait;
-use PommProject\Foundation\Listener\SendNotificationTrait;
 use PommProject\Foundation\Exception\FoundationException;
-use PommProject\Foundation\Client\Client;
+use PommProject\Foundation\Exception\SqlException;
+use PommProject\Foundation\Listener\SendNotificationTrait;
+use PommProject\Foundation\QueryManager\QueryParameterParserTrait;
 use PommProject\Foundation\Session\ResultHandler;
 
 /**
@@ -208,7 +210,7 @@ class PreparedQuery extends Client
                 $converter = $converterClient->getConverter();
 
                 $this->converters[$index] =
-                    fn($value) => $converter->toPgStandardFormat($value, $type, $this->getSession());
+                    fn ($value) => $converter->toPgStandardFormat($value, $type, $this->getSession());
             }
         }
 

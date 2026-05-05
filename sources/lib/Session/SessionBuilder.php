@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -7,13 +8,14 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Session;
 
+use PommProject\Foundation\Client\ClientHolder;
+use PommProject\Foundation\Converter\ConverterHolder;
 use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\ParameterHolder;
-use PommProject\Foundation\Client\ClientHolder;
-use PommProject\Foundation\Converter\ConverterHolder;
 
 /**
  * Session factory.
@@ -47,7 +49,7 @@ class SessionBuilder
                 $configuration
             )
         );
-        $converterHolder ??= new ConverterHolder;
+        $converterHolder ??= new ConverterHolder();
 
         $this->initializeConverterHolder($converterHolder);
         $this->converterHolder = $converterHolder;
@@ -112,7 +114,7 @@ class SessionBuilder
                     'intervalstyle' => 'ISO_8601',
                     'datestyle'     => 'ISO',
                     'standard_conforming_strings' => 'true',
-                    'timezone' => date_default_timezone_get()
+                    'timezone' => date_default_timezone_get(),
                 ],
                 'connection:persist' => false,
             ];

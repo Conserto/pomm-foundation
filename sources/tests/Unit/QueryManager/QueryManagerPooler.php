@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit\QueryManager;
 
 use PommProject\Foundation\Client\ClientInterface;
@@ -25,7 +27,7 @@ class QueryManagerPooler extends VanillaSessionAtoum
                 ->getClient()
         )
             ->isInstanceOf(\PommProject\Foundation\QueryManager\SimpleQueryManager::class)
-            ->exception(fn(): ClientInterface => $session
+            ->exception(fn (): ClientInterface => $session
                 ->getPoolerForType('query_manager')
                 ->getClient('\No\Such\Client'))
             ->isInstanceOf(FoundationException::class)

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit\Session;
 
 use Mock\PommProject\Foundation\Client\ClientInterface as ClientInterfaceMock;
@@ -126,7 +128,8 @@ class Session extends VanillaSessionAtoum
         })
             ->isInstanceOf(FoundationException::class)
             ->message->contains('No pooler registered for type')
-            ->object($session
+            ->object(
+                $session
                 ->registerClientPooler($clientPoolerMock)
                 ->getPoolerForType('test')
             )
@@ -155,10 +158,10 @@ class Session extends VanillaSessionAtoum
         $session = $this->buildSession()->registerClientPooler($clientPoolerMock);
 
         $this->exception(
-                function () use ($session): void {
-                    $session->azerty('ok', 'what');
-                }
-            )
+            function () use ($session): void {
+                $session->azerty('ok', 'what');
+            }
+        )
             ->isInstanceOf(\BadFunctionCallException::class)
             ->message->contains('Unknown method')
             ->exception(function () use ($session): void {
@@ -181,7 +184,7 @@ class Session extends VanillaSessionAtoum
         $session = $this->buildSession()->registerClientPooler($clientPoolerMock);
         $session->shutdown();
 
-        $this->exception(fn() => $session->getTest('ok'))
+        $this->exception(fn () => $session->getTest('ok'))
             ->isInstanceOf(FoundationException::class)
             ->message->contains('is shutdown')
             ->integer($session->getConnection()->getConnectionStatus())

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -7,12 +8,13 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Session;
 
+use PgSql\Connection as PgSqlConnection;
 use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Exception\SqlException;
-use PgSql\Connection as PgSqlConnection;
 
 /**
  * Manage connection through a resource handler.
@@ -23,17 +25,17 @@ use PgSql\Connection as PgSqlConnection;
  */
 class Connection
 {
-    final const int CONNECTION_STATUS_NONE    = 0;
-    final const int CONNECTION_STATUS_GOOD    = 1;
-    final const int CONNECTION_STATUS_BAD     = 2;
-    final const int CONNECTION_STATUS_CLOSED  = 3;
-    final const string ISOLATION_READ_COMMITTED  = "READ COMMITTED";  // default
-    final const string ISOLATION_REPEATABLE_READ = "REPEATABLE READ"; // from Pg 9.1
-    final const string ISOLATION_SERIALIZABLE    = "SERIALIZABLE";    // changes in 9.1
-    final const string CONSTRAINTS_DEFERRED      = "DEFERRED";
-    final const string CONSTRAINTS_IMMEDIATE     = "IMMEDIATE";       // default
-    final const string ACCESS_MODE_READ_ONLY     = "READ ONLY";
-    final const string ACCESS_MODE_READ_WRITE    = "READ WRITE";      // default
+    final public const int CONNECTION_STATUS_NONE    = 0;
+    final public const int CONNECTION_STATUS_GOOD    = 1;
+    final public const int CONNECTION_STATUS_BAD     = 2;
+    final public const int CONNECTION_STATUS_CLOSED  = 3;
+    final public const string ISOLATION_READ_COMMITTED  = "READ COMMITTED";  // default
+    final public const string ISOLATION_REPEATABLE_READ = "REPEATABLE READ"; // from Pg 9.1
+    final public const string ISOLATION_SERIALIZABLE    = "SERIALIZABLE";    // changes in 9.1
+    final public const string CONSTRAINTS_DEFERRED      = "DEFERRED";
+    final public const string CONSTRAINTS_IMMEDIATE     = "IMMEDIATE";       // default
+    final public const string ACCESS_MODE_READ_ONLY     = "READ ONLY";
+    final public const string ACCESS_MODE_READ_WRITE    = "READ WRITE";      // default
 
     protected ?PgSqlConnection $handler = null;
     protected ConnectionConfigurator $configurator;
@@ -51,7 +53,7 @@ class Connection
     {
         if (!function_exists('pg_connection_status')) {
             throw new ConnectionException(
-                "`pgsql` PHP extension's functions are unavailable in your environment, please make sure ".
+                "`pgsql` PHP extension's functions are unavailable in your environment, please make sure " .
                 "PostgreSQL support is enabled in PHP."
             );
         }
@@ -203,10 +205,9 @@ class Connection
      */
     protected function sendConfiguration(): Connection
     {
-        $sql=[];
+        $sql = [];
 
-        if( $this->handler === null)
-        {
+        if ($this->handler === null) {
             throw new ConnectionException("Handler must be set before sendConfiguration call.");
         }
 

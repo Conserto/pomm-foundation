@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit\Listener;
 
 use PommProject\Foundation\Exception\FoundationException;
@@ -20,7 +22,7 @@ class Listener extends FoundationSessionAtoum
     {
         $listener = $this->newTestedInstance('pika');
         $this->buildSession()->registerClient($listener);
-        $this->object($listener->attachAction(fn($name, $data, $session): true => true))
+        $this->object($listener->attachAction(fn ($name, $data, $session): true => true))
             ->isInstanceOf(\PommProject\Foundation\Listener\Listener::class)
             ->object($listener->attachAction($this->testAttachAction(...)));
     }
@@ -32,7 +34,7 @@ class Listener extends FoundationSessionAtoum
         $this->buildSession()->registerClient($listener);
         $flag = null;
         $listener
-            ->attachAction(fn($name, $data, $session): true => true)
+            ->attachAction(fn ($name, $data, $session): true => true)
             ->attachAction(function ($name, $data, $session) use (&$flag): void {
                 $flag = $name;
             });

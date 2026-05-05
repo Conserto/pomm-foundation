@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -7,11 +8,12 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation;
 
 use PommProject\Foundation\Exception\FoundationException;
-use PommProject\Foundation\Session\SessionBuilder as VanillaSessionBuilder;
 use PommProject\Foundation\Session\Session as BaseSession;
+use PommProject\Foundation\Session\SessionBuilder as VanillaSessionBuilder;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 
@@ -26,6 +28,7 @@ use Psr\Log\LoggerAwareTrait;
  */
 class Pomm implements \ArrayAccess, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
     /** @var array<string, VanillaSessionBuilder> */
     protected array $builders = [];
 
@@ -36,8 +39,6 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     protected array $sessions = [];
 
     protected ?string $default = null;
-
-    use LoggerAwareTrait;
 
     /**
      * Instantiate a new Pomm Service class. It takes an array of configurations as parameter.
@@ -308,7 +309,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
         if (empty($sessionNames)) {
             $sessions = array_keys($this->sessions);
         } else {
-            array_map([ $this, 'builderMustExist' ], $sessionNames);
+            array_map([$this, 'builderMustExist'], $sessionNames);
             $sessions = array_intersect(array_keys($this->sessions), $sessionNames);
         }
 
@@ -335,7 +336,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
                     join(
                         ', ',
                         array_map(
-                            fn(string $val): string => sprintf("'%s'", $val),
+                            fn (string $val): string => sprintf("'%s'", $val),
                             array_keys($this->getSessionBuilders())
                         )
                     )

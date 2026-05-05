@@ -22,6 +22,7 @@
  * PgComposite: split the string-dispatched convertArray() into convertArrayFromPg/ToPg/ToPgStandardFormat for static-analysis-friendly dispatch
  * Document the intentional caching divergence between SimpleQueryManager::prepareArguments and PreparedQuery::prepareValues (inline + AGENTS.md)
  * AGENTS.md: precise the ConverterHolder clone semantics (shallow clone, implications for ArrayTypeConverter caches when overriding built-in leaf converters per session)
+ * Normalize code style across sources/ via composer cs:fix (PSR-12 + PHP84Migration ruleset): blank line after <?php, typed final constants written `final public const string`, alphabetical use ordering, minor spacing tweaks
 
 == VERSION 4.0.2
 

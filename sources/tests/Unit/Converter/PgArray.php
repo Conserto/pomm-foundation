@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit\Converter;
 
 use PommProject\Foundation\Exception\FoundationException;
@@ -107,7 +109,7 @@ class PgArray extends BaseConverter
             ->array($this->sendToPostgres([true, null, false], 'bool[]', $session))
             ->isIdenticalTo([true, null, false])
             ->array($this->sendToPostgres([
-                ' a varchar ', 'another one with "\\quotes\\"', null
+                ' a varchar ', 'another one with "\\quotes\\"', null,
             ], 'varchar[]', $session))
             ->isIdenticalTo([' a varchar ', 'another one with "\\quotes\\"', null]);
     }

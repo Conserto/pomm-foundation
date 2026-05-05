@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Pomm package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
@@ -51,7 +53,6 @@ class PgInterval implements ConverterInterface
             ? sprintf("%s '%s'", $type, $this->checkData($data)->format('%Y years %M months %D days %H:%i:%S'))
             : sprintf("NULL::%s", $type);
     }
-
 
     /**
      * @throws ConverterException

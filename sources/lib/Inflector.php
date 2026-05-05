@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Pomm's Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation;
 
 /**
@@ -27,7 +29,7 @@ class Inflector
 
         return preg_replace_callback(
             '/_([a-z])/',
-            fn(array $v): string => strtoupper((string) $v[1]),
+            fn (array $v): string => strtoupper((string) $v[1]),
             ucfirst(strtolower($string))
         );
     }
