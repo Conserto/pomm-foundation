@@ -1,4 +1,11 @@
-== VERSION 4.0.5
+== VERSION 5.0.0
+
+ * BC BREAK — Replace atoum with PHPUnit 11.5 as the test framework. The helper base classes `PommProject\Foundation\Tester\VanillaSessionAtoum` and `FoundationSessionAtoum` are removed in favor of `VanillaSessionTestCase` and `FoundationSessionTestCase` (both extend `PHPUnit\Framework\TestCase`). Downstream packages must update their test base classes accordingly — see UPGRADE-5.0.md.
+ * BC BREAK — Rename the autoload-dev PSR-4 prefix `PommProject\Foundation\Test\` to `PommProject\Foundation\Tests\` to match the `sources/tests/` directory (PSR-4 compliance). Only affects code inside this package's own test tree.
+ * The new `*TestCase` helpers force `connection:persist => true` so each `buildSession()` call opens a fresh `pg_connect(..., FORCE_NEW)` backend. Without this, PHPUnit's single-process execution would leak prepared statements across tests through `pg_pconnect`'s pooled connection.
+ * Test assertions are now strict (`assertSame` by default); `assertEquals` is reserved for value equality on `DateTime` / `DateInterval` instances. The migration also introduces `#[DataProvider]` / `#[TestWith]` attributes to consolidate repetitive table-driven tests (Inflector, PgBoolean, PgInteger, PgFloat, Pager, PgNumRange, PgTsRange, ConnectionConfigurator).
+
+== VERSION 4.0.3
 
  * Session::shutdown now forwards caught exceptions to the PSR-3 logger instead of printf-ing to stdout
  * Fix ResultHandler::getFieldNumber advancing the result cursor and risking a fatal when reporting an invalid field name

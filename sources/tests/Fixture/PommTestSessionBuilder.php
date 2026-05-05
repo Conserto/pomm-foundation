@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace PommProject\Foundation\Test\Fixture;
+namespace PommProject\Foundation\Tests\Fixture;
 
 use PommProject\Foundation\Client\ClientHolder;
 use PommProject\Foundation\Listener\ListenerPooler;
