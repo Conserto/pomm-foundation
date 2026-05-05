@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of PommProject's Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit\Converter\Geometry;
 
 use PommProject\Foundation\Converter\Type\Circle;
@@ -21,7 +23,7 @@ class PgCircle extends BaseConverter
     {
         $session = $this->buildSession();
         $this->object($this->newTestedInstance()->fromPg('<(1.2345,-9.87654),3.141596>', 'circle', $session))
-            ->isInstanceOf(\PommProject\Foundation\Converter\Type\Circle::class)
+            ->isInstanceOf(Circle::class)
             ->variable($this->newTestedInstance()->fromPg(null, 'circle', $session))
             ->isNull();
 
@@ -44,7 +46,7 @@ class PgCircle extends BaseConverter
             ->isEqualTo('circle(point(1.2345,-9.87654),3.141596)')
             ->string($this->newTestedInstance()->toPg(null, 'mycircle', $session))
             ->isEqualTo('NULL::mycircle')
-            ->exception(fn() => $this->newTestedInstance()->toPg('azsdf', 'circle', $session))
+            ->exception(fn () => $this->newTestedInstance()->toPg('azsdf', 'circle', $session))
             ->isInstanceOf(ConverterException::class);
     }
 
@@ -58,7 +60,7 @@ class PgCircle extends BaseConverter
             ->isEqualTo('<(1.2345,-9.87654),3.141596>')
             ->variable($this->newTestedInstance()->toPgStandardFormat(null, 'mycircle', $session))
             ->isNull()
-            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat('azsdf', 'circle', $session))
+            ->exception(fn () => $this->newTestedInstance()->toPgStandardFormat('azsdf', 'circle', $session))
             ->isInstanceOf(ConverterException::class);
     }
 }

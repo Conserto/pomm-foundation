@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -7,15 +8,16 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\PreparedQuery;
 
+use PommProject\Foundation\Client\Client;
 use PommProject\Foundation\Converter\ConverterClient;
 use PommProject\Foundation\Exception\ConnectionException;
-use PommProject\Foundation\Exception\SqlException;
-use PommProject\Foundation\QueryManager\QueryParameterParserTrait;
-use PommProject\Foundation\Listener\SendNotificationTrait;
 use PommProject\Foundation\Exception\FoundationException;
-use PommProject\Foundation\Client\Client;
+use PommProject\Foundation\Exception\SqlException;
+use PommProject\Foundation\Listener\SendNotificationTrait;
+use PommProject\Foundation\QueryManager\QueryParameterParserTrait;
 use PommProject\Foundation\Session\ResultHandler;
 
 /**
@@ -163,6 +165,11 @@ class PreparedQuery extends Client
     /**
      * Prepare parameters to be sent.
      *
+     * The per-index converter closures are built once on the first call via
+     * {@see prepareConverters()} and reused for every subsequent execute.
+     * SimpleQueryManager::prepareArguments() does the same transformation
+     * without caching because it targets one-shot queries.
+     *
      * @param array<int, mixed> $values
      * @return array<int, null|string> $prepared_values
      * @throws FoundationException
@@ -175,7 +182,7 @@ class PreparedQuery extends Client
 
         foreach ($values as $index => $value) {
             if (isset($this->converters[$index])) {
-                $values[$index] = call_user_func($this->converters[$index], $value);
+                $values[$index] = ($this->converters[$index])($value);
             } elseif ($value instanceof \UnitEnum) {
                 $values[$index] = $value instanceof \BackedEnum ? $value->value : $value->name;
             }
@@ -203,7 +210,7 @@ class PreparedQuery extends Client
                 $converter = $converterClient->getConverter();
 
                 $this->converters[$index] =
-                    fn($value) => $converter->toPgStandardFormat($value, $type, $this->getSession());
+                    fn ($value) => $converter->toPgStandardFormat($value, $type, $this->getSession());
             }
         }
 

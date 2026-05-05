@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit\Converter;
 
 use PommProject\Foundation\Exception\FoundationException;
@@ -18,8 +20,8 @@ class PgJson extends BaseConverter
     {
         $session = $this->buildSession();
         $json = <<<JSON
-          {"az": {"b": [" c ", "d\\\\\\":"], "e": {"fé": "gù:\\"pika\\""}}, "h": ["'i'", "j"]}
-        JSON;
+              {"az": {"b": [" c ", "d\\\\\\":"], "e": {"fé": "gù:\\"pika\\""}}, "h": ["'i'", "j"]}
+            JSON;
         $converter = $this->newTestedInstance();
         $this->array(
             $converter->fromPg($json, 'json', $session)
@@ -29,7 +31,7 @@ class PgJson extends BaseConverter
 
         $object = $this->newTestedInstance(false)->fromPg($json, 'json', $session);
         $this->object($object)
-            ->isInstanceOf((object)[])
+            ->isInstanceOf((object) [])
             ->object($object->az)
             ->array($object->az->b)
             ->isIdenticalTo([' c ', 'd\\":']);
@@ -92,7 +94,6 @@ class PgJson extends BaseConverter
                 $converter->fromPg('true', 'json', $session)
             )
             ->isTrue();
-
     }
 
     /** @throws FoundationException */

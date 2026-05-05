@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of PommProject's Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Converter\Type;
 
 /**
@@ -37,7 +39,7 @@ class Circle implements \Stringable
             PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
         );
 
-        if ((is_countable($elts) ? count($elts) : 0) !== 2) {
+        if ($elts === false || count($elts) !== 2) {
             throw new \InvalidArgumentException(
                 sprintf("Could not parse circle description '%s'.", $description)
             );
@@ -56,6 +58,6 @@ class Circle implements \Stringable
     /** Create a string representation of the Circle. Actually, it dumps a SQL compatible circle representation. */
     public function __toString(): string
     {
-        return sprintf("<%s,%s>", $this->center, $this->radius );
+        return sprintf("<%s,%s>", $this->center, $this->radius);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -7,11 +8,12 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Session;
 
+use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\ParameterHolder;
-use PommProject\Foundation\Exception\ConnectionException;
 
 /**
  * This class is responsible for configuring the connection.
@@ -75,7 +77,6 @@ class ConnectionConfigurator
         return $this;
     }
 
-
     /**
      * Sets the different parameters from the DSN.
      *
@@ -114,7 +115,7 @@ class ConnectionConfigurator
             );
         }
 
-        $database = ltrim( $parsedDsn['path'] ?? '', '/');
+        $database = ltrim($parsedDsn['path'] ?? '', '/');
 
         if (empty($database)) {
             throw new ConnectionException(
@@ -151,7 +152,7 @@ class ConnectionConfigurator
                 "user=%s dbname=%s",
                 $this->configuration['user'],
                 $this->configuration['database']
-            )
+            ),
         ];
 
         if ($this->configuration['host'] !== '') {

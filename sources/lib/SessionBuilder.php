@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -7,21 +8,22 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation;
 
-use PommProject\Foundation\Exception\ConverterException;
-use PommProject\Foundation\Session as FoundationSession;
-use PommProject\Foundation\Session\Session;
-use PommProject\Foundation\Session\Connection;
 use PommProject\Foundation\Client\ClientHolder;
-use PommProject\Foundation\Session\SessionBuilder as VanillaSessionBuilder;
-use PommProject\Foundation\Observer\ObserverPooler;
-use PommProject\Foundation\Listener\ListenerPooler;
-use PommProject\Foundation\Inspector\InspectorPooler;
-use PommProject\Foundation\Converter\ConverterPooler;
 use PommProject\Foundation\Converter\ConverterHolder;
-use PommProject\Foundation\QueryManager\QueryManagerPooler;
+use PommProject\Foundation\Converter\ConverterPooler;
+use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Inspector\InspectorPooler;
+use PommProject\Foundation\Listener\ListenerPooler;
+use PommProject\Foundation\Observer\ObserverPooler;
 use PommProject\Foundation\PreparedQuery\PreparedQueryPooler;
+use PommProject\Foundation\QueryManager\QueryManagerPooler;
+use PommProject\Foundation\Session as FoundationSession;
+use PommProject\Foundation\Session\Connection;
+use PommProject\Foundation\Session\Session;
+use PommProject\Foundation\Session\SessionBuilder as VanillaSessionBuilder;
 
 /**
  * Pre-configured session builder.
@@ -37,12 +39,12 @@ class SessionBuilder extends VanillaSessionBuilder
     protected function postConfigure(Session $session): SessionBuilder
     {
         $session
-            ->registerClientPooler(new PreparedQueryPooler)
-            ->registerClientPooler(new QueryManagerPooler)
+            ->registerClientPooler(new PreparedQueryPooler())
+            ->registerClientPooler(new QueryManagerPooler())
             ->registerClientPooler(new ConverterPooler(clone $this->converterHolder))
-            ->registerClientPooler(new ObserverPooler)
-            ->registerClientPooler(new InspectorPooler)
-            ->registerClientPooler(new ListenerPooler);
+            ->registerClientPooler(new ObserverPooler())
+            ->registerClientPooler(new InspectorPooler())
+            ->registerClientPooler(new ListenerPooler());
 
         return $this;
     }
@@ -78,13 +80,13 @@ class SessionBuilder extends VanillaSessionBuilder
             ->registerConverter(
                 'Integer',
                 new Converter\PgInteger(),
-            [
+                [
                 'int2', 'pg_catalog.int2',
                 'int4', 'pg_catalog.int4', 'int', 'integer',
                 'int8', 'pg_catalog.int8',
                 'oid', 'pg_catalog.oid',
             ],
-            false
+                false
             )
             ->registerConverter(
                 'Float',
@@ -149,7 +151,7 @@ class SessionBuilder extends VanillaSessionBuilder
                     'json',
                     'jsonb',
                     'pg_catalog.json',
-                    'pg_catalog.jsonb'
+                    'pg_catalog.jsonb',
                 ],
                 false
             )

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit\Converter;
 
 use PommProject\Foundation\Exception\FoundationException;
@@ -21,8 +23,8 @@ class PgString extends BaseConverter
     {
         $session = $this->buildSession();
         $string = <<<_
-        \\" ''\r
-        _;
+            \\" ''\r
+            _;
         $this->string($this->newTestedInstance()->fromPg($string, 'text', $session))
             ->isEqualTo("\\\" ''\r")
             ->variable($this->newTestedInstance()->fromPg(null, 'text', $session))
@@ -38,8 +40,8 @@ class PgString extends BaseConverter
     {
         $session = $this->buildSession();
         $string = <<<_
-        \\"	!'
-        _;
+            \\"	!'
+            _;
         $this->string($this->newTestedInstance()->toPg($string, 'varchar', $session))
             ->isEqualTo("varchar  E'\\\\\"\t!'''")
             ->string($this->newTestedInstance()->toPg(null, 'varchar', $session))
@@ -52,7 +54,7 @@ class PgString extends BaseConverter
             ->isEqualTo("varchar 'a'")
             ->string($this->newTestedInstance()->toPg(UnitEnum::Active, 'varchar', $session))
             ->isEqualTo("varchar 'Active'")
-            ->exception(fn() => $this->newTestedInstance()->toPg(IntBackedEnum::TWO, 'varchar', $session))
+            ->exception(fn () => $this->newTestedInstance()->toPg(IntBackedEnum::TWO, 'varchar', $session))
             ->hasMessage(sprintf(
                 "Enum '%s' is not compatible with Pg type 'varchar'.",
                 IntBackedEnum::class
@@ -64,8 +66,8 @@ class PgString extends BaseConverter
     {
         $session = $this->buildSession();
         $string = <<<_
-        \\"\t!'\n
-        _;
+            \\"\t!'\n
+            _;
         $this->string($this->newTestedInstance()->toPgStandardFormat($string, 'varchar', $session))
             ->isEqualTo($string)
             ->variable($this->newTestedInstance()->toPgStandardFormat(null, 'varchar', $session))
@@ -78,7 +80,7 @@ class PgString extends BaseConverter
             ->isEqualTo('a')
             ->string($this->newTestedInstance()->toPgStandardFormat(UnitEnum::Active, 'varchar', $session))
             ->isEqualTo('Active')
-            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(IntBackedEnum::TWO, 'varchar', $session))
+            ->exception(fn () => $this->newTestedInstance()->toPgStandardFormat(IntBackedEnum::TWO, 'varchar', $session))
             ->hasMessage(sprintf(
                 "Enum '%s' is not compatible with Pg type 'varchar'.",
                 IntBackedEnum::class

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation;
 
 use PommProject\Foundation\Session\ResultHandler;
@@ -85,7 +87,7 @@ class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \Seeka
      */
     public function current(): mixed
     {
-        return (($this->rowsCount != null && $this->rowsCount > 0 ) || !$this->isEmpty())
+        return (($this->rowsCount != null && $this->rowsCount > 0) || !$this->isEmpty())
             ? $this->get($this->position)
             : null;
     }

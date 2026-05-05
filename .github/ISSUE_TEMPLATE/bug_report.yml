@@ -1,0 +1,69 @@
+name: Bug report
+description: Report a reproducible bug in pomm-foundation.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. A minimal, self-contained
+        reproduction is the single most useful thing you can provide — it
+        typically decides whether the bug gets fixed in hours or in weeks.
+
+  - type: input
+    id: php-version
+    attributes:
+      label: PHP version
+      description: Output of `php --version`.
+      placeholder: "PHP 8.4.3"
+    validations:
+      required: true
+
+  - type: input
+    id: pgsql-version
+    attributes:
+      label: PostgreSQL version
+      description: Output of `SELECT version();`.
+      placeholder: "PostgreSQL 17.2 on x86_64-pc-linux-gnu"
+    validations:
+      required: true
+
+  - type: input
+    id: package-version
+    attributes:
+      label: pomm-foundation version
+      description: The version / commit you're running.
+      placeholder: "4.0.3"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: |
+        A small PHP snippet + the SQL schema needed to trigger the bug.
+        Strip everything that isn't needed to reproduce.
+      render: php
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: Error message, stack trace, or observed output.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Anything else relevant — environment specifics, related issues, workarounds tried.

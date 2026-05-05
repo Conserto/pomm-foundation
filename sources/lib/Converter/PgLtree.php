@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Pomm package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
@@ -52,7 +54,6 @@ class PgLtree extends ArrayTypeConverter
             ? sprintf("ltree '%s'", join('.', $this->checkArray($data)))
             : sprintf("NULL::%s", $type);
     }
-
 
     /**
      * @throws ConverterException

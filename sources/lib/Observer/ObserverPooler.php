@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -7,10 +8,11 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Observer;
 
-use PommProject\Foundation\Client\ClientPoolerInterface;
 use PommProject\Foundation\Client\ClientPooler;
+use PommProject\Foundation\Client\ClientPoolerInterface;
 
 /**
  * Pooler for observer clients.

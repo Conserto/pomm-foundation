@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Test\Unit\Foundation;
 
 use Atoum;
@@ -72,7 +74,9 @@ class ParameterHolder extends Atoum
         $parameterHolder = $this->newTestedInstance(['pika' => 'one']);
         $this->object($parameterHolder->mustHave('pika'))
             ->isInstanceOf(\PommProject\Foundation\ParameterHolder::class)
-            ->exception(function () use ($parameterHolder): void { $parameterHolder->mustHave('chu'); })
+            ->exception(function () use ($parameterHolder): void {
+                $parameterHolder->mustHave('chu');
+            })
             ->isInstanceOf(FoundationException::class)
             ->message->contains('mandatory')
             ->object($parameterHolder->setParameter('chu', 'whatever')->mustHave('chu'))
@@ -91,15 +95,19 @@ class ParameterHolder extends Atoum
     public function testMustBeOneOf(): void
     {
         $parameterHolder = $this->newTestedInstance(['pika' => 'one', 'chu' => 'two']);
-        $this->object($parameterHolder->mustBeOneOf('pika', [ 'one', 'two', 'tree']))
+        $this->object($parameterHolder->mustBeOneOf('pika', ['one', 'two', 'tree']))
             ->isInstanceOf(\PommProject\Foundation\ParameterHolder::class)
             ->exception(
-                function () use ($parameterHolder): void { $parameterHolder->mustBeOneOf('pika', ['four', 'five']); }
+                function () use ($parameterHolder): void {
+                    $parameterHolder->mustBeOneOf('pika', ['four', 'five']);
+                }
             )
             ->isInstanceOf(FoundationException::class)
             ->message->contains('must be one of')
             ->exception(
-                function () use ($parameterHolder): void { $parameterHolder->mustBeOneOf('chu', ['four', 'five']); }
+                function () use ($parameterHolder): void {
+                    $parameterHolder->mustBeOneOf('chu', ['four', 'five']);
+                }
             )
             ->isInstanceOf(FoundationException::class)
             ->message->contains('must be one of');

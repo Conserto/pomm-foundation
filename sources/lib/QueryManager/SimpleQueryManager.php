@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\QueryManager;
 
 use PommProject\Foundation\ConvertedResultIterator;
@@ -66,6 +68,11 @@ class SimpleQueryManager extends QueryManagerClient
 
     /**
      * Prepare and convert $parameters if needed.
+     *
+     * Mirrors the conversion step done in PreparedQuery::prepareValues() but
+     * deliberately re-resolves the ConverterClient on every call: simple
+     * queries are one-shot by design, so caching would just add bookkeeping
+     * without payoff. Repeated queries should go through PreparedQuery.
      *
      * @throws FoundationException
      * @param string $sql

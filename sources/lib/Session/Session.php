@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Session;
 
 use PommProject\Foundation\Client\ClientHolder;
@@ -28,11 +30,10 @@ use Psr\Log\LoggerInterface;
  */
 class Session implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
     /** @var array<string, ClientPoolerInterface> */
     protected array $clientPoolers = [];
     protected bool $isShutdown = false;
-
-    use LoggerAwareTrait;
 
     /**
      * In order to create a physical connection to the database, it requires a 'dsn' parameter from the ParameterHolder.
@@ -42,7 +43,7 @@ class Session implements LoggerAwareInterface
         protected ?ClientHolder $clientHolder = null,
         protected ?string $stamp = null
     ) {
-        $this->clientHolder = $clientHolder ?? new ClientHolder;
+        $this->clientHolder = $clientHolder ?? new ClientHolder();
     }
 
     /** A short description here */
@@ -58,9 +59,9 @@ class Session implements LoggerAwareInterface
     {
         $exceptions = $this->clientHolder->shutdown();
 
-        if ($this->hasLogger()) {
+        if ($this->logger !== null) {
             foreach ($exceptions as $exception) {
-                printf("Exception caught during shutdown: %s\n", $exception);
+                $this->logger->error('Exception caught during shutdown', ['exception' => $exception]);
             }
 
             $this->logger = null;
@@ -80,7 +81,7 @@ class Session implements LoggerAwareInterface
     /** Return the session's stamp if any */
     public function getStamp(): ?string
     {
-        return $this->stamp === null ? null : (string) $this->stamp;
+        return $this->stamp;
     }
 
     /** Return the database connection. */
@@ -104,7 +105,6 @@ class Session implements LoggerAwareInterface
                 ]
             );
         }
-
 
         return $this;
     }
@@ -199,12 +199,12 @@ class Session implements LoggerAwareInterface
     {
         if (!$this->hasPoolerForType($type)) {
             $errorMessage = <<<ERROR
-No pooler registered for type '%s'. Poolers available: {%s}.
-If the pooler you are asking for is not listed there, maybe you have not used
-the correct session builder. Use the "class:session_builder" parameter in the
-configuration to associate each session with a session builder. A good practice
-is to define your own project's session builders.
-ERROR;
+                No pooler registered for type '%s'. Poolers available: {%s}.
+                If the pooler you are asking for is not listed there, maybe you have not used
+                the correct session builder. Use the "class:session_builder" parameter in the
+                configuration to associate each session with a session builder. A good practice
+                is to define your own project's session builders.
+                ERROR;
             if ($this->isShutdown) {
                 $errorMessage = 'There are no poolers in the session because it is shutdown.';
             }

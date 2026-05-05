@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit;
 
 use PommProject\Foundation\Exception\ConnectionException;
@@ -63,7 +65,7 @@ class ResultIterator extends VanillaSessionAtoum
             ->isIdenticalTo(['id' => '3', 'pika' => 'c'])
             ->array($iterator->get(1))
             ->isIdenticalTo(['id' => '2', 'pika' => 'b'])
-            ->exception(fn() => $iterator->get(5))
+            ->exception(fn () => $iterator->get(5))
             ->isInstanceOf(\OutOfBoundsException::class)
             ->message->contains('Cannot jump to non existing row');
     }
@@ -71,17 +73,17 @@ class ResultIterator extends VanillaSessionAtoum
     protected function getPikaSql(): string
     {
         return <<<SQL
-            select
-                p.id,
-                p.pika
-            from
-              (values
-                (1::int4, 'a'::text),
-                (2, 'b'),
-                (3, 'c'),
-                (4, 'd')
-              ) p (id, pika)
-        SQL;
+                select
+                    p.id,
+                    p.pika
+                from
+                  (values
+                    (1::int4, 'a'::text),
+                    (2, 'b'),
+                    (3, 'c'),
+                    (4, 'd')
+                  ) p (id, pika)
+            SQL;
     }
 
     /**
@@ -172,7 +174,7 @@ class ResultIterator extends VanillaSessionAtoum
             ->isIdenticalTo(['a', 'b', 'c', 'd'])
             ->array($iterator->slice('id'))
             ->isIdenticalTo(['1', '2', '3', '4'])
-            ->exception(fn() => $iterator->slice('no_such_key'))
+            ->exception(fn () => $iterator->slice('no_such_key'))
             ->isInstanceOf(\InvalidArgumentException::class)
             ->message->contains('Could not find field');
     }

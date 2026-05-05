@@ -9,7 +9,7 @@ Overview
 
 Foundation is a light, fast and versatile PHP PostgreSQL database framework. It can either be used on its own (to replace a DBAL for example) or to build a more complex `model manager`_. It is the first stone of `Pomm project`_ version 2.
 
-..  _`Pomm project`: http://www.pomm-project.org
+..  _`Pomm project`: https://github.com/pomm-project
 ..  _`model manager`: https://github.com/pomm-project/ModelManager
 
 Foundation manages relations between a database *connection* and *clients* through *sessions*. It consists of several classes to configure, open, deal with and close *sessions*.

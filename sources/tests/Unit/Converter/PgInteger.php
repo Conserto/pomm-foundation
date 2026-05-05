@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit\Converter;
 
 use PommProject\Foundation\Exception\FoundationException;
@@ -46,12 +48,12 @@ class PgInteger extends BaseConverter
             ->isEqualTo("int4 '-42'")
             ->string($this->newTestedInstance()->toPg(IntBackedEnum::TWO, 'int4', $session))
             ->isEqualTo("int4 '2'")
-            ->exception(fn() => $this->newTestedInstance()->toPg(BackedEnum::A, 'int4', $session))
+            ->exception(fn () => $this->newTestedInstance()->toPg(BackedEnum::A, 'int4', $session))
             ->hasMessage(sprintf(
                 "Enum '%s' is not compatible with Pg type 'int4'.",
                 BackedEnum::class
             ))
-            ->exception(fn() => $this->newTestedInstance()->toPg(UnitEnum::Active, 'int4', $session))
+            ->exception(fn () => $this->newTestedInstance()->toPg(UnitEnum::Active, 'int4', $session))
             ->hasMessage(sprintf(
                 "Enum '%s' is not compatible with Pg type 'int4'.",
                 UnitEnum::class
@@ -72,12 +74,12 @@ class PgInteger extends BaseConverter
             ->isEqualTo('-42')
             ->string($this->newTestedInstance()->toPgStandardFormat(IntBackedEnum::TWO, 'int4', $session))
             ->isEqualTo('2')
-            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(BackedEnum::A, 'int4', $session))
+            ->exception(fn () => $this->newTestedInstance()->toPgStandardFormat(BackedEnum::A, 'int4', $session))
             ->hasMessage(sprintf(
                 "Enum '%s' is not compatible with Pg type 'int4'.",
                 BackedEnum::class
             ))
-            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(UnitEnum::Active, 'int4', $session))
+            ->exception(fn () => $this->newTestedInstance()->toPgStandardFormat(UnitEnum::Active, 'int4', $session))
             ->hasMessage(sprintf(
                 "Enum '%s' is not compatible with Pg type 'int4'.",
                 UnitEnum::class

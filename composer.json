@@ -1,12 +1,27 @@
 {
-    "version": "4.0.4",
+    "version": "4.0.5",
     "name": "conserto/pomm-foundation",
     "type": "library",
     "description":  "Pomm connection manager for Postgresql",
     "keywords": ["framework", "postgresql", "database", "pomm"],
-    "homepage": "http://www.pomm-project.org",
+    "homepage": "https://github.com/Conserto/pomm-foundation",
     "license":  "MIT",
-    "authors":  [ { "name": "Grégoire HUBERT", "email": "hubert.greg@gmail.com" } ],
+    "authors": [
+        {
+            "name": "Grégoire HUBERT",
+            "email": "hubert.greg@gmail.com",
+            "role": "Original author"
+        },
+        {
+            "name": "Conserto",
+            "homepage": "https://www.conserto.pro",
+            "role": "Maintainer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/Conserto/pomm-foundation/issues",
+        "source": "https://github.com/Conserto/pomm-foundation"
+    },
     "require": {
         "php": ">=8.4",
         "ext-pgsql": "*",
@@ -14,6 +29,7 @@
     },
     "require-dev": {
         "atoum/atoum" : "^4.0",
+        "friendsofphp/php-cs-fixer": "^3.65",
         "phpstan/phpstan": "^2.0",
         "rector/rector": "^2.0"
     },
@@ -26,6 +42,22 @@
         "psr-4": {
             "PommProject\\Foundation\\Test\\": "sources/tests"
         }
+    },
+    "scripts": {
+        "test": "atoum --no-code-coverage -d sources/tests/Unit/",
+        "stan": "phpstan analyse -c phpstan.neon",
+        "rector": "rector process --dry-run",
+        "rector:fix": "rector process",
+        "cs": "php-cs-fixer fix --dry-run --diff",
+        "cs:fix": "php-cs-fixer fix"
+    },
+    "scripts-descriptions": {
+        "test": "Run the atoum unit test suite (requires a live PostgreSQL DSN in sources/tests/config.php).",
+        "stan": "Run PHPStan static analysis against sources/lib.",
+        "rector": "Run Rector in dry-run mode to preview suggested changes.",
+        "rector:fix": "Apply Rector's suggested changes to sources/.",
+        "cs": "Run PHP-CS-Fixer in dry-run mode with a diff preview.",
+        "cs:fix": "Apply PHP-CS-Fixer style fixes in place."
     },
     "minimum-stability": "stable"
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Session;
 
 use PgSql\Result as PgSqlResult;
@@ -116,12 +118,13 @@ class ResultHandler
     {
         $no = pg_field_num($this->handler, "\"$name\"");
 
-        if ($no ===  -1) {
+        if ($no === -1) {
             throw new \InvalidArgumentException(
                 sprintf(
                     "Could not find field name '%s'. Available fields are {%s}.",
                     $name,
-                    join(', ', array_keys(pg_fetch_assoc($this->handler))))
+                    join(', ', $this->getFieldNames())
+                )
             );
         }
 

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation;
 
 /**
@@ -167,7 +169,7 @@ class Where implements \Stringable
                     self::create()
                         ->setStack($this->stack)
                         ->setOperator($this->operator),
-                    $element
+                    $element,
                 ];
             }
         }
@@ -259,7 +261,7 @@ class Where implements \Stringable
             return $this->getElement();
         }
 
-        $stack = array_map(fn(Where $where): string => $where->parse(), $this->stack);
+        $stack = array_map(fn (Where $where): string => $where->parse(), $this->stack);
 
         return sprintf('(%s)', join(sprintf(' %s ', $this->operator), $stack));
     }
@@ -285,6 +287,6 @@ class Where implements \Stringable
             $values[] = $where->getValues();
         }
 
-        return call_user_func_array('array_merge', $values);
+        return array_merge(...$values);
     }
 }

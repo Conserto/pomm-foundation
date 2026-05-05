@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -7,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace PommProject\Foundation\Test\Unit\Converter;
 
 use PommProject\Foundation\Exception\FoundationException;
@@ -46,12 +48,12 @@ class PgFloat extends BaseConverter
             ->isEqualTo("float8 '2'")
             ->string($this->newTestedInstance()->toPg(BackedEnum::NUMERIC, 'float8', $session))
             ->isEqualTo("float8 '42.5'")
-            ->exception(fn() => $this->newTestedInstance()->toPg(BackedEnum::A, 'float8', $session))
+            ->exception(fn () => $this->newTestedInstance()->toPg(BackedEnum::A, 'float8', $session))
             ->hasMessage(sprintf(
                 "Enum '%s' is not compatible with Pg type 'float8'.",
                 BackedEnum::class
             ))
-            ->exception(fn() => $this->newTestedInstance()->toPg(UnitEnum::Active, 'float8', $session))
+            ->exception(fn () => $this->newTestedInstance()->toPg(UnitEnum::Active, 'float8', $session))
             ->hasMessage(sprintf(
                 "Enum '%s' is not compatible with Pg type 'float8'.",
                 UnitEnum::class
@@ -72,12 +74,12 @@ class PgFloat extends BaseConverter
             ->isEqualTo('2')
             ->string($this->newTestedInstance()->toPgStandardFormat(BackedEnum::NUMERIC, 'float8', $session))
             ->isEqualTo('42.5')
-            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(BackedEnum::A, 'float8', $session))
+            ->exception(fn () => $this->newTestedInstance()->toPgStandardFormat(BackedEnum::A, 'float8', $session))
             ->hasMessage(sprintf(
                 "Enum '%s' is not compatible with Pg type 'float8'.",
                 BackedEnum::class
             ))
-            ->exception(fn() => $this->newTestedInstance()->toPgStandardFormat(UnitEnum::Active, 'float8', $session))
+            ->exception(fn () => $this->newTestedInstance()->toPgStandardFormat(UnitEnum::Active, 'float8', $session))
             ->hasMessage(sprintf(
                 "Enum '%s' is not compatible with Pg type 'float8'.",
                 UnitEnum::class
