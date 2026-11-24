@@ -30,6 +30,7 @@
  * PHPStan: raise the analysis level from 8 to 9
  * PHPStan level 10 (implicit mixed): SessionBuilder::createSession() raises a FoundationException when the 'class:session' setting is not a class name or not a Session subclass (it used to be an Error / TypeError); configuration arrays documented as keyed by setting names; one targeted @phpstan-ignore for row keys (numeric column names become int keys)
  * PHPStan: raise the analysis level from 9 to 10 (maximum)
+ * ConverterClient, PgHstore, PgString, PgTimestamp: declare(strict_types=1) now that their conversions are explicit. PgHstore casts array keys to string itself (numeric keys are int in PHP, which strict mode would have rejected — Rector had not spotted it); a test covers it
 
 == VERSION 4.0.5
 

@@ -102,4 +102,17 @@ final class PgHstoreTest extends BaseConverterTestCase
             ->getConverterHolder()
             ->registerConverter('hstore', new PgHstore(), ['hstore', 'public.hstore']);
     }
+
+    /**
+     * Numeric keys are int array keys in PHP: they must still be written as hstore keys (the file declares strict_types).
+     *
+     * @throws FoundationException
+     */
+    public function testIntKeys(): void
+    {
+        $session = $this->buildSession();
+        $converter = new PgHstore();
+
+        self::assertSame('"1" => "a", "2" => NULL', $converter->toPgStandardFormat([1 => 'a', '2' => null], 'hstore', $session));
+    }
 }

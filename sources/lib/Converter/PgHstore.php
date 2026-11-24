@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Pomm package.
  *
@@ -178,14 +180,15 @@ class PgHstore extends ArrayTypeConverter
 
         foreach ($data as $key => $value) {
             if ($value === null) {
-                $insertValues[] = sprintf('%s => NULL', $this->escape($key));
+                // Keys are cast as the string parameter used to coerce them (int keys for numeric names).
+                $insertValues[] = sprintf('%s => NULL', $this->escape((string) $key));
             } else {
                 // Converted as the string parameter of escape() converted it (no strict_types in this file).
                 $string = StringCoercion::toString($value)
                     ?? throw new ConverterException(sprintf("Cannot convert a '%s' hstore value to a string.", get_debug_type($value)));
                 $insertValues[] = sprintf(
                     '%s => %s',
-                    $this->escape($key),
+                    $this->escape((string) $key),
                     $this->escape($string)
                 );
             }
