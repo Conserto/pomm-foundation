@@ -28,6 +28,8 @@
  * PHPStan level 9, docblocks: ConvertedResultIterator template defaults to array<string, mixed>; Inspector results typed from their SQL; ResultHandler fetchRow()/fetchColumn() return raw string|null values; query parameters (SimpleQueryManager, PreparedQuery, Connection, SqlException) documented as array<int, mixed>, since untyped values are passed as is. Inspector::getVersion() raises a FoundationException when the server returns no version
  * PHPStan level 9: 15 targeted @phpstan-ignore, each with its reason, where a function deliberately converts any user value itself (sprintf, implode, string casts, pg_field_num, ParameterHolder accessors): narrowing the type there would change behaviour
  * PHPStan: raise the analysis level from 8 to 9
+ * PHPStan level 10 (implicit mixed): SessionBuilder::createSession() raises a FoundationException when the 'class:session' setting is not a class name or not a Session subclass (it used to be an Error / TypeError); configuration arrays documented as keyed by setting names; one targeted @phpstan-ignore for row keys (numeric column names become int keys)
+ * PHPStan: raise the analysis level from 9 to 10 (maximum)
 
 == VERSION 4.0.5
 

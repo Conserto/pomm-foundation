@@ -36,6 +36,7 @@ trait QueryParameterParserTrait
         return (string) preg_replace_callback(
             '/\$\*/',
             function (): string {
+                /** @var int $nb */
                 static $nb = 0;
 
                 return sprintf("$%d", ++$nb);

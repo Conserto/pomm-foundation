@@ -91,6 +91,7 @@ class ConvertedResultIterator extends ResultIterator
             $outputValues[$name] = $this->convertField($name, $value) ;
         }
 
+        // @phpstan-ignore return.type (numeric column names become int keys: rows are documented as string-keyed)
         return $outputValues;
     }
 

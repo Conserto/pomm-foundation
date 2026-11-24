@@ -144,7 +144,23 @@ class SessionBuilder
     {
         $sessionClass = $this->configuration->getParameter('class:session', Session::class);
 
-        return new $sessionClass($connection, $clientHolder, $stamp);
+        if (!is_string($sessionClass)) {
+            // Instantiating a non string used to be an Error.
+            throw new FoundationException(
+                sprintf("The 'class:session' setting must be a class name, '%s' given.", get_debug_type($sessionClass))
+            );
+        }
+
+        $session = new $sessionClass($connection, $clientHolder, $stamp);
+
+        if (!$session instanceof Session) {
+            // Used to be a TypeError on the return type.
+            throw new FoundationException(
+                sprintf("The 'class:session' setting must name a %s subclass, '%s' given.", Session::class, $sessionClass)
+            );
+        }
+
+        return $session;
     }
 
     /** Instantiate ClientHolder. */
@@ -213,6 +229,7 @@ class SessionBuilder
             );
         }
 
+        /** @var array<string, mixed> $value keys are setting names */
         return $value;
     }
 }

@@ -74,6 +74,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
                 $builderClass = $this->checkSessionBuilderClass($builderClassName);
             }
 
+            /** @var array<string, mixed> $configuration keys are setting names */
             $this->addBuilder($name, new $builderClass($configuration));
 
             if (isset($configuration['pomm:default']) && $configuration['pomm:default'] === true) {

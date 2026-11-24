@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Session\Connection;
+use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Session\SessionBuilder;
 
 #[CoversClass(SessionBuilder::class)]
@@ -79,6 +80,18 @@ final class SessionBuilderTest extends TestCase
             ['connection:configuration' => 'x'],
             "Invalid 'connection:configuration' setting: an array is expected, 'string' given.",
         ];
+    }
+
+    /**
+     * @throws FoundationException
+     */
+    public function testSessionClassMustBeASession(): void
+    {
+        self::assertInstanceOf(Session::class, new SessionBuilder(['dsn' => self::DSN])->buildSession());
+
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage("The 'class:session' setting must name a " . Session::class . " subclass, 'stdClass' given.");
+        new SessionBuilder(['dsn' => self::DSN, 'class:session' => \stdClass::class])->buildSession();
     }
 
     /**

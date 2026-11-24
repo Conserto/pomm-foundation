@@ -280,6 +280,7 @@ class ConnectionConfigurator
             );
         }
 
+        /** @var array<string, mixed> $configuration keys are setting names (built by addConfiguration() / set()) */
         return $configuration;
     }
 }
