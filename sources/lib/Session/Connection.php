@@ -47,7 +47,7 @@ class Connection
      *
      * @param array<string, mixed> $configuration
      */
-    public function __construct(string $dsn, bool $persist = false, array $configuration = [])
+    public function __construct(#[\SensitiveParameter] string $dsn, bool $persist = false, array $configuration = [])
     {
         if (!function_exists('pg_connection_status')) {
             throw new ConnectionException(

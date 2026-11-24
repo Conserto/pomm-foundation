@@ -11,6 +11,7 @@
  * Rector pass over sources/: declare(strict_types=1) where provably safe (28 lib files, 18 test files), join() -> implode(), redundant else / sprintf('%s') removed, ??= null coalescing, strict comparisons, static:: -> self:: on final constants, redundant @param/@return tags removed, concrete test classes made final. No public or protected signature changed
  * PgBox::toPg(): document `@param string $type` locally (it relied on a parent tag that is now gone)
  * Session: declare the __call() client shortcuts with @method (getQueryManager, getInspector, getPreparedQuery, getConverter, getObserver, getListener) so IDEs and static analysers see their precise return types; no runtime change
+ * Mark the parameters carrying the DSN (and its password) with #[\SensitiveParameter] so they are redacted from exception stack traces: Pomm::__construct, Session\SessionBuilder::__construct / addParameter / createConnection, Connection::__construct, ConnectionConfigurator::__construct, Tester\*TestCase::createSessionBuilder. No signature change; overriding methods must add the attribute themselves to redact their own frame
 
 == VERSION 4.0.5
 

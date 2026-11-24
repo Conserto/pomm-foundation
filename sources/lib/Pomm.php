@@ -51,7 +51,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
      *
      * @param array<string, mixed> $configurations
      */
-    public function __construct(array $configurations = [])
+    public function __construct(#[\SensitiveParameter] array $configurations = [])
     {
         foreach ($configurations as $name => $configuration) {
             $builderClass = SessionBuilder::class;

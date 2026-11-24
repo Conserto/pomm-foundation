@@ -28,7 +28,7 @@ class ConnectionConfigurator
     protected ParameterHolder $configuration;
 
     /** @throws ConnectionException|FoundationException */
-    public function __construct(string $dsn, bool $persist = false)
+    public function __construct(#[\SensitiveParameter] string $dsn, bool $persist = false)
     {
         $this->configuration = new ParameterHolder(
             [
