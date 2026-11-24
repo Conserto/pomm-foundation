@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace PommProject\Foundation\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\ParameterHolder;
@@ -207,5 +208,46 @@ final class ParameterHolderTest extends TestCase
         $this->expectException(FoundationException::class);
         $this->expectExceptionMessage("A parameter name is required, 'null' given.");
         $holder[] = 'c';
+    }
+
+    /**
+     * @throws FoundationException
+     */
+    public function testTypedAccessors(): void
+    {
+        $holder = new ParameterHolder(['str' => 'a', 'int' => '1', 'bool' => true, 'off' => false, 'zero' => '0', 'list' => ['x'], 'none' => null]);
+
+        self::assertSame('a', $holder->getString('str'));
+        self::assertSame('1', $holder->getString('int'));
+        self::assertSame('1', $holder->getString('bool'));
+        self::assertSame('', $holder->getString('off'));
+        self::assertTrue($holder->getBool('bool'));
+        self::assertTrue($holder->getBool('int'));
+        self::assertFalse($holder->getBool('zero'));
+        self::assertTrue($holder->getBool('str'));
+        self::assertSame(['x'], $holder->getArray('list'));
+    }
+
+    /**
+     * @return iterable<string, array{0: \Closure(ParameterHolder): mixed, 1: string}>
+     */
+    public static function invalidTypedAccessProvider(): iterable
+    {
+        yield 'string from array' => [fn (ParameterHolder $h): string => $h->getString('list'), "Invalid 'list' setting: a string is expected, 'array' given."];
+        yield 'string from null' => [fn (ParameterHolder $h): string => $h->getString('none'), "Invalid 'none' setting: a string is expected, 'null' given."];
+        yield 'string from missing' => [fn (ParameterHolder $h): string => $h->getString('missing'), "Invalid 'missing' setting: a string is expected, 'null' given."];
+        yield 'bool from array' => [fn (ParameterHolder $h): bool => $h->getBool('list'), "Invalid 'list' setting: a boolean is expected, 'array' given."];
+        yield 'array from string' => [fn (ParameterHolder $h): array => $h->getArray('str'), "Invalid 'str' setting: an array is expected, 'string' given."];
+    }
+
+    /**
+     * @param \Closure(ParameterHolder): mixed $access
+     */
+    #[DataProvider('invalidTypedAccessProvider')]
+    public function testInvalidTypedAccess(\Closure $access, string $message): void
+    {
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage($message);
+        $access(new ParameterHolder(['str' => 'a', 'list' => ['x'], 'none' => null]));
     }
 }

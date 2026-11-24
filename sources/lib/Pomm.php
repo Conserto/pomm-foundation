@@ -12,6 +12,7 @@
 namespace PommProject\Foundation;
 
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\ClassName;
 use PommProject\Foundation\Internal\StringCoercion;
 use PommProject\Foundation\Session\Session as BaseSession;
 use PommProject\Foundation\Session\SessionBuilder as VanillaSessionBuilder;
@@ -64,13 +65,15 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
 
             $builderClass = SessionBuilder::class;
             if (isset($configuration['class:session_builder'])) {
-                // Converted as the string parameter of checkSessionBuilderClass() converted it.
-                $builderClassName = StringCoercion::toString($configuration['class:session_builder'])
-                    ?? throw new FoundationException(sprintf(
+                // Converted as PHP's coercive mode converted it for checkSessionBuilderClass()'s string parameter.
+                $builderClassName = StringCoercion::toStringOr(
+                    $configuration['class:session_builder'],
+                    fn (): FoundationException => new FoundationException(sprintf(
                         "The 'class:session_builder' of '%s' must be a class name, '%s' given.",
                         $name,
                         get_debug_type($configuration['class:session_builder'])
-                    ));
+                    ))
+                );
                 $builderClass = $this->checkSessionBuilderClass($builderClassName);
             }
 
@@ -92,10 +95,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     private function checkSessionBuilderClass(string $builderClass): string
     {
         try {
-            if (!class_exists($builderClass) && !interface_exists($builderClass) && !trait_exists($builderClass)) {
-                // Same exception (and message) as the ReflectionClass constructor.
-                throw new \ReflectionException(sprintf('Class "%s" does not exist', $builderClass), -1);
-            }
+            ClassName::mustExist($builderClass);
             if (!is_subclass_of($builderClass, VanillaSessionBuilder::class)) {
                 throw new FoundationException(
                     sprintf(

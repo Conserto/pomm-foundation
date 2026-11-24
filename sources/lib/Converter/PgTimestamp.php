@@ -75,15 +75,12 @@ class PgTimestamp implements ConverterInterface
     protected function checkData(mixed $data): \DateTimeInterface
     {
         if (!$data instanceof \DateTimeInterface) {
-            // Converted as DateTime's string parameter converted it (null meant '', i.e. now).
-            $datetime = $data === null ? '' : StringCoercion::toString($data);
-            if ($datetime === null) {
-                // Used to be a TypeError.
-                throw new ConverterException(sprintf(
-                    "Cannot convert data from invalid datetime representation '%s'.",
-                    get_debug_type($data)
-                ));
-            }
+            // Converted as PHP's coercive mode converted it for DateTime's string parameter (null meant '', i.e. now);
+            // it raised a TypeError otherwise.
+            $datetime = $data === null ? '' : StringCoercion::toStringOr($data, fn (): ConverterException => new ConverterException(sprintf(
+                "Cannot convert data from invalid datetime representation '%s'.",
+                get_debug_type($data)
+            )));
 
             try {
                 $data = new \DateTime($datetime);

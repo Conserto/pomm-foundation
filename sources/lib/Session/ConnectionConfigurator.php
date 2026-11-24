@@ -43,11 +43,11 @@ class ConnectionConfigurator
     /**
      * Return whether or not to persist the connection to the DB.
      *
-     * @throws ConnectionException
+     * @throws FoundationException if the stored setting is not a boolean-like scalar
      */
     public function getPersist(): bool
     {
-        return $this->getBoolParameter('persist');
+        return $this->configuration->getBool('persist');
     }
 
     /**
@@ -60,7 +60,7 @@ class ConnectionConfigurator
         $this ->configuration->setParameter(
             'configuration',
             array_merge(
-                $this->getArrayParameter('configuration'),
+                $this->configuration->getArray('configuration'),
                 $configuration
             )
         );
@@ -73,7 +73,7 @@ class ConnectionConfigurator
     {
         $configuration = $this->configuration->getParameter('configuration');
         // Offset assignment used to turn null (and false) into an array: keep accepting them.
-        $configuration = $configuration === null || $configuration === false ? [] : $this->getArrayParameter('configuration');
+        $configuration = $configuration === null || $configuration === false ? [] : $this->configuration->getArray('configuration');
         $configuration[$name] = $value;
         $this->configuration
             ->setParameter('configuration', $configuration);
@@ -89,7 +89,7 @@ class ConnectionConfigurator
     private function parseDsn(): ConnectionConfigurator
     {
         $this->configuration->mustHave('dsn');
-        $dsn = $this->getStringParameter('dsn');
+        $dsn = $this->configuration->getString('dsn');
         $parsedDsn = parse_url($dsn);
 
         if (!preg_match(
@@ -177,80 +177,28 @@ class ConnectionConfigurator
         $connectParameters = [
             sprintf(
                 "user=%s dbname=%s",
-                $this->getStringParameter('user'),
-                $this->getStringParameter('database')
+                $this->configuration->getString('user'),
+                $this->configuration->getString('database')
             ),
         ];
 
-        $host = $this->getStringParameter('host');
+        $host = $this->configuration->getString('host');
         if ($host !== '') {
             $connectParameters[] = sprintf('host=%s', $host);
         }
 
-        $port = $this->getStringParameter('port');
+        $port = $this->configuration->getString('port');
         if ($port !== '') {
             $connectParameters[] = sprintf('port=%s', $port);
         }
 
-        $pass = $this->getStringParameter('pass');
+        $pass = $this->configuration->getString('pass');
         if ($pass !== '') {
             $connectParameters[] = sprintf('password=%s', addslashes($pass));
         }
 
         return implode(' ', $connectParameters);
     }
-
-    /**
-     * Typed reads of the internal parameter holder. Scalars are converted exactly as PHP's coercive typing mode
-     * (this file does not declare strict_types) used to convert them when they reached a typed call; only values
-     * that already failed with a TypeError (null, array, object) now raise a ConnectionException instead.
-     *
-     * @throws ConnectionException
-     */
-    private function getStringParameter(string $name): string
-    {
-        $value = $this->configuration->getParameter($name);
-
-        if (!is_scalar($value)) {
-            throw new ConnectionException(
-                sprintf("Invalid '%s' setting: a string is expected, '%s' given.", $name, get_debug_type($value))
-            );
-        }
-
-        return (string) $value;
-    }
-
-    /** @throws ConnectionException */
-    private function getBoolParameter(string $name): bool
-    {
-        $value = $this->configuration->getParameter($name);
-
-        if (!is_scalar($value)) {
-            throw new ConnectionException(
-                sprintf("Invalid '%s' setting: a boolean is expected, '%s' given.", $name, get_debug_type($value))
-            );
-        }
-
-        return (bool) $value;
-    }
-
-    /**
-     * @throws ConnectionException
-     * @return array<mixed>
-     */
-    private function getArrayParameter(string $name): array
-    {
-        $value = $this->configuration->getParameter($name);
-
-        if (!is_array($value)) {
-            throw new ConnectionException(
-                sprintf("Invalid '%s' setting: an array is expected, '%s' given.", $name, get_debug_type($value))
-            );
-        }
-
-        return $value;
-    }
-
     /**
      * Standalone, default configuration.
      *

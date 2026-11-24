@@ -12,6 +12,7 @@
 namespace PommProject\Foundation;
 
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\StringCoercion;
 
 /**
  * @copyright 2014 - 2015 Grégoire HUBERT
@@ -121,6 +122,60 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     public function getParameter(string $name, bool|string|array|null $default = null): bool|string|array|null
     {
         return $this->hasParameter($name) ? $this->parameters[$name] : $default;
+    }
+
+    /**
+     * Returns the parameter as a string. Scalars and Stringable objects are converted exactly as PHP's coercive
+     * typing mode converts them for a string parameter (`1` gives "1", `true` gives "1").
+     *
+     * @throws FoundationException when the value cannot be converted (unset/null, array, other objects).
+     */
+    public function getString(string $name): string
+    {
+        $value = $this->getParameter($name);
+
+        return StringCoercion::toStringOr($value, fn (): FoundationException => $this->invalidSetting($name, 'a string', $value));
+    }
+
+    /**
+     * Returns the parameter as a boolean. Scalars are converted exactly as PHP's coercive typing mode converts them
+     * for a bool parameter (`1` and "yes" give true, `0`, "0" and "" give false).
+     *
+     * @throws FoundationException when the value cannot be converted (unset/null, array).
+     */
+    public function getBool(string $name): bool
+    {
+        $value = $this->getParameter($name);
+
+        if (!is_scalar($value)) {
+            throw $this->invalidSetting($name, 'a boolean', $value);
+        }
+
+        return (bool) $value;
+    }
+
+    /**
+     * Returns the parameter as an array.
+     *
+     * @throws FoundationException when the value is not an array (unset/null included).
+     * @return array<mixed>
+     */
+    public function getArray(string $name): array
+    {
+        $value = $this->getParameter($name);
+
+        if (!is_array($value)) {
+            throw $this->invalidSetting($name, 'an array', $value);
+        }
+
+        return $value;
+    }
+
+    private function invalidSetting(string $name, string $expected, mixed $value): FoundationException
+    {
+        return new FoundationException(
+            sprintf("Invalid '%s' setting: %s is expected, '%s' given.", $name, $expected, get_debug_type($value))
+        );
     }
 
     /**

@@ -38,4 +38,26 @@ final class StringCoercion
             default => null,
         };
     }
+
+    /**
+     * Same conversion, raising the exception $error builds where PHP raised a TypeError (null included).
+     *
+     * @param \Closure(): \Throwable $error
+     * @throws \Throwable the exception built by $error
+     */
+    public static function toStringOr(mixed $value, \Closure $error): string
+    {
+        return self::toString($value) ?? throw $error();
+    }
+
+    /**
+     * Same as toStringOr(), for a `?string` target: null passes through.
+     *
+     * @param \Closure(): \Throwable $error
+     * @throws \Throwable the exception built by $error
+     */
+    public static function toNullableStringOr(mixed $value, \Closure $error): ?string
+    {
+        return $value === null ? null : self::toStringOr($value, $error);
+    }
 }

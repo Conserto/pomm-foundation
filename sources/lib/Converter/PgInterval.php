@@ -75,12 +75,12 @@ class PgInterval implements ConverterInterface
     protected function checkData(mixed $data): \DateInterval
     {
         if (!$data instanceof \DateInterval) {
-            // Converted as DateInterval's string parameter converted it (null meant '').
-            $duration = $data === null ? '' : StringCoercion::toString($data);
-            if ($duration === null) {
-                // Used to be a TypeError.
-                throw new ConverterException("First argument is not a \DateInterval instance.");
-            }
+            // Converted as PHP's coercive mode converted it for DateInterval's string parameter (null meant '');
+            // it raised a TypeError otherwise.
+            $duration = $data === null ? '' : StringCoercion::toStringOr(
+                $data,
+                fn (): ConverterException => new ConverterException("First argument is not a \DateInterval instance.")
+            );
 
             try {
                 $data = new \DateInterval($duration);

@@ -73,7 +73,9 @@ class PgString implements ConverterInterface
      */
     private function toText(mixed $data): string
     {
-        return StringCoercion::toString($data)
-            ?? throw new ConverterException(sprintf("Cannot convert a '%s' value to a string.", get_debug_type($data)));
+        return StringCoercion::toStringOr(
+            $data,
+            fn (): ConverterException => new ConverterException(sprintf("Cannot convert a '%s' value to a string.", get_debug_type($data)))
+        );
     }
 }

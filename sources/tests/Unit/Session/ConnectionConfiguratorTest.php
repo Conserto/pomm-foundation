@@ -19,6 +19,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use PommProject\Foundation\Exception\ConnectionException;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\ParameterHolder;
 use PommProject\Foundation\Session\ConnectionConfigurator;
 
@@ -159,9 +160,9 @@ final class ConnectionConfiguratorTest extends TestCase
         self::assertSame(['encoding' => 'utf-8'], $configurator->getConfiguration());
     }
 
-    public function testInvalidConfigurationRaisesConnectionException(): void
+    public function testInvalidConfigurationRaisesFoundationException(): void
     {
-        $this->expectException(ConnectionException::class);
+        $this->expectException(FoundationException::class);
         $this->expectExceptionMessage("Invalid 'configuration' setting: an array is expected, 'string' given.");
 
         $this->createTamperedConfigurator('configuration', 'x')->addConfiguration(['encoding' => 'utf-8']);
@@ -170,14 +171,14 @@ final class ConnectionConfiguratorTest extends TestCase
     /**
      * getPersist() keeps converting scalars like the bool return type did, and rejects what used to be a TypeError.
      *
-     * @throws ConnectionException
+     * @throws FoundationException
      */
     public function testGetPersistConversion(): void
     {
         self::assertTrue($this->createTamperedConfigurator('persist', '1')->getPersist());
         self::assertFalse($this->createTamperedConfigurator('persist', '0')->getPersist());
 
-        $this->expectException(ConnectionException::class);
+        $this->expectException(FoundationException::class);
         $this->expectExceptionMessage("Invalid 'persist' setting: a boolean is expected, 'null' given.");
         $this->createTamperedConfigurator('persist', null)->getPersist();
     }

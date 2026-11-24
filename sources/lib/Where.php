@@ -136,12 +136,11 @@ class Where implements \Stringable
     public function addWhere(mixed $element, array $values, string $operator): Where
     {
         if (!$element instanceof Where) {
-            // Converted as the ?string constructor parameter converted it (no strict_types in this file).
-            $clause = $element === null ? null : StringCoercion::toString($element);
-            if ($element !== null && $clause === null) {
-                // Used to be a TypeError.
-                throw new FoundationException(sprintf("A Where clause must be a string, '%s' given.", get_debug_type($element)));
-            }
+            // Converted as PHP's coercive mode converted it for the ?string constructor parameter; it raised a TypeError otherwise.
+            $clause = StringCoercion::toNullableStringOr(
+                $element,
+                fn (): FoundationException => new FoundationException(sprintf("A Where clause must be a string, '%s' given.", get_debug_type($element)))
+            );
 
             $element = new self($clause, $values);
         }

@@ -183,9 +183,11 @@ class PgHstore extends ArrayTypeConverter
                 // Keys are cast as the string parameter used to coerce them (int keys for numeric names).
                 $insertValues[] = sprintf('%s => NULL', $this->escape((string) $key));
             } else {
-                // Converted as the string parameter of escape() converted it (no strict_types in this file).
-                $string = StringCoercion::toString($value)
-                    ?? throw new ConverterException(sprintf("Cannot convert a '%s' hstore value to a string.", get_debug_type($value)));
+                // Converted as PHP's coercive mode converted it for escape()'s string parameter; it raised a TypeError otherwise.
+                $string = StringCoercion::toStringOr(
+                    $value,
+                    fn (): ConverterException => new ConverterException(sprintf("Cannot convert a '%s' hstore value to a string.", get_debug_type($value)))
+                );
                 $insertValues[] = sprintf(
                     '%s => %s',
                     $this->escape((string) $key),
@@ -200,9 +202,7 @@ class PgHstore extends ArrayTypeConverter
     /** Escape a string. */
     protected function escape(string $string): string
     {
-        if (preg_match('/["\s,]/', $string) === false) {
-            return addslashes($string);
-        }
+        // Values are always quoted: the former addslashes() branch only ran on a preg_match() failure.
         return sprintf('"%s"', addcslashes($string, '"\\'));
     }
 }

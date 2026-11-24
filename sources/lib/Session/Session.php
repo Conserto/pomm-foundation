@@ -182,15 +182,11 @@ class Session implements LoggerAwareInterface
             throw new \BadFunctionCallException(sprintf("Unknown method 'Session::%s()'.", $method));
         }
 
-        // Converted as the ?string identifier parameter converted it (no strict_types in this file).
+        // Converted as PHP's coercive mode converted it for the ?string identifier; it raised a TypeError otherwise.
         $argument = $arguments[0] ?? null;
-        $identifier = $argument === null ? null : StringCoercion::toString($argument);
-        if ($argument !== null && $identifier === null) {
-            // Used to be a TypeError.
-            throw new FoundationException(
-                sprintf("Session::%s() expects a client identifier string, '%s' given.", $method, get_debug_type($argument))
-            );
-        }
+        $identifier = StringCoercion::toNullableStringOr($argument, fn (): FoundationException => new FoundationException(
+            sprintf("Session::%s() expects a client identifier string, '%s' given.", $method, get_debug_type($argument))
+        ));
 
         return $this->getClientUsingPooler(
             Inflector::underscore($matches[1]),

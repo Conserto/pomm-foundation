@@ -33,6 +33,8 @@
  * ConverterClient, PgHstore, PgString, PgTimestamp: declare(strict_types=1) now that their conversions are explicit. PgHstore casts array keys to string itself (numeric keys are int in PHP, which strict mode would have rejected — Rector had not spotted it); a test covers it
  * PHPStan now also analyses sources/tests, at the same level (10). Tests narrow types with extra assertions (assertNotNull / assertInstanceOf / assertIsArray) — no assertion removed —, intentionally invalid calls keep a targeted @phpstan-ignore with their reason, the SessionBuilder spy is a named class, and three test files declare strict_types
  * Observer::getNotification() / Connection::getNotification() documented @phpstan-impure (each call consumes the pending notification); SessionBuilder hooks preConfigure() / postConfigure() / initializeConverterHolder() documented @phpstan-impure so overrides calling parent:: are not reported as no-ops. Docblocks only
+ * ParameterHolder: new typed accessors getString() / getBool() / getArray(). Scalars are converted exactly as PHP's coercive mode converts them; anything else raises a FoundationException naming the setting. SessionBuilder and ConnectionConfigurator use them instead of their own private copies (ConnectionConfigurator therefore raises a FoundationException, the parent of ConnectionException, for an invalid internal setting — a case that used to be a TypeError)
+ * Simplifications without behaviour change: shared conversion-or-exception helpers in the internal StringCoercion, a shared internal class existence check (Pomm, Inspector / QueryManager poolers), PgHstore::escape() dead addslashes() branch removed (values were always quoted), ResultIterator::count() caches an empty result too
 
 == VERSION 4.0.5
 

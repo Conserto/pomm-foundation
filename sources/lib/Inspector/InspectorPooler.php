@@ -16,6 +16,7 @@ use PommProject\Foundation\Client\ClientInterface;
 use PommProject\Foundation\Client\ClientPooler;
 use PommProject\Foundation\Client\ClientPoolerInterface;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\ClassName;
 
 /**
  * Pooler for Inspector client.
@@ -51,10 +52,7 @@ class InspectorPooler extends ClientPooler
     protected function createClient(string $identifier): Client
     {
         try {
-            if (!class_exists($identifier) && !interface_exists($identifier) && !trait_exists($identifier)) {
-                // Same exception (and message) as the ReflectionClass constructor.
-                throw new \ReflectionException(sprintf('Class "%s" does not exist', $identifier), -1);
-            }
+            ClassName::mustExist($identifier);
         } catch (\ReflectionException) {
             throw new FoundationException(
                 sprintf(

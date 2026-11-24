@@ -60,12 +60,11 @@ class PgBytea implements ConverterInterface
     protected function escapeByteString(Session $session, mixed $string): string
     {
         // preg_replace() only returns null on a regex failure, impossible with these constant patterns.
-        // Converted as the ?string parameter of escapeBytea() converted it (no strict_types in this file).
-        $bytes = $string === null ? null : StringCoercion::toString($string);
-        if ($string !== null && $bytes === null) {
-            // Used to be a TypeError.
-            throw new ConverterException(sprintf("Cannot convert a '%s' value to bytea.", get_debug_type($string)));
-        }
+        // Converted as PHP's coercive mode converted it for escapeBytea()'s ?string parameter; it raised a TypeError otherwise.
+        $bytes = StringCoercion::toNullableStringOr(
+            $string,
+            fn (): ConverterException => new ConverterException(sprintf("Cannot convert a '%s' value to bytea.", get_debug_type($string)))
+        );
 
         return (string) preg_replace(["/\\\\/", '/"/'], ["\\", '""'], $session->getConnection()->escapeBytea($bytes));
     }
