@@ -104,3 +104,11 @@ The new `*TestCase` helpers inject `connection:persist => true` into the session
 ## 6. Autoload-dev prefix
 
 The PSR-4 prefix for the package's own tests changed from `PommProject\Foundation\Test\` to `PommProject\Foundation\Tests\` (the `sources/tests/` directory already used the plural name). This does not affect downstream packages — only contributors who patch Foundation's own test tree.
+
+## 7. `ConverterClient::toPgStandardFormat()` may return null
+
+Its return type is widened from `string` to `?string`, matching `ConverterInterface::toPgStandardFormat()`: it returns null when the wrapped converter has no standard format for the value — with Foundation's converters, for a null value (sent to PostgreSQL as SQL NULL). It used to fail with a `TypeError` in that case.
+
+- Subclasses overriding it with a `string` return type remain valid (covariant return type): nothing to change.
+- Code calling it directly and relying on a `string` should handle null; static analysers will now report it. None of the Pomm packages (ModelManager, Cli, bundle, Symfony bridge) call it: they use `getConverter()` and call the converter itself.
+

@@ -83,28 +83,19 @@ class ConverterClient extends Client
     }
 
     /**
-     * Export data as CSV representation
+     * Export data as CSV representation. Null when the converter has no standard format for the value
+     * (Foundation's converters return null for a null value, sent as SQL NULL).
      *
      * @throws FoundationException
      * @see ConverterInterface
      */
-    public function toPgStandardFormat(mixed $value, ?string $type = null): string
+    public function toPgStandardFormat(mixed $value, ?string $type = null): ?string
     {
-        $result = $this->converter->toPgStandardFormat(
+        return $this->converter->toPgStandardFormat(
             $value,
             $type ?? $this->getClientIdentifier(),
             $this->getSession()
         );
-
-        if ($result === null) {
-            // The return type cannot be null; this used to end in a TypeError.
-            throw new ConverterException(sprintf(
-                "The '%s' converter returned no standard format (null) for this value: pass null values as is.",
-                $type ?? $this->getClientIdentifier()
-            ));
-        }
-
-        return $result;
     }
 
     /** Return the embedded converter. */
