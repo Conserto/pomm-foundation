@@ -9,9 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace PommProject\Foundation\Test\Fixture;
+namespace PommProject\Foundation\Tests\Fixture;
 
 use PommProject\Foundation\Client\ClientHolder;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Listener\ListenerPooler;
 use PommProject\Foundation\Session\Connection;
 use PommProject\Foundation\Session\Session;
@@ -29,6 +30,9 @@ class PommTestSessionBuilder extends SessionBuilder
         return new PommTestSession($connection, $clientHolder, $stamp);
     }
 
+    /**
+     * @throws FoundationException from registerClientPooler() (and the parent post-configure chain)
+     */
     protected function postConfigure(Session $session): static
     {
         parent::postConfigure($session);

@@ -48,6 +48,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
+          extensions: mbstring, dom, xml, pgsql
 
       - name: Get Composer cache directory
         id: composer-cache
@@ -77,5 +78,5 @@ jobs:
           php_version: 8.4
       - name: Run tests
         run: |
-          php vendor/atoum/atoum/bin/atoum --version
-          php vendor/atoum/atoum/bin/atoum --no-code-coverage -d sources/tests/Unit/
+          php vendor/bin/phpunit --version
+          php vendor/bin/phpunit

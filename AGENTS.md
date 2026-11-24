@@ -31,15 +31,15 @@ composer cs
 composer cs:fix
 
 # Run a single test file
-php vendor/atoum/atoum/bin/atoum --no-code-coverage -f sources/tests/Unit/Pomm.php
+php vendor/bin/phpunit sources/tests/Unit/PommTest.php
 
 # Run a single test method
-php vendor/atoum/atoum/bin/atoum --no-code-coverage -f sources/tests/Unit/Pomm.php -m testConstructor
+php vendor/bin/phpunit --filter testConstructor sources/tests/Unit/PommTest.php
 ```
 
 ### Test database
 
-Atoum tests hit a real PostgreSQL instance — there is no mocking layer. Bootstrap (`.bootstrap.atoum.php`) loads `sources/tests/config.php` if present, otherwise falls back to `sources/tests/config.github.php`. The DSN is read from `$GLOBALS['pomm_db1']['dsn']`.
+PHPUnit tests hit a real PostgreSQL instance — there is no mocking layer. Bootstrap (`.bootstrap.phpunit.php`) loads `sources/tests/config.php` if present, otherwise falls back to `sources/tests/config.github.php`. The DSN is read from `$GLOBALS['pomm_db1']['dsn']`.
 
 The `pomm_test` database must exist and have the `hstore` and `ltree` extensions enabled (see `.github/workflows/ci.yml` for the exact setup commands). `config.php` is gitignored for per-dev DSN overrides.
 
@@ -81,7 +81,11 @@ Do not try to factor this into a shared helper by forcing a single caching polic
 
 ### Testing helpers
 
-Tests extending `Tester\VanillaSessionAtoum` or `Tester\FoundationSessionAtoum` get a `buildSession()` method; subclasses must implement `initializeSession(Session $session)` (where fixture clients are typically registered). Fixtures live in `sources/tests/Fixture/`.
+Tests extending `Tester\VanillaSessionTestCase` or `Tester\FoundationSessionTestCase` get a `buildSession()` method; subclasses must implement `initializeSession(Session $session)` (where fixture clients are typically registered). Both helpers are part of the library's public API — downstream packages (model-manager, etc.) subclass them for their own test suites.
+
+The helpers force `connection:persist => true` so each call to `buildSession()` opens a fresh `pg_connect(..., FORCE_NEW)` backend. Without this, PHPUnit's single-process execution would reuse `pg_pconnect`'s pooled connection across tests and leak prepared statements.
+
+Fixtures live in `sources/tests/Fixture/`.
 
 ## Conventions
 

@@ -1,5 +1,5 @@
 {
-    "version": "4.0.5",
+    "version": "5.0.0",
     "name": "conserto/pomm-foundation",
     "type": "library",
     "description":  "Pomm connection manager for Postgresql",
@@ -28,9 +28,9 @@
         "psr/log": "^2.0 || ^3.0"
     },
     "require-dev": {
-        "atoum/atoum" : "^4.0",
         "friendsofphp/php-cs-fixer": "^3.65",
         "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^11.5",
         "rector/rector": "^2.0"
     },
     "autoload": {
@@ -40,11 +40,11 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "PommProject\\Foundation\\Test\\": "sources/tests"
+            "PommProject\\Foundation\\Tests\\": "sources/tests/"
         }
     },
     "scripts": {
-        "test": "atoum --no-code-coverage -d sources/tests/Unit/",
+        "test": "phpunit",
         "stan": "phpstan analyse -c phpstan.neon",
         "rector": "rector process --dry-run",
         "rector:fix": "rector process",
@@ -52,7 +52,7 @@
         "cs:fix": "php-cs-fixer fix"
     },
     "scripts-descriptions": {
-        "test": "Run the atoum unit test suite (requires a live PostgreSQL DSN in sources/tests/config.php).",
+        "test": "Run the PHPUnit test suite (requires a live PostgreSQL DSN in sources/tests/config.php).",
         "stan": "Run PHPStan static analysis against sources/lib.",
         "rector": "Run Rector in dry-run mode to preview suggested changes.",
         "rector:fix": "Apply Rector's suggested changes to sources/.",
