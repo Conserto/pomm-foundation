@@ -51,7 +51,10 @@ class InspectorPooler extends ClientPooler
     protected function createClient(string $identifier): Client
     {
         try {
-            new \ReflectionClass($identifier);
+            if (!class_exists($identifier) && !interface_exists($identifier) && !trait_exists($identifier)) {
+                // Same exception (and message) as the ReflectionClass constructor.
+                throw new \ReflectionException(sprintf('Class "%s" does not exist', $identifier), -1);
+            }
         } catch (\ReflectionException) {
             throw new FoundationException(
                 sprintf(

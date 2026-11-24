@@ -16,6 +16,8 @@
  * QueryManagerInterface::query(): document the return type as \Iterator<int, array<string, mixed>> (one associative array per row, as every Foundation query manager returns); docblock only
  * VanillaSessionTestCase / FoundationSessionTestCase: sessions built with buildSession() are shut down after each test (final #[After] hook, no parent::tearDown() call needed), closing their connections. They used to stay open until a garbage collection, and the suite came close to PostgreSQL's connection limit. A session built with buildSession() therefore lives for one test and must not be shared between tests (static property, #[Depends])
  * PHPStan level 7 groundwork: fix two wrong docblocks (ArrayTypeConverter::$converters holds ConverterInterface instances, ResultHandler::fetchRow() keys may be int for numeric column names); docblock only
+ * PHPStan level 7 groundwork, same behaviour: typed reads of the configuration in SessionBuilder::buildSession() and ConnectionConfigurator keep converting scalars exactly as PHP's coercive mode did (e.g. `connection:persist: 1`); values that already ended in a TypeError (null, array, object) now raise a FoundationException / ConnectionException naming the setting. ConnectionConfigurator::set() keeps accepting a null configuration
+ * PHPStan level 7 groundwork, same behaviour: class existence checks in Pomm and the Inspector / QueryManager poolers raise the same ReflectionException as before without going through ReflectionClass; ListenerPooler client name split, Connection::getNotification() array, ResultHandler::getTypeOid() int conversion and PgHstore::buildArray() docblock made explicit
 
 == VERSION 4.0.5
 

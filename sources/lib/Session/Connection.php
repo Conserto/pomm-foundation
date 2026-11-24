@@ -440,6 +440,14 @@ class Connection
     {
         $data = pg_get_notify($this->handler, \PGSQL_ASSOC);
 
-        return $data === false ? null : $data;
+        if ($data === false) {
+            return null;
+        }
+
+        return [
+            'message' => (string) $data['message'],
+            'pid' => (int) $data['pid'],
+            'payload' => (string) ($data['payload'] ?? ''),
+        ];
     }
 }

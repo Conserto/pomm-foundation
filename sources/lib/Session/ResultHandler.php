@@ -149,6 +149,8 @@ class ResultHandler
     /** Return the type oid of the given field. */
     public function getTypeOid(int $field): ?int
     {
-        return  pg_field_type_oid($this->handler, $field);
+        // pg_field_type_oid() only returns a string for oids above PHP_INT_MAX (32-bit builds); the return type
+        // already converted it to int.
+        return (int) pg_field_type_oid($this->handler, $field);
     }
 }

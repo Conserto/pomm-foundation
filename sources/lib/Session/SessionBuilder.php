@@ -76,16 +76,15 @@ class SessionBuilder
     final public function buildSession(?string $stamp = null): Session
     {
         $this->preConfigure();
-        $dsn = $this
-            ->configuration->mustHave('dsn')->getParameter('dsn');
-
-        $connectionConfiguration = $this->configuration
+        $this->configuration
+            ->mustHave('dsn')
             ->mustHave('connection:configuration')
-            ->getParameter('connection:configuration');
+            ->mustHave('connection:persist');
 
-        $persist = $this->configuration
-            ->mustHave('connection:persist')
-            ->getParameter('connection:persist');
+        // Same order as createConnection()'s parameters, so the first invalid setting reported is unchanged.
+        $dsn = $this->getStringSetting('dsn');
+        $persist = $this->getBoolSetting('connection:persist');
+        $connectionConfiguration = $this->getArraySetting('connection:configuration');
 
         $session = $this->createSession(
             $this->createConnection($dsn, $persist, $connectionConfiguration),
@@ -162,5 +161,56 @@ class SessionBuilder
     protected function initializeConverterHolder(ConverterHolder $converterHolder): SessionBuilder
     {
         return $this;
+    }
+
+    /**
+     * Typed reads of the configuration. Scalars are converted exactly as PHP's coercive typing mode (this file does
+     * not declare strict_types) converted them when they reached createConnection(); only values that already failed
+     * there with a TypeError (null, array, object) now raise a FoundationException instead.
+     *
+     * @throws FoundationException
+     */
+    private function getStringSetting(string $name): string
+    {
+        $value = $this->configuration->getParameter($name);
+
+        if (!is_scalar($value)) {
+            throw new FoundationException(
+                sprintf("Invalid '%s' setting: a string is expected, '%s' given.", $name, get_debug_type($value))
+            );
+        }
+
+        return (string) $value;
+    }
+
+    /** @throws FoundationException */
+    private function getBoolSetting(string $name): bool
+    {
+        $value = $this->configuration->getParameter($name);
+
+        if (!is_scalar($value)) {
+            throw new FoundationException(
+                sprintf("Invalid '%s' setting: a boolean is expected, '%s' given.", $name, get_debug_type($value))
+            );
+        }
+
+        return (bool) $value;
+    }
+
+    /**
+     * @throws FoundationException
+     * @return array<string, mixed>
+     */
+    private function getArraySetting(string $name): array
+    {
+        $value = $this->configuration->getParameter($name);
+
+        if (!is_array($value)) {
+            throw new FoundationException(
+                sprintf("Invalid '%s' setting: an array is expected, '%s' given.", $name, get_debug_type($value))
+            );
+        }
+
+        return $value;
     }
 }

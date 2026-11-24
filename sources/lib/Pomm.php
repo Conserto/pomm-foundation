@@ -71,13 +71,16 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
      * Check if the given builder class is valid.
      *
      * @throws FoundationException if not valid
+     * @return class-string<VanillaSessionBuilder>
      */
     private function checkSessionBuilderClass(string $builderClass): string
     {
         try {
-            $reflection = new \ReflectionClass($builderClass);
-
-            if (!$reflection->isSubclassOf(VanillaSessionBuilder::class)) {
+            if (!class_exists($builderClass) && !interface_exists($builderClass) && !trait_exists($builderClass)) {
+                // Same exception (and message) as the ReflectionClass constructor.
+                throw new \ReflectionException(sprintf('Class "%s" does not exist', $builderClass), -1);
+            }
+            if (!is_subclass_of($builderClass, VanillaSessionBuilder::class)) {
                 throw new FoundationException(
                     sprintf(
                         "Class '%s' is not a subclass of \PommProject\Foundation\Session\SessionBuilder.",

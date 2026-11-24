@@ -50,7 +50,10 @@ class QueryManagerPooler extends ClientPooler
     protected function createClient(string $identifier): ClientInterface
     {
         try {
-            new \ReflectionClass($identifier);
+            if (!class_exists($identifier) && !interface_exists($identifier) && !trait_exists($identifier)) {
+                // Same exception (and message) as the ReflectionClass constructor.
+                throw new \ReflectionException(sprintf('Class "%s" does not exist', $identifier), -1);
+            }
         } catch (\ReflectionException $e) {
             throw new FoundationException(sprintf("Could not load class '%s'.", $identifier), 0, $e);
         }

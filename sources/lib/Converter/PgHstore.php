@@ -168,7 +168,7 @@ class PgHstore extends ArrayTypeConverter
     /**
      * Return an array of HStore elements.
      *
-     * @param  array<string, null|string> $data
+     * @param  array<array-key, mixed> $data keys and non-null values are converted to string
      * @return array<int, string>
      */
     protected function buildArray(array $data): array
