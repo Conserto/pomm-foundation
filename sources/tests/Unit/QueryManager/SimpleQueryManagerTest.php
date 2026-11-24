@@ -138,4 +138,19 @@ final class SimpleQueryManagerTest extends FoundationSessionTestCase
 
         return $queryManager;
     }
+
+    /**
+     * A null value for a typed parameter is sent as SQL NULL (it used to end in a TypeError).
+     *
+     * @throws FoundationException|SqlException from buildSession() / query()
+     */
+    public function testNullTypedParameters(): void
+    {
+        $session = $this->buildSession();
+        $row = $this->getQueryManager($session)
+            ->query('select $*::int4 is null as a, $*::text is null as b, $*::timestamptz is null as c, $*::int4 as d', [null, null, null, 4])
+            ->current();
+
+        self::assertSame(['a' => true, 'b' => true, 'c' => true, 'd' => 4], $row);
+    }
 }

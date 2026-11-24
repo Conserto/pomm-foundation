@@ -112,7 +112,13 @@ class Connection
                 $this->launch();
                 // no break
             case self::CONNECTION_STATUS_GOOD:
-                return $this->handler;
+                if ($this->handler instanceof PgSqlConnection) {
+                    return $this->handler;
+                }
+
+                throw new ConnectionException(
+                    "Connection has unexpected status."
+                );
             case self::CONNECTION_STATUS_BAD:
                 throw new ConnectionException(
                     "Connection problem. Read your server's log about this, I have no more informations."
@@ -141,6 +147,11 @@ class Connection
             return $this->isClosed ? self::CONNECTION_STATUS_CLOSED : self::CONNECTION_STATUS_NONE;
         }
 
+        if (!$this->handler instanceof PgSqlConnection) {
+            // hasHandler() is overridable: without an actual handler, behave as if there were none.
+            return $this->isClosed ? self::CONNECTION_STATUS_CLOSED : self::CONNECTION_STATUS_NONE;
+        }
+
         if (@pg_connection_status($this->handler) === \PGSQL_CONNECTION_OK) {
             return self::CONNECTION_STATUS_GOOD;
         }
@@ -155,6 +166,11 @@ class Connection
      */
     public function getTransactionStatus(): int
     {
+        if (!$this->handler instanceof PgSqlConnection) {
+            // No connection opened yet (or closed): no transaction can be in progress. Used to be a TypeError.
+            return \PGSQL_TRANSACTION_UNKNOWN;
+        }
+
         return pg_transaction_status($this->handler);
     }
 
@@ -282,7 +298,7 @@ class Connection
             $status = pg_result_status($result);
 
             if ($status !== \PGSQL_COMMAND_OK && $status !== \PGSQL_TUPLES_OK) {
-                throw new SqlException($result, $sql);
+                throw new SqlException($result, $sql ?? '');
             }
 
             $results[] = new ResultHandler($result);
@@ -462,6 +478,11 @@ class Connection
      */
     public function getNotification(): ?array
     {
+        if (!$this->handler instanceof PgSqlConnection) {
+            // No connection opened yet (or closed): nothing can have been notified. Used to be a TypeError.
+            return null;
+        }
+
         $data = pg_get_notify($this->handler, \PGSQL_ASSOC);
 
         if ($data === false) {

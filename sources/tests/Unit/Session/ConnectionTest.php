@@ -163,4 +163,33 @@ final class ConnectionTest extends TestCase
             persist: true,
         );
     }
+
+    /**
+     * Before any query, no connection is open: no transaction and no notification (they used to end in a TypeError).
+     *
+     * @throws FoundationException propagated from Connection's constructor
+     */
+    public function testStatusWithoutOpenConnection(): void
+    {
+        $connection = new Connection($GLOBALS['pomm_db1']['dsn'], persist: true);
+
+        self::assertSame(Connection::CONNECTION_STATUS_NONE, $connection->getConnectionStatus());
+        self::assertSame(\PGSQL_TRANSACTION_UNKNOWN, $connection->getTransactionStatus());
+        self::assertNull($connection->getNotification());
+    }
+
+    /**
+     * @throws FoundationException
+     */
+    public function testFreedResultHandler(): void
+    {
+        $result = $this->getConnection()->executeAnonymousQuery('select 1');
+        self::assertInstanceOf(ResultHandler::class, $result);
+        self::assertSame(1, $result->countRows());
+
+        $result->free();
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage('The query result has already been freed.');
+        $result->countRows();
+    }
 }

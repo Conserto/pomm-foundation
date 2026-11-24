@@ -24,16 +24,16 @@ trait QueryParameterParserTrait
 {
     abstract protected function getSession(): Session;
 
-    /** Transform an ordered parameters list with $1, $2 to $* parameters. */
+    /** Transform an ordered parameters list with $1, $2 to $* parameters. preg_* only return null on a regex failure. */
     public function unorderParameters(string $string): string
     {
-        return preg_replace('/\$[0-9]+/', '$*', $string);
+        return (string) preg_replace('/\$[0-9]+/', '$*', $string);
     }
 
     /** Transform an unordered parameters list $* to ordered $1, $2 parameters. */
     public function orderParameters(string $string): string
     {
-        return preg_replace_callback(
+        return (string) preg_replace_callback(
             '/\$\*/',
             function (): string {
                 static $nb = 0;

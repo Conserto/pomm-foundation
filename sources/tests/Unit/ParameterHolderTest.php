@@ -194,4 +194,17 @@ final class ParameterHolderTest extends TestCase
             $parameterHolder->setParameter('chu', 'two')->getIterator()->getArrayCopy()
         );
     }
+
+    public function testArrayAccessOffsets(): void
+    {
+        $holder = new ParameterHolder();
+        $holder['name'] = 'a';
+        $holder[3] = 'b';
+
+        self::assertSame(['name' => 'a', '3' => 'b'], iterator_to_array($holder));
+
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage("A parameter name is required, 'null' given.");
+        $holder[] = 'c';
+    }
 }

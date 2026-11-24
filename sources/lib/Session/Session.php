@@ -72,7 +72,7 @@ class Session implements LoggerAwareInterface
     /** Gently shutdown all clients when the Session is getting down prior to connection termination. */
     public function shutdown(): void
     {
-        $exceptions = $this->clientHolder->shutdown();
+        $exceptions = $this->clientHolderOrNew()->shutdown();
 
         if ($this->logger instanceof LoggerInterface) {
             foreach ($exceptions as $exception) {
@@ -109,10 +109,10 @@ class Session implements LoggerAwareInterface
     public function registerClient(ClientInterface $client): Session
     {
         $client->initialize($this);
-        $this->clientHolder->add($client);
+        $this->clientHolderOrNew()->add($client);
 
         if ($this->hasLogger()) {
-            $this->getLogger()->debug(
+            $this->getLogger()?->debug(
                 "Pomm: Registering new client",
                 [
                     'type' => $client->getClientType(),
@@ -133,7 +133,7 @@ class Session implements LoggerAwareInterface
     /** Tell if a client exist or not. */
     public function hasClient(string $type, string $name): bool
     {
-        return $this->clientHolder->has($type, $name);
+        return $this->clientHolderOrNew()->has($type, $name);
     }
 
     /** Add or replace a Client pooler for the specified type. */
@@ -148,7 +148,7 @@ class Session implements LoggerAwareInterface
 
         if ($this->hasLogger()) {
             $this->getLogger()
-                ->debug(
+                ?->debug(
                     "Pomm: Registering new client pooler.",
                     ['type' => $clientPooler->getPoolerType()]
                 );
@@ -164,7 +164,7 @@ class Session implements LoggerAwareInterface
      */
     public function getAllClientForType(string $type): array
     {
-        return $this->clientHolder->getAllFor($type);
+        return $this->clientHolderOrNew()->getAllFor($type);
     }
 
     /**
@@ -194,13 +194,16 @@ class Session implements LoggerAwareInterface
      */
     public function getClientUsingPooler(string $type, ?string $identifier): ClientInterface
     {
+        // ClientPoolerInterface::getClient() declares a string, but the poolers that have a default client
+        // (query_manager, inspector) accept null, which the __call() shortcuts rely on (getQueryManager()).
+        // @phpstan-ignore argument.type
         return $this->getPoolerForType($type)->getClient($identifier);
     }
 
     /** Return a Client from its type and identifier. */
     public function getClient(?string $type, string $identifier): ?ClientInterface
     {
-        return $this->clientHolder->get($type, $identifier);
+        return $this->clientHolderOrNew()->get($type, $identifier);
     }
 
     /**
@@ -247,5 +250,14 @@ class Session implements LoggerAwareInterface
     public function getRegisterPoolersNames(): array
     {
         return array_keys($this->clientPoolers);
+    }
+
+    /**
+     * The client holder, created on first use when a subclass left the protected property null
+     * (the constructor applies the same rule to a null argument).
+     */
+    private function clientHolderOrNew(): ClientHolder
+    {
+        return $this->clientHolder ??= new ClientHolder();
     }
 }

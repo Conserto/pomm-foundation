@@ -287,7 +287,13 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
             );
         }
 
-        $this->addBuilder($offset, $value);
+        if (!is_scalar($offset)) {
+            // Appending ($pomm[] = …) used to end in a TypeError: builders are named.
+            throw new FoundationException(sprintf("A session builder name is required, '%s' given.", get_debug_type($offset)));
+        }
+
+        // Scalars are converted as the string parameter type converted them (no strict_types in this file).
+        $this->addBuilder((string) $offset, $value);
     }
 
     /**

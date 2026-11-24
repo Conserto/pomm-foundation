@@ -90,7 +90,11 @@ class SimpleQueryManager extends QueryManagerClient
                     ->getSession()
                     ->getClientUsingPooler('converter', $types[$index]);
 
-                $parameters[$index] = $converterClient->toPgStandardFormat($value, $types[$index]);
+                // ConverterClient::toPgStandardFormat() cannot return null: a null value goes straight to the
+                // converter, as PreparedQuery does (it used to end in a TypeError).
+                $parameters[$index] = $value === null
+                    ? $converterClient->getConverter()->toPgStandardFormat(null, $types[$index], $this->getSession())
+                    : $converterClient->toPgStandardFormat($value, $types[$index]);
             } elseif ($value instanceof \UnitEnum) {
                 $parameters[$index] = $value instanceof \BackedEnum ? $value->value : $value->name;
             }

@@ -11,6 +11,8 @@
 
 namespace PommProject\Foundation;
 
+use PommProject\Foundation\Exception\FoundationException;
+
 /**
  * This class represents a WHERE clause of a SQL statement. It deals with AND &
  * OR operator you can add using handy methods. This allows you to build
@@ -154,6 +156,11 @@ class Where implements \Stringable
             if ($this->operator == $operator) {
                 $this->stack[] = $element;
             } else {
+                if ($this->operator === null) {
+                    // Only reachable through setStack() without setOperator(); it used to end in a TypeError.
+                    throw new FoundationException('Cannot combine a Where clause stack that has no operator.');
+                }
+
                 $this->stack = [
                     self::create()
                         ->setStack($this->stack)
@@ -188,8 +195,14 @@ class Where implements \Stringable
         return $this->element !== null;
     }
 
+    /** @throws FoundationException if this clause has no element (empty, or a combination of clauses). */
     public function getElement(): string
     {
+        if ($this->element === null) {
+            // Used to end in a TypeError.
+            throw new FoundationException('This Where clause has no element: it is empty or combines other clauses.');
+        }
+
         return $this->element;
     }
 

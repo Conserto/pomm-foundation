@@ -12,6 +12,7 @@
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Client\Client;
+use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
 
 /**
@@ -79,11 +80,21 @@ class ConverterClient extends Client
      */
     public function toPgStandardFormat(mixed $value, ?string $type = null): string
     {
-        return $this->converter->toPgStandardFormat(
+        $result = $this->converter->toPgStandardFormat(
             $value,
             $type ?? $this->getClientIdentifier(),
             $this->getSession()
         );
+
+        if ($result === null) {
+            // The return type cannot be null; this used to end in a TypeError.
+            throw new ConverterException(sprintf(
+                "The '%s' converter returned no standard format (null) for this value: pass null values as is.",
+                $type ?? $this->getClientIdentifier()
+            ));
+        }
+
+        return $result;
     }
 
     /** Return the embedded converter. */

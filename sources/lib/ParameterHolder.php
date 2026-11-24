@@ -23,7 +23,7 @@ use PommProject\Foundation\Exception\FoundationException;
  */
 class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
 {
-    /** @param array<string, bool|string|array<mixed, mixed>> $parameters */
+    /** @param array<string, bool|string|array<mixed, mixed>|null> $parameters */
     public function __construct(protected array $parameters = [])
     {
     }
@@ -129,7 +129,13 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        $this->setParameter($offset, $value);
+        if (!is_scalar($offset)) {
+            // Appending ($holder[] = …) used to end in a TypeError: parameters are named.
+            throw new FoundationException(sprintf("A parameter name is required, '%s' given.", get_debug_type($offset)));
+        }
+
+        // Scalars are converted as the string parameter type converted them (no strict_types in this file).
+        $this->setParameter((string) $offset, $value);
     }
 
     /** @see ArrayAccess */
@@ -154,7 +160,7 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * @see \IteratorAggregate
      *
-     * @return \ArrayIterator<string, bool|string|array<mixed, mixed>>
+     * @return \ArrayIterator<string, bool|string|array<mixed, mixed>|null>
      */
     public function getIterator(): \ArrayIterator
     {

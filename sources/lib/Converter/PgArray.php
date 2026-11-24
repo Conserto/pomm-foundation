@@ -110,6 +110,11 @@ class PgArray extends ArrayTypeConverter
 
                     $val = $converter->toPgStandardFormat($val, $type, $session);
 
+                    if ($val === null) {
+                        // Same output as before (implode() turns null into ''), without passing null to preg_match().
+                        return null;
+                    }
+
                     if ($val !== '') {
                         if (preg_match('/[,\\"\s]/', $val)) {
                             $val = sprintf('"%s"', addcslashes($val, '"\\'));

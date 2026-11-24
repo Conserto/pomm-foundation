@@ -37,7 +37,7 @@ class PgInterval implements ConverterInterface
         }
 
         try {
-            return new \DateInterval(preg_replace('/\.[0-9]+S/', 'S', $data));
+            return new \DateInterval((string) preg_replace('/\.[0-9]+S/', 'S', $data));
         } catch (\Exception $e) {
             throw new ConverterException(sprintf("Data '%s' is not an ISO8601 interval representation.", $data), 0, $e);
         }

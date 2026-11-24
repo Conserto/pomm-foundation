@@ -57,6 +57,7 @@ class PgBytea implements ConverterInterface
      */
     protected function escapeByteString(Session $session, mixed $string): string
     {
-        return preg_replace(["/\\\\/", '/"/'], ["\\", '""'], $session->getConnection()->escapeBytea($string));
+        // preg_replace() only returns null on a regex failure, impossible with these constant patterns.
+        return (string) preg_replace(["/\\\\/", '/"/'], ["\\", '""'], $session->getConnection()->escapeBytea($string));
     }
 }
