@@ -68,6 +68,15 @@ final class PommTest extends TestCase
         );
     }
 
+    public function testOffsetSetRejectsNonBuilder(): void
+    {
+        $pomm = new Pomm([]);
+
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage("Only session builders can be added to Pomm, 'stdClass' given.");
+        $pomm['pika'] = new \stdClass();
+    }
+
     /**
      * @throws FoundationException from getBuilder() on the happy-path arm
      */

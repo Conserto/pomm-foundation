@@ -348,20 +348,23 @@ class SqlException extends FoundationException
      */
     public function getSQLErrorState(): string
     {
-        return pg_result_error_field($this->result, \PGSQL_DIAG_SQLSTATE);
+        // null/false when the field is not available: an empty string instead of a TypeError.
+        return (string) pg_result_error_field($this->result, \PGSQL_DIAG_SQLSTATE);
     }
 
     /** Returns the severity level of the error. */
     public function getSQLErrorSeverity(): string
     {
-        return pg_result_error_field($this->result, \PGSQL_DIAG_SEVERITY);
+        // null/false when the field is not available: an empty string instead of a TypeError.
+        return (string) pg_result_error_field($this->result, \PGSQL_DIAG_SEVERITY);
     }
 
     /** Returns the error message sent by the server. */
     public function getSqlErrorMessage(bool $primary = false): string
     {
-        return $primary ?
-            pg_result_error_field($this->result, \PGSQL_DIAG_MESSAGE_PRIMARY) : pg_result_error($this->result);
+        // null/false when the message is not available: an empty string instead of a TypeError.
+        return (string) ($primary ?
+            pg_result_error_field($this->result, \PGSQL_DIAG_MESSAGE_PRIMARY) : pg_result_error($this->result));
     }
 
     public function getSQLDetailedErrorMessage(): string

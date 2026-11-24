@@ -105,6 +105,31 @@ final class ConnectionTest extends TestCase
     }
 
     /**
+     * Invalid UTF-8 cannot be escaped: a ConnectionException instead of a TypeError on the string return type.
+     *
+     * @throws FoundationException propagated from Connection's constructor
+     */
+    public function testEscapeInvalidEncodingRaisesConnectionException(): void
+    {
+        $connection = $this->getConnection();
+        $connection->executeAnonymousQuery("set client_encoding to 'UTF8'");
+
+        foreach (['escapeLiteral' => 'Could not escape literal', 'escapeIdentifier' => 'Could not escape identifier'] as $method => $message) {
+            // pg_escape_*() raise a PHP warning on failure, on top of the ConnectionException under test.
+            set_error_handler(static fn (): bool => true, \E_WARNING);
+            try {
+                $connection->{$method}("invalid \xff utf-8");
+                self::fail(sprintf('A ConnectionException was expected from %s().', $method));
+            } catch (ConnectionException $e) {
+                self::assertStringStartsWith($message, $e->getMessage());
+                self::assertStringNotContainsString("\xff", $e->getMessage());
+            } finally {
+                restore_error_handler();
+            }
+        }
+    }
+
+    /**
      * @throws ConnectionException if the pgsql extension is missing
      * @throws FoundationException propagated from Connection's constructor
      */

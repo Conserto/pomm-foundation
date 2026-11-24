@@ -306,7 +306,14 @@ class Connection
      */
     public function escapeIdentifier(?string $string): string
     {
-        return \pg_escape_identifier($this->getHandler(), $string ?? '');
+        $handler = $this->getHandler();
+        $escaped = \pg_escape_identifier($handler, $string ?? '');
+
+        if ($escaped === false) {
+            throw new ConnectionException(sprintf('Could not escape identifier: %s', pg_last_error($handler)));
+        }
+
+        return $escaped;
     }
 
     /**
@@ -316,7 +323,15 @@ class Connection
      */
     public function escapeLiteral(?string $string): string
     {
-        return \pg_escape_literal($this->getHandler(), $string ?? '');
+        $handler = $this->getHandler();
+        $escaped = \pg_escape_literal($handler, $string ?? '');
+
+        if ($escaped === false) {
+            // The value itself is not echoed: it may be sensitive.
+            throw new ConnectionException(sprintf('Could not escape literal: %s', pg_last_error($handler)));
+        }
+
+        return $escaped;
     }
 
     /**
@@ -347,11 +362,20 @@ class Connection
         $res = pg_send_query_params($this->getHandler(), $query, $parameters);
 
         try {
-            return $this->testQuery($res, $query)
+            $result = $this->testQuery($res, $query)
                 ->getQueryResult($query);
         } catch (SqlException $e) {
             throw $e->setQueryParameters($parameters);
         }
+
+        if (is_array($result)) {
+            // A parameterized query is a single statement: several results mean pending ones from a previous query.
+            throw new ConnectionException(
+                sprintf("One result was expected, %d received.\nQuery = '%s'.", count($result), $query)
+            );
+        }
+
+        return $result;
     }
 
     /**

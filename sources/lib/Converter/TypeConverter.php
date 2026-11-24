@@ -74,10 +74,19 @@ abstract class TypeConverter implements ConverterInterface
      */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
-        return
-            $data !== null
-                ? sprintf("%s", str_replace('"', '""', (string) $this->checkData($data)))
-                : null;
+        if ($data === null) {
+            return null;
+        }
+
+        $dataObject = $this->checkData($data);
+        if (!$dataObject instanceof \Stringable) {
+            throw new ConverterException(
+                sprintf("Unable to transform a '%s' instance to string.", $dataObject::class),
+                0
+            );
+        }
+
+        return str_replace('"', '""', (string) $dataObject);
     }
 
     /**

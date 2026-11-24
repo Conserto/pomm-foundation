@@ -47,4 +47,16 @@ final class QueryManagerPoolerTest extends VanillaSessionTestCase
     {
         $session->registerClientPooler(new QueryManagerPooler());
     }
+
+    /**
+     * @throws FoundationException from buildSession() / getPoolerForType()
+     */
+    public function testGetClientRejectsNonClientClass(): void
+    {
+        $pooler = $this->buildSession()->getPoolerForType('query_manager');
+
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage("Query manager 'stdClass' must implement");
+        $pooler->getClient(\stdClass::class);
+    }
 }

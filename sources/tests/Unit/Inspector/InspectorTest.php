@@ -259,4 +259,16 @@ final class InspectorTest extends FoundationSessionTestCase
     {
         return $this->getInspector()->getTableOid('inspector_test', $tableName);
     }
+
+    /**
+     * @throws FoundationException from buildSession() / getPoolerForType()
+     */
+    public function testInspectorPoolerRejectsNonClientClass(): void
+    {
+        $pooler = $this->buildSession()->getPoolerForType('inspector');
+
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage("Inspector 'stdClass' must extend");
+        $pooler->getClient(\stdClass::class);
+    }
 }

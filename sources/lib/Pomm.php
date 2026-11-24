@@ -281,6 +281,12 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
+        if (!$value instanceof VanillaSessionBuilder) {
+            throw new FoundationException(
+                sprintf("Only session builders can be added to Pomm, '%s' given.", get_debug_type($value))
+            );
+        }
+
         $this->addBuilder($offset, $value);
     }
 

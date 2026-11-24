@@ -64,6 +64,12 @@ class InspectorPooler extends ClientPooler
             );
         }
 
-        return new $identifier();
+        $inspector = new $identifier();
+
+        if (!$inspector instanceof Client) {
+            throw new FoundationException(sprintf("Inspector '%s' must extend %s.", $identifier, Client::class));
+        }
+
+        return $inspector;
     }
 }

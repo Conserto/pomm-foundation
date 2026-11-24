@@ -74,7 +74,8 @@ class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \Seeka
             $this->rowsCount = $this->result->countRows();
         }
 
-        return $this->rowsCount;
+        // pg_num_rows() is documented to return -1 on error, which a valid PgSql\Result cannot produce.
+        return max(0, $this->rowsCount);
     }
 
     /** @see \Iterator */

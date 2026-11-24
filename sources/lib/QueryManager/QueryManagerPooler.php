@@ -58,7 +58,15 @@ class QueryManagerPooler extends ClientPooler
             throw new FoundationException(sprintf("Could not load class '%s'.", $identifier), 0, $e);
         }
 
-        return new $identifier();
+        $queryManager = new $identifier();
+
+        if (!$queryManager instanceof ClientInterface) {
+            throw new FoundationException(
+                sprintf("Query manager '%s' must implement %s.", $identifier, ClientInterface::class)
+            );
+        }
+
+        return $queryManager;
     }
 
     /**
