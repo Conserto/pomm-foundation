@@ -42,7 +42,7 @@ class ClientHolder
     /** Return a client by its name or null if no client exist for that name. */
     public function get(?string $type, string $name): ?ClientInterface
     {
-        return $this->clients[$type][$name] ?? null;
+        return $this->clients[$type ?? ''][$name] ?? null;
     }
 
     /**
