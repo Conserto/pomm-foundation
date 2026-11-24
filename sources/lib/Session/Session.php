@@ -14,14 +14,29 @@ namespace PommProject\Foundation\Session;
 use PommProject\Foundation\Client\ClientHolder;
 use PommProject\Foundation\Client\ClientInterface;
 use PommProject\Foundation\Client\ClientPoolerInterface;
+use PommProject\Foundation\Converter\ConverterClient;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Inflector;
+use PommProject\Foundation\Inspector\Inspector;
+use PommProject\Foundation\Listener\Listener;
+use PommProject\Foundation\Observer\Observer;
+use PommProject\Foundation\PreparedQuery\PreparedQuery;
+use PommProject\Foundation\QueryManager\QueryManagerInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
 /**
  * Public API to share the database connection. IO are shared amongst clients which are stored in a ClientHolder.
+ *
+ * Shortcuts to the clients of the poolers registered by the default SessionBuilder, resolved by __call():
+ *
+ * @method QueryManagerInterface getQueryManager(?string $identifier = null) Default: SimpleQueryManager.
+ * @method Inspector getInspector(?string $identifier = null) Default: Inspector.
+ * @method PreparedQuery getPreparedQuery(string $sql)
+ * @method ConverterClient getConverter(string $type)
+ * @method Observer getObserver(string $channel)
+ * @method Listener getListener(string $name)
  *
  * @copyright   2014 - 2015 Grégoire HUBERT
  * @author      Grégoire HUBERT

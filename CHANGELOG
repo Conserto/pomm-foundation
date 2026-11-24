@@ -10,6 +10,7 @@
  * Rector config: drop the Symfony sets (not a Symfony package, and SymfonySetList::SYMFONY_71 no longer exists in Rector 2.8), switch to withPhpSets() (minimum PHP read from composer.json) + prepared sets (deadCode, codeQuality, typeDeclarations, rectorPreset) with name importing; remove the obsolete NewInInitializerRector skip
  * Rector pass over sources/: declare(strict_types=1) where provably safe (28 lib files, 18 test files), join() -> implode(), redundant else / sprintf('%s') removed, ??= null coalescing, strict comparisons, static:: -> self:: on final constants, redundant @param/@return tags removed, concrete test classes made final. No public or protected signature changed
  * PgBox::toPg(): document `@param string $type` locally (it relied on a parent tag that is now gone)
+ * Session: declare the __call() client shortcuts with @method (getQueryManager, getInspector, getPreparedQuery, getConverter, getObserver, getListener) so IDEs and static analysers see their precise return types; no runtime change
 
 == VERSION 4.0.5
 
