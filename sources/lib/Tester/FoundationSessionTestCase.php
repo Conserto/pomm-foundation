@@ -27,7 +27,7 @@ abstract class FoundationSessionTestCase extends VanillaSessionTestCase
     /**
      * @param array<string, mixed> $configuration
      */
-    protected function createSessionBuilder(array $configuration): SessionBuilder
+    protected function createSessionBuilder(#[\SensitiveParameter] array $configuration): SessionBuilder
     {
         return new SessionBuilder($configuration);
     }

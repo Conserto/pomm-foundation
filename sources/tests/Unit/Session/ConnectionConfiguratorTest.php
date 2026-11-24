@@ -41,6 +41,38 @@ final class ConnectionConfiguratorTest extends TestCase
         new ConnectionConfigurator($dsn);
     }
 
+    #[DataProvider('dsnLeakingPasswordProvider')]
+    public function testBadDsnMessageMasksPassword(string $dsn, string $expectedMessage): void
+    {
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessage($expectedMessage);
+        new ConnectionConfigurator($dsn);
+    }
+
+    /**
+     * @return iterable<int|string, array{0: string, 1: string}>
+     */
+    public static function dsnLeakingPasswordProvider(): iterable
+    {
+        yield 'unparseable, no @' => ['pgsql://toto:p4ssW0rD', 'Could not parse DSN "pgsql://toto:****".'];
+        yield 'unparseable, bad scheme without @' => ['abcde://user:pass/host:1234/dbname', 'Could not parse DSN "abcde://user:****".'];
+        yield 'unparseable, bad port' => [
+            'pgsql://user:p4ssW0rD@a_host:postgres/dbname',
+            'Could not parse DSN "pgsql://user:****@a_host:postgres/dbname".',
+        ];
+        yield 'unparseable, raw @ in password' => ['pgsql://user:p@ss@aHost/dbname', 'Could not parse DSN "pgsql://user:****@aHost/dbname".'];
+        yield 'unparseable, no password' => ['pgsql://user/dbname', 'Could not parse DSN "pgsql://user/dbname".'];
+        yield 'bad protocol' => [
+            'mysql://user:S3cr3t@aHost/dbname',
+            "bad protocol information 'mysql' in dsn 'mysql://user:****@aHost/dbname'. Pomm does only support 'pgsql' for now.",
+        ];
+        yield 'bad protocol, no password' => [
+            'mysql://user@aHost/dbname',
+            "bad protocol information 'mysql' in dsn 'mysql://user@aHost/dbname'. Pomm does only support 'pgsql' for now.",
+        ];
+        yield 'no scheme' => ['user:p4ssW0rD@aHost/dbname', 'Could not parse DSN "user:****@aHost/dbname".'];
+    }
+
     /**
      * @throws ConnectionException if a DSN in goodDsnProvider regresses into the parser's reject set.
      */

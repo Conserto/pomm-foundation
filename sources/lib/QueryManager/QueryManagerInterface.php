@@ -26,6 +26,7 @@ interface QueryManagerInterface
      * Perform a query and return an iterator.
      *
      * @param array<int, mixed> $parameters
+     * @return \Iterator<int, array<string, mixed>> one associative array per row.
      */
     public function query(string $sql, array $parameters = []): \Iterator;
 }

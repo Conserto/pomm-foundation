@@ -40,7 +40,7 @@ class SessionBuilder
      *
      * @param array<string, mixed> $configuration
      */
-    public function __construct(array $configuration, ?ConverterHolder $converterHolder = null)
+    public function __construct(#[\SensitiveParameter] array $configuration, ?ConverterHolder $converterHolder = null)
     {
         $this->configuration = new ParameterHolder(
             array_merge(
@@ -55,7 +55,7 @@ class SessionBuilder
     }
 
     /** Add a configuration parameter. */
-    public function addParameter(string $name, mixed $value): SessionBuilder
+    public function addParameter(string $name, #[\SensitiveParameter] mixed $value): SessionBuilder
     {
         $this->configuration->setParameter($name, $value);
 
@@ -133,7 +133,7 @@ class SessionBuilder
      *
      * @param array<string, mixed> $connectionConfiguration
      */
-    protected function createConnection(string $dsn, bool $persist, array $connectionConfiguration): Connection
+    protected function createConnection(#[\SensitiveParameter] string $dsn, bool $persist, array $connectionConfiguration): Connection
     {
         return new Connection($dsn, $persist, $connectionConfiguration);
     }

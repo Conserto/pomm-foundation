@@ -80,6 +80,31 @@ final class ConnectionTest extends TestCase
     }
 
     /**
+     * A URL-decoded password may contain spaces: the whole value must be masked in the error message.
+     *
+     * @throws FoundationException propagated from Connection's constructor
+     */
+    public function testConnectionErrorMessageMasksPassword(): void
+    {
+        // Port 1 refuses the connection; the password decodes to 'S3cr et'.
+        $connection = new Connection('pgsql://user:S3cr%20et@127.0.0.1:1/dbname', persist: true);
+
+        // pg_connect() raises a PHP warning on failure, on top of the ConnectionException under test.
+        set_error_handler(static fn (): bool => true, \E_WARNING);
+        try {
+            $connection->executeAnonymousQuery('select true');
+            self::fail('A ConnectionException was expected.');
+        } catch (ConnectionException $e) {
+            self::assertSame(
+                "Error connecting to the database with parameters 'user=user dbname=dbname host=127.0.0.1 port=1 password=xxxx'.",
+                $e->getMessage()
+            );
+        } finally {
+            restore_error_handler();
+        }
+    }
+
+    /**
      * @throws ConnectionException if the pgsql extension is missing
      * @throws FoundationException propagated from Connection's constructor
      */

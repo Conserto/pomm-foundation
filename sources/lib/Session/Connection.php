@@ -47,7 +47,7 @@ class Connection
      *
      * @param array<string, mixed> $configuration
      */
-    public function __construct(string $dsn, bool $persist = false, array $configuration = [])
+    public function __construct(#[\SensitiveParameter] string $dsn, bool $persist = false, array $configuration = [])
     {
         if (!function_exists('pg_connection_status')) {
             throw new ConnectionException(
@@ -178,7 +178,9 @@ class Connection
             throw new ConnectionException(
                 sprintf(
                     "Error connecting to the database with parameters '%s'.",
-                    preg_replace('/password=[^ ]+/', 'password=xxxx', $string)
+                    // The password is always the last parameter of the connection string and may contain
+                    // spaces once URL-decoded: mask everything after it.
+                    preg_replace('/password=.*$/s', 'password=xxxx', $string)
                 )
             );
         }
