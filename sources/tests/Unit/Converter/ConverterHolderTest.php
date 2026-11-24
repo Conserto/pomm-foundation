@@ -19,7 +19,7 @@ use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Tests\Fixture\DumbConverter;
 
 #[CoversClass(ConverterHolder::class)]
-class ConverterHolderTest extends TestCase
+final class ConverterHolderTest extends TestCase
 {
     /**
      * @throws FoundationException

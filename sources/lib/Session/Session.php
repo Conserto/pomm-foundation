@@ -59,7 +59,7 @@ class Session implements LoggerAwareInterface
     {
         $exceptions = $this->clientHolder->shutdown();
 
-        if ($this->logger !== null) {
+        if ($this->logger instanceof LoggerInterface) {
             foreach ($exceptions as $exception) {
                 $this->logger->error('Exception caught during shutdown', ['exception' => $exception]);
             }
@@ -75,7 +75,7 @@ class Session implements LoggerAwareInterface
     /** Return true if a logger is set. */
     public function hasLogger(): bool
     {
-        return $this->logger !== null;
+        return $this->logger instanceof LoggerInterface;
     }
 
     /** Return the session's stamp if any */
@@ -145,7 +145,6 @@ class Session implements LoggerAwareInterface
     /**
      * Return all instances of clients for a given type.
      *
-     * @param string $type
      * @return array<string, ClientInterface>
      */
     public function getAllClientForType(string $type): array
@@ -159,9 +158,7 @@ class Session implements LoggerAwareInterface
      * @throws FoundationException      if no poolers found
      * @throws \BadFunctionCallException if unknown method
      *
-     * @param string $method
      * @param array<int, mixed> $arguments
-     * @return ClientInterface
      */
     public function __call(string $method, array $arguments): ClientInterface
     {
@@ -171,7 +168,7 @@ class Session implements LoggerAwareInterface
 
         return $this->getClientUsingPooler(
             Inflector::underscore($matches[1]),
-            !empty($arguments) ? $arguments[0] : null
+            $arguments[0] ?? null
         );
     }
 
@@ -213,7 +210,7 @@ class Session implements LoggerAwareInterface
                 sprintf(
                     $errorMessage,
                     $type,
-                    join(', ', $this->getRegisterPoolersNames())
+                    implode(', ', $this->getRegisterPoolersNames())
                 )
             );
         }

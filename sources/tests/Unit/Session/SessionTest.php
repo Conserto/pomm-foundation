@@ -24,7 +24,7 @@ use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\VanillaSessionTestCase;
 
 #[CoversClass(Session::class)]
-class SessionTest extends VanillaSessionTestCase
+final class SessionTest extends VanillaSessionTestCase
 {
     /**
      * @throws FoundationException from buildSession()

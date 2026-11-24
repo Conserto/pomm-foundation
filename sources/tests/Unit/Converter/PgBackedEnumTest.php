@@ -21,7 +21,7 @@ use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tests\Fixture\Enum\BackedEnum;
 
 #[CoversClass(PgBackedEnum::class)]
-class PgBackedEnumTest extends BaseConverterTestCase
+final class PgBackedEnumTest extends BaseConverterTestCase
 {
     /**
      * @throws ConnectionException|FoundationException|SqlException from buildSession() / executeAnonymousQuery()

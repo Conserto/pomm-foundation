@@ -35,7 +35,7 @@ class ResultHandler
     /** Free a result from memory. */
     public function free(): ResultHandler
     {
-        if ($this->handler !== null) {
+        if ($this->handler instanceof PgSqlResult) {
             pg_free_result($this->handler);
             $this->handler = null;
         }
@@ -46,7 +46,6 @@ class ResultHandler
     /**
      * Fetch a row as associative array. Index starts from 0.
      *
-     * @param int $index
      * @return array<string, mixed>
      * @throws \OutOfBoundsException if $index out of bounds.
      */
@@ -123,7 +122,7 @@ class ResultHandler
                 sprintf(
                     "Could not find field name '%s'. Available fields are {%s}.",
                     $name,
-                    join(', ', $this->getFieldNames())
+                    implode(', ', $this->getFieldNames())
                 )
             );
         }
@@ -134,7 +133,6 @@ class ResultHandler
     /**
      * Fetch a column from a result.
      *
-     * @param string $name
      * @return array<int, mixed>
      */
     public function fetchColumn(string $name): array

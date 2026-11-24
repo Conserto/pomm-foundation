@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -17,7 +19,7 @@ use PommProject\Foundation\Converter\PgJson;
 use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgJson::class)]
-class PgJsonTest extends BaseConverterTestCase
+final class PgJsonTest extends BaseConverterTestCase
 {
     /**
      * @throws FoundationException

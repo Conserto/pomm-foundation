@@ -20,7 +20,7 @@ use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\VanillaSessionTestCase;
 
 #[CoversClass(QueryManagerPooler::class)]
-class QueryManagerPoolerTest extends VanillaSessionTestCase
+final class QueryManagerPoolerTest extends VanillaSessionTestCase
 {
     /**
      * @throws FoundationException from buildSession() / getPoolerForType() / getClient() on the happy path

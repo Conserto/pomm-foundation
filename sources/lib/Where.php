@@ -30,7 +30,6 @@ class Where implements \Stringable
     public ?string $operator = null;
 
     /**
-     * @param string|null $element
      * @param array<int, mixed> $values
      */
     public function __construct(public ?string $element = null, array $values = [])
@@ -43,9 +42,7 @@ class Where implements \Stringable
     /**
      * Create an escaped IN clause.
      *
-     * @param string $element
      * @param array<int, mixed> $values
-     * @return Where
      */
     public static function createWhereIn(string $element, array $values): Where
     {
@@ -55,10 +52,7 @@ class Where implements \Stringable
     /**
      * Create a Where instance with multiple escaped parameters. This is mainly useful for IN or NOT IN clauses.
      *
-     * @param string $element
-     * @param string $operation
      * @param array<int, mixed> $values
-     * @return Where
      */
     public static function createGroupCondition(string $element, string $operation, array $values): Where
     {
@@ -67,7 +61,7 @@ class Where implements \Stringable
                 "%s %s (%s)",
                 $element,
                 $operation,
-                join(", ", static::escapeSet($values))
+                implode(", ", static::escapeSet($values))
             ),
             static::extractValues($values)
         );
@@ -86,7 +80,7 @@ class Where implements \Stringable
         foreach ($values as $value) {
             if (is_array($value)) {
                 $escapedValues[] =
-                    sprintf("(%s)", join(', ', static::escapeSet($value)));
+                    sprintf("(%s)", implode(', ', static::escapeSet($value)));
             } else {
                 $escapedValues[] = '$*';
             }
@@ -114,9 +108,7 @@ class Where implements \Stringable
     /**
      * Create an escaped NOT IN clause.
      *
-     * @param string $element
      * @param array<int, mixed> $values
-     * @return Where
      */
     public static function createWhereNotIn(string $element, array $values): Where
     {
@@ -127,7 +119,6 @@ class Where implements \Stringable
      * Or use a ready to use AND where clause.
      *
      * @param array<int, mixed> $values
-     * @return Where
      */
     public function andWhere(mixed $element, array $values = []): Where
     {
@@ -138,8 +129,6 @@ class Where implements \Stringable
      * You can add a new WHERE clause with your own operator.
      *
      * @param array<int, mixed> $values
-     * @param string $operator
-     * @return Where
      */
     public function addWhere(mixed $element, array $values, string $operator): Where
     {
@@ -182,7 +171,7 @@ class Where implements \Stringable
     /** is it a fresh brand new object ? */
     public function isEmpty(): bool
     {
-        return $this->element === null && count($this->stack) == 0;
+        return $this->element === null && count($this->stack) === 0;
     }
 
     /** Absorbing another Where instance. */
@@ -217,7 +206,6 @@ class Where implements \Stringable
 
     /**
      * @param array<int, Where> $stack
-     * @return Where
      */
     public function setStack(array $stack): Where
     {
@@ -229,9 +217,7 @@ class Where implements \Stringable
     /**
      * A constructor you can chain from.
      *
-     * @param string|null $element
      * @param array<int, mixed> $values
-     * @return Where
      */
     public static function create(?string $element = null, array $values = []): Where
     {
@@ -242,7 +228,6 @@ class Where implements \Stringable
      * orWhere
      *
      * @param array<int, mixed> $values
-     * @return Where
      */
     public function orWhere(mixed $element, array $values = []): Where
     {
@@ -263,7 +248,7 @@ class Where implements \Stringable
 
         $stack = array_map(fn (Where $where): string => $where->parse(), $this->stack);
 
-        return sprintf('(%s)', join(sprintf(' %s ', $this->operator), $stack));
+        return sprintf('(%s)', implode(sprintf(' %s ', $this->operator), $stack));
     }
 
     /**

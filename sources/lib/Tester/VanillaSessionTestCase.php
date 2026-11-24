@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -37,7 +39,7 @@ abstract class VanillaSessionTestCase extends TestCase
 
     private function getSessionBuilder(): SessionBuilder
     {
-        if ($this->sessionBuilder === null) {
+        if (!$this->sessionBuilder instanceof SessionBuilder) {
             // connection:persist => true forces pg_connect(..., FORCE_NEW) so every test
             // gets its own backend; without this the shared pg_pconnect pool leaks prepared
             // statements across tests since PHPUnit keeps the process alive.

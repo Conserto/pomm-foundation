@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PommProject\Foundation\PreparedQuery;
 
 enum PreparationEnum: string

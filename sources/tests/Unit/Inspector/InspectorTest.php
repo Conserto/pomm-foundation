@@ -23,7 +23,7 @@ use PommProject\Foundation\Tester\FoundationSessionTestCase;
 use PommProject\Foundation\Tests\Fixture\InspectorFixture;
 
 #[CoversClass(Inspector::class)]
-class InspectorTest extends FoundationSessionTestCase
+final class InspectorTest extends FoundationSessionTestCase
 {
     private ?Session $session = null;
 
@@ -224,9 +224,7 @@ class InspectorTest extends FoundationSessionTestCase
      */
     private function getSession(): Session
     {
-        if ($this->session === null) {
-            $this->session = $this->buildSession();
-        }
+        $this->session ??= $this->buildSession();
 
         return $this->session;
     }

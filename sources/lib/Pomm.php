@@ -16,6 +16,7 @@ use PommProject\Foundation\Session\Session as BaseSession;
 use PommProject\Foundation\Session\SessionBuilder as VanillaSessionBuilder;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 
 /**
  * The Pomm service manager.
@@ -225,7 +226,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
             $callable($session);
         }
 
-        if ($this->logger !== null) {
+        if ($this->logger instanceof LoggerInterface) {
             $session->setLogger($this->logger);
         }
 
@@ -306,10 +307,10 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
      */
     public function shutdown(array $sessionNames = []): Pomm
     {
-        if (empty($sessionNames)) {
+        if ($sessionNames === []) {
             $sessions = array_keys($this->sessions);
         } else {
-            array_map([$this, 'builderMustExist'], $sessionNames);
+            array_map($this->builderMustExist(...), $sessionNames);
             $sessions = array_intersect(array_keys($this->sessions), $sessionNames);
         }
 
@@ -333,7 +334,7 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
                 sprintf(
                     "No such builder '%s'. Available builders are {%s}.",
                     $name,
-                    join(
+                    implode(
                         ', ',
                         array_map(
                             fn (string $val): string => sprintf("'%s'", $val),

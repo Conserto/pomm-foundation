@@ -20,7 +20,7 @@ use PommProject\Foundation\Tests\Fixture\Enum\IntBackedEnum;
 use PommProject\Foundation\Tests\Fixture\Enum\UnitEnum;
 
 #[CoversClass(PgString::class)]
-class PgStringTest extends BaseConverterTestCase
+final class PgStringTest extends BaseConverterTestCase
 {
     /**
      * @throws FoundationException

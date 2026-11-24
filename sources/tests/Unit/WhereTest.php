@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the PommProject's Foundation package.
  *
@@ -20,7 +22,7 @@ use PommProject\Foundation\Tests\Fixture\Enum\UnitEnum as TestUnitEnum;
 use PommProject\Foundation\Where;
 
 #[CoversClass(Where::class)]
-class WhereTest extends TestCase
+final class WhereTest extends TestCase
 {
     public function testCreate(): void
     {

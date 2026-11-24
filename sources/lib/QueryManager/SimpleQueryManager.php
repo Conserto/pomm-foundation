@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -34,7 +36,6 @@ class SimpleQueryManager extends QueryManagerClient
      *
      * @throws FoundationException
      *
-     * @param string $sql
      * @param array<int, mixed> $parameters
      * @return ConvertedResultIterator<array<string, mixed>>
      */
@@ -75,7 +76,6 @@ class SimpleQueryManager extends QueryManagerClient
      * without payoff. Repeated queries should go through PreparedQuery.
      *
      * @throws FoundationException
-     * @param string $sql
      * @param array<int, mixed> $parameters
      * @return array<int, string>
      */
@@ -103,9 +103,7 @@ class SimpleQueryManager extends QueryManagerClient
      * Perform the query
      *
      * @throws FoundationException
-     * @param string $sql
      * @param array<int, string> $parameters
-     * @return ResultHandler
      */
     protected function doQuery(string $sql, array $parameters): ResultHandler
     {

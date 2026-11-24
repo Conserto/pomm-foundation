@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -163,7 +165,6 @@ class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \Seeka
     /**
      * Extract an array of values for one column.
      *
-     * @param string $field
      * @return array<int, mixed>
      */
     public function slice(string $field): array

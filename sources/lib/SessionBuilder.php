@@ -14,6 +14,20 @@ namespace PommProject\Foundation;
 use PommProject\Foundation\Client\ClientHolder;
 use PommProject\Foundation\Converter\ConverterHolder;
 use PommProject\Foundation\Converter\ConverterPooler;
+use PommProject\Foundation\Converter\Geometry\PgBox;
+use PommProject\Foundation\Converter\Geometry\PgCircle;
+use PommProject\Foundation\Converter\Geometry\PgPoint;
+use PommProject\Foundation\Converter\PgArray;
+use PommProject\Foundation\Converter\PgBoolean;
+use PommProject\Foundation\Converter\PgBytea;
+use PommProject\Foundation\Converter\PgFloat;
+use PommProject\Foundation\Converter\PgInteger;
+use PommProject\Foundation\Converter\PgInterval;
+use PommProject\Foundation\Converter\PgJson;
+use PommProject\Foundation\Converter\PgNumRange;
+use PommProject\Foundation\Converter\PgString;
+use PommProject\Foundation\Converter\PgTimestamp;
+use PommProject\Foundation\Converter\PgTsRange;
 use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Inspector\InspectorPooler;
 use PommProject\Foundation\Listener\ListenerPooler;
@@ -66,10 +80,10 @@ class SessionBuilder extends VanillaSessionBuilder
     protected function initializeConverterHolder(ConverterHolder $converterHolder): SessionBuilder
     {
         $converterHolder
-            ->registerConverter('Array', new Converter\PgArray(), ['array'], false)
+            ->registerConverter('Array', new PgArray(), ['array'], false)
             ->registerConverter(
                 'Boolean',
-                new Converter\PgBoolean(),
+                new PgBoolean(),
                 [
                     'bool',
                     'pg_catalog.bool',
@@ -79,7 +93,7 @@ class SessionBuilder extends VanillaSessionBuilder
             )
             ->registerConverter(
                 'Integer',
-                new Converter\PgInteger(),
+                new PgInteger(),
                 [
                 'int2', 'pg_catalog.int2',
                 'int4', 'pg_catalog.int4', 'int', 'integer',
@@ -90,7 +104,7 @@ class SessionBuilder extends VanillaSessionBuilder
             )
             ->registerConverter(
                 'Float',
-                new Converter\PgFloat(),
+                new PgFloat(),
                 [
                     'numeric', 'pg_catalog.numeric',
                     'float4', 'pg_catalog.float4', 'float',
@@ -100,7 +114,7 @@ class SessionBuilder extends VanillaSessionBuilder
             )
             ->registerConverter(
                 'String',
-                new Converter\PgString(),
+                new PgString(),
                 [
                     'varchar', 'pg_catalog.varchar',
                     'char', 'pg_catalog.char',
@@ -130,7 +144,7 @@ class SessionBuilder extends VanillaSessionBuilder
             )
             ->registerConverter(
                 'Timestamp',
-                new Converter\PgTimestamp(),
+                new PgTimestamp(),
                 [
                     'timestamp', 'pg_catalog.timestamp',
                     'date', 'pg_catalog.date',
@@ -139,14 +153,14 @@ class SessionBuilder extends VanillaSessionBuilder
                 ],
                 false
             )
-            ->registerConverter('Interval', new Converter\PgInterval(), ['interval', 'pg_catalog.interval'], false)
-            ->registerConverter('Binary', new Converter\PgBytea(), ['bytea', 'pg_catalog.bytea'], false)
-            ->registerConverter('Point', new Converter\Geometry\PgPoint(), ['point', 'pg_catalog.point'], false)
-            ->registerConverter('Circle', new Converter\Geometry\PgCircle(), ['circle', 'pg_catalog.circle'], false)
-            ->registerConverter('Box', new Converter\Geometry\PgBox(), ['box', 'pg_catalog.box'], false)
+            ->registerConverter('Interval', new PgInterval(), ['interval', 'pg_catalog.interval'], false)
+            ->registerConverter('Binary', new PgBytea(), ['bytea', 'pg_catalog.bytea'], false)
+            ->registerConverter('Point', new PgPoint(), ['point', 'pg_catalog.point'], false)
+            ->registerConverter('Circle', new PgCircle(), ['circle', 'pg_catalog.circle'], false)
+            ->registerConverter('Box', new PgBox(), ['box', 'pg_catalog.box'], false)
             ->registerConverter(
                 'JSON',
-                new Converter\PgJson(),
+                new PgJson(),
                 [
                     'json',
                     'jsonb',
@@ -157,7 +171,7 @@ class SessionBuilder extends VanillaSessionBuilder
             )
             ->registerConverter(
                 'NumberRange',
-                new Converter\PgNumRange(),
+                new PgNumRange(),
                 [
                     'int4range', 'pg_catalog.int4range',
                     'int8range', 'pg_catalog.int8range',
@@ -167,7 +181,7 @@ class SessionBuilder extends VanillaSessionBuilder
             )
             ->registerConverter(
                 'TsRange',
-                new Converter\PgTsRange(),
+                new PgTsRange(),
                 [
                     'tsrange',
                     'pg_catalog.tsrange',

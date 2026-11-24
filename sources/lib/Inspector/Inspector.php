@@ -136,9 +136,7 @@ class Inspector extends Client
     /**
      * Return the given schema oid, null if the schema is not found.
      *
-     * @param string $schema
      * @param Where|null $where optional where clause.
-     * @return int|null
      * @throws FoundationException
      */
     public function getSchemaOid(string $schema, ?Where $where = null): ?int
@@ -166,7 +164,6 @@ class Inspector extends Client
      *
      * @throws FoundationException
      *
-     * @param int $tableOid
      * @return array<int, string>
      */
     public function getPrimaryKey(int $tableOid): array
@@ -380,8 +377,6 @@ class Inspector extends Client
      *
      * @throws FoundationException
      *
-     * @param Where|null $condition
-     * @param string $sql
      * @return ConvertedResultIterator<mixed>
      */
     protected function executeSql(string $sql, ?Where $condition = null): ConvertedResultIterator

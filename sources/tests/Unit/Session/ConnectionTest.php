@@ -21,7 +21,7 @@ use PommProject\Foundation\Session\Connection;
 use PommProject\Foundation\Session\ResultHandler;
 
 #[CoversClass(Connection::class)]
-class ConnectionTest extends TestCase
+final class ConnectionTest extends TestCase
 {
     /**
      * @throws ConnectionException from getConnection()

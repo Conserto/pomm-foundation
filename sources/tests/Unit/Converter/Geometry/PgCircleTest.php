@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PommProject's Foundation package.
  *
@@ -21,7 +23,7 @@ use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Tests\Unit\Converter\BaseConverterTestCase;
 
 #[CoversClass(PgCircle::class)]
-class PgCircleTest extends BaseConverterTestCase
+final class PgCircleTest extends BaseConverterTestCase
 {
     /**
      * @throws FoundationException

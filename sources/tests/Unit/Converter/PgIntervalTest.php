@@ -18,7 +18,7 @@ use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgInterval::class)]
-class PgIntervalTest extends BaseConverterTestCase
+final class PgIntervalTest extends BaseConverterTestCase
 {
     /**
      * @throws FoundationException

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PommProject's Foundation package.
  *
@@ -20,7 +22,7 @@ use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Tests\Unit\Converter\BaseConverterTestCase;
 
 #[CoversClass(PgBox::class)]
-class PgBoxTest extends BaseConverterTestCase
+final class PgBoxTest extends BaseConverterTestCase
 {
     /**
      * @throws FoundationException

@@ -94,7 +94,6 @@ class PreparedQuery extends Client
      * Launch the query with the given parameters.
      *
      * @param array<int, mixed> $values Query parameters
-     * @return ResultHandler
      * @throws ConnectionException|FoundationException|SqlException
      */
     public function execute(array $values = []): ResultHandler

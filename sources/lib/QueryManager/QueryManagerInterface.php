@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -23,9 +25,7 @@ interface QueryManagerInterface
     /**
      * Perform a query and return an iterator.
      *
-     * @param string $sql
      * @param array<int, mixed> $parameters
-     * @return \Iterator
      */
     public function query(string $sql, array $parameters = []): \Iterator;
 }

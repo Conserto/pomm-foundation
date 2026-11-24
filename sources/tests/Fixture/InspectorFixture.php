@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -61,7 +63,7 @@ class InspectorFixture extends Client
             "comment on column inspector_test.with_complex_pk.with_complex_pk_id is 'Test comment'",
             "commit",
         ];
-        $this->executeAnonymousQuery(join('; ', $sql));
+        $this->executeAnonymousQuery(implode('; ', $sql));
     }
 
     /**

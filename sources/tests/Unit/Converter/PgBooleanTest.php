@@ -19,7 +19,7 @@ use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgBoolean::class)]
-class PgBooleanTest extends BaseConverterTestCase
+final class PgBooleanTest extends BaseConverterTestCase
 {
     /**
      * @throws FoundationException from buildSession() / PgBoolean::fromPg()

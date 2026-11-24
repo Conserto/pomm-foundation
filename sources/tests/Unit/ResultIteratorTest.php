@@ -22,7 +22,7 @@ use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\VanillaSessionTestCase;
 
 #[CoversClass(ResultIterator::class)]
-class ResultIteratorTest extends VanillaSessionTestCase
+final class ResultIteratorTest extends VanillaSessionTestCase
 {
     /**
      * @throws ConnectionException|FoundationException|SqlException from getResultResource()

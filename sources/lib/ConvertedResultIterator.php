@@ -46,7 +46,6 @@ class ConvertedResultIterator extends ResultIterator
      * Return a particular result. An array with converted values is returned.
      * pg_fetch_array is muted because it produces untrappable warnings on errors.
      *
-     * @param  integer $index
      * @return array<string, mixed>
      */
     public function get(int $index): array
@@ -65,9 +64,7 @@ class ConvertedResultIterator extends ResultIterator
         foreach ($this->result->getFieldNames() as $name) {
             $type = $this->result->getFieldType($name);
 
-            if ($type === null) {
-                $type = 'text';
-            }
+            $type ??= 'text';
 
             $this->types[$name] = $type;
 

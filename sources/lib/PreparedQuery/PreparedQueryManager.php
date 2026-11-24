@@ -29,7 +29,6 @@ class PreparedQueryManager extends QueryManagerClient
      * @throws FoundationException
      * @see QueryManagerInterface
      *
-     * @param string $sql
      * @param array<int, mixed> $parameters
      * @return ConvertedResultIterator<array<string, mixed>>
      */

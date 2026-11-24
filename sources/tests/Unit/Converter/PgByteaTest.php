@@ -17,7 +17,7 @@ use PommProject\Foundation\Converter\PgBytea;
 use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgBytea::class)]
-class PgByteaTest extends BaseConverterTestCase
+final class PgByteaTest extends BaseConverterTestCase
 {
     private const string HEX = '\x001b5c27200d';
 

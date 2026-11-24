@@ -21,7 +21,7 @@ use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\FoundationSessionTestCase;
 
 #[CoversClass(Pager::class)]
-class PagerTest extends FoundationSessionTestCase
+final class PagerTest extends FoundationSessionTestCase
 {
     /**
      * @throws FoundationException from buildSession() / QueryManager::query()

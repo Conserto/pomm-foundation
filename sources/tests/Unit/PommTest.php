@@ -23,7 +23,7 @@ use PommProject\Foundation\Tests\Fixture\PommTestSessionBuilder;
 use PommProject\Foundation\Tests\Unit\Session\ConnectionConfiguratorTest;
 
 #[CoversClass(Pomm::class)]
-class PommTest extends TestCase
+final class PommTest extends TestCase
 {
     /**
      * @throws FoundationException from Pomm::__construct on the bad-class arm

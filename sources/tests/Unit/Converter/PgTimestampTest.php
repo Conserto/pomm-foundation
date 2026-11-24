@@ -17,7 +17,7 @@ use PommProject\Foundation\Converter\PgTimestamp;
 use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgTimestamp::class)]
-class PgTimestampTest extends BaseConverterTestCase
+final class PgTimestampTest extends BaseConverterTestCase
 {
     private const string PG_TS = '2014-09-27 18:51:35.678406+00';
     private const string PG_STANDARD = '2014-09-27 18:51:35.678406+00:00';

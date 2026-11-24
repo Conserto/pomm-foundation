@@ -32,11 +32,7 @@ class ConverterHolder
      * Declare a converter and assign types to it.
      *
      * @throws ConverterException
-     * @param ConverterInterface $converter
      * @param array<int, string> $types
-     * @param bool $strict
-     * @return ConverterHolder
-     * @param string $name
      */
     public function registerConverter(
         string $name,
@@ -66,7 +62,7 @@ class ConverterHolder
                 sprintf(
                     "A converter named '%s' already exists. (Known converters are {%s}).",
                     $name,
-                    join(', ', $this->getConverterNames())
+                    implode(', ', $this->getConverterNames())
                 )
             );
         }
@@ -111,7 +107,7 @@ class ConverterHolder
                 sprintf(
                     "No such converter name '%s'. Registered converters are {%s}.",
                     $name,
-                    join(', ', $this->getConverterNames())
+                    implode(', ', $this->getConverterNames())
                 )
             );
         }
@@ -133,7 +129,7 @@ class ConverterHolder
                 sprintf(
                     "No converters associated with type '%s'. Handled types are {%s}.",
                     $type,
-                    join(', ', $this->getTypes())
+                    implode(', ', $this->getTypes())
                 )
             );
         }

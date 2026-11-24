@@ -25,7 +25,7 @@ use PommProject\Foundation\Tests\Fixture\Enum\IntBackedEnum;
 use PommProject\Foundation\Tests\Fixture\Enum\UnitEnum as TestUnitEnum;
 
 #[CoversClass(PreparedQuery::class)]
-class PreparedQueryTest extends FoundationSessionTestCase
+final class PreparedQueryTest extends FoundationSessionTestCase
 {
     /**
      * @throws FoundationException from the happy-path PreparedQuery::__construct call

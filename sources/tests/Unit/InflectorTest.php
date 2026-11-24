@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -18,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 use PommProject\Foundation\Inflector;
 
 #[CoversClass(Inflector::class)]
-class InflectorTest extends TestCase
+final class InflectorTest extends TestCase
 {
     #[TestWith([null, null])]
     #[TestWith(['', ''])]

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Pomm package.
  *
@@ -51,7 +53,7 @@ class PgLtree extends ArrayTypeConverter
     {
         return
             $data !== null
-            ? sprintf("ltree '%s'", join('.', $this->checkArray($data)))
+            ? sprintf("ltree '%s'", implode('.', $this->checkArray($data)))
             : sprintf("NULL::%s", $type);
     }
 
@@ -62,6 +64,6 @@ class PgLtree extends ArrayTypeConverter
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
         return
-            $data !== null ? sprintf("%s", join('.', $this->checkArray($data))) : null;
+            $data !== null ? implode('.', $this->checkArray($data)) : null;
     }
 }

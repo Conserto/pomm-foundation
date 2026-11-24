@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PommProject's Foundation package.
  *
@@ -26,7 +28,6 @@ class Circle implements \Stringable
     /**
      * Create a circle from a description string.
      *
-     * @param  string $description
      * @throws \InvalidArgumentException
      */
     public function __construct(string $description)

@@ -2,28 +2,31 @@
 
 declare(strict_types=1);
 
+use Rector\CodeQuality\Rector\ClassMethod\LocallyCalledStaticMethodToNonStaticRector;
 use Rector\Config\RectorConfig;
-use Rector\Php81\Rector\ClassMethod\NewInInitializerRector;
-use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
-use Rector\Set\ValueObject\LevelSetList;
-use Rector\Set\ValueObject\SetList;
-use Rector\Symfony\Set\SymfonySetList;
-use Rector\ValueObject\PhpVersion;
+use Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnTagRector;
 
 return RectorConfig::configure()
-    ->withPhpVersion(PhpVersion::PHP_84)
     ->withPaths([__DIR__ . '/sources'])
-    ->withSets([
-        SetList::TYPE_DECLARATION,
-        LevelSetList::UP_TO_PHP_84,
-        SymfonySetList::SYMFONY_71,
-        SymfonySetList::SYMFONY_CODE_QUALITY,
-        SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
-    ])
+    // No argument: Rector reads the minimum supported version from composer.json "require.php".
+    // Sets must follow the minimum, not the newest PHP, so no rule produces syntax it cannot parse.
+    ->withPhpSets()
+    ->withPreparedSets(
+        deadCode: true,
+        codeQuality: true,
+        typeDeclarations: true,
+        rectorPreset: true,
+    )
+    ->withImportNames(importShortClasses: false, removeUnusedImports: true)
     ->withSkip([
-        AddOverrideAttributeToOverriddenMethodsRector::class,
-        // Session::__construct previously coerced a null $clientHolder to a fresh instance
-        // inside the body; moving the default into the signature would break callers that
-        // explicitly pass null. Keep the existing behaviour.
-        NewInInitializerRector::class,
+        // `@return $this` documents a fluent contract the native return type cannot express
+        // without a BC break (switching to `static` would reject existing overrides).
+        RemoveUselessReturnTagRector::class => [
+            __DIR__ . '/sources/lib/ParameterHolder.php',
+            __DIR__ . '/sources/lib/Pomm.php',
+        ],
+        // Custom assert* helpers in tests stay static, like PHPUnit's own assertions.
+        LocallyCalledStaticMethodToNonStaticRector::class => [
+            __DIR__ . '/sources/tests',
+        ],
     ]);

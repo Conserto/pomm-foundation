@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -18,7 +20,7 @@ use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\ParameterHolder;
 
 #[CoversClass(ParameterHolder::class)]
-class ParameterHolderTest extends TestCase
+final class ParameterHolderTest extends TestCase
 {
     public function testConstructorEmpty(): void
     {
