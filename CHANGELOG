@@ -20,6 +20,7 @@
  * PHPStan level 7 groundwork, same behaviour: class existence checks in Pomm and the Inspector / QueryManager poolers raise the same ReflectionException as before without going through ReflectionClass; ListenerPooler client name split, Connection::getNotification() array, ResultHandler::getTypeOid() int conversion and PgHstore::buildArray() docblock made explicit
  * Error paths that ended in a PHP TypeError/Error now behave explicitly: SqlException::getSQLErrorState() / getSQLErrorSeverity() / getSqlErrorMessage() return '' when the field is unavailable; Connection::escapeIdentifier() / escapeLiteral() throw a ConnectionException when PostgreSQL cannot escape the value (e.g. invalid UTF-8); Connection::sendQueryWithParameters() throws a ConnectionException when pending results make it receive several; PgBox / TypeConverter throw a ConverterException for a non Stringable type; the Inspector / QueryManager poolers and Pomm::offsetSet() throw a FoundationException for a class or value of the wrong type. ResultIterator::count() never returns a negative count. No signature change
  * PHPStan: raise the analysis level from 6 to 7 (sources/lib is clean at level 7)
+ * SqlException: declare(strict_types=1) (Rector proves it safe now that its accessors convert explicitly: every call made from the file already receives exactly typed values); a test now exercises every accessor on a real server error
 
 == VERSION 4.0.5
 

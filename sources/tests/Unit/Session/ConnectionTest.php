@@ -80,6 +80,29 @@ final class ConnectionTest extends TestCase
     }
 
     /**
+     * Every SqlException accessor, on a real server error (the file declares strict_types).
+     *
+     * @throws ConnectionException from getConnection()
+     * @throws FoundationException propagated from Connection's constructor
+     */
+    public function testSqlExceptionAccessors(): void
+    {
+        try {
+            $this->getConnection()->executeAnonymousQuery('select 1 from no_such_table_for_sql_exception');
+            self::fail('Expected SqlException was not thrown.');
+        } catch (SqlException $e) {
+            self::assertSame(SqlException::UNDEFINED_TABLE, $e->getSQLErrorState());
+            self::assertSame('ERROR', $e->getSQLErrorSeverity());
+            self::assertStringContainsString('no_such_table_for_sql_exception', $e->getSqlErrorMessage(true));
+            self::assertStringContainsString('no_such_table_for_sql_exception', $e->getSqlErrorMessage());
+            self::assertStringContainsString('no_such_table_for_sql_exception', $e->getSQLDetailedErrorMessage());
+            self::assertSame('select 1 from no_such_table_for_sql_exception', $e->getQuery());
+            self::assertSame([], $e->getQueryParameters());
+            self::assertSame(['x'], $e->setQueryParameters(['x'])->getQueryParameters());
+        }
+    }
+
+    /**
      * A URL-decoded password may contain spaces: the whole value must be masked in the error message.
      *
      * @throws FoundationException propagated from Connection's constructor
