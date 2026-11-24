@@ -101,4 +101,24 @@ final class PgFloatTest extends BaseConverterTestCase
             );
         }
     }
+
+    /**
+     * PostgreSQL's special values used to be read as 0.0.
+     *
+     * @throws FoundationException
+     */
+    public function testSpecialValuesFromPostgres(): void
+    {
+        $session = $this->buildSession();
+        $converter = new PgFloat();
+
+        foreach (['float8', 'numeric'] as $type) {
+            self::assertNan($converter->fromPg('NaN', $type, $session));
+            self::assertSame(\INF, $converter->fromPg('Infinity', $type, $session));
+            self::assertSame(-\INF, $converter->fromPg('-Infinity', $type, $session));
+            self::assertNan($this->sendToPostgres(\NAN, $type, $session));
+            self::assertSame(\INF, $this->sendToPostgres(\INF, $type, $session));
+            self::assertSame(-\INF, $this->sendToPostgres(-\INF, $type, $session));
+        }
+    }
 }

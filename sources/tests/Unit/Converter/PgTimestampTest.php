@@ -14,6 +14,7 @@ namespace PommProject\Foundation\Tests\Unit\Converter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\PgTimestamp;
+use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgTimestamp::class)]
@@ -83,5 +84,19 @@ final class PgTimestampTest extends BaseConverterTestCase
         $roundTripImmutable = $this->sendToPostgres($dateTimeImmutable, 'timestamptz', $session);
         self::assertInstanceOf(\DateTime::class, $roundTripImmutable);
         self::assertEquals($dateTimeImmutable, $roundTripImmutable);
+    }
+
+    /**
+     * 'infinity' has no DateTime equivalent: a ConverterException instead of PHP's DateMalformedStringException.
+     *
+     * @throws FoundationException
+     */
+    public function testInfinityFromPostgres(): void
+    {
+        $session = $this->buildSession();
+
+        $this->expectException(ConverterException::class);
+        $this->expectExceptionMessage("Cannot convert PostgreSQL value 'infinity' to a DateTime.");
+        $session->getQueryManager()->query("select 'infinity'::timestamp as v")->current();
     }
 }

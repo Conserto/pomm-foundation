@@ -37,11 +37,26 @@ class PgInterval implements ConverterInterface
             return null;
         }
 
+        $iso = (string) preg_replace('/\.[0-9]+S/', 'S', $data);
+
+        // PostgreSQL signs each negative component (P-1Y-2DT-3H); a DateInterval can only be negative as a whole.
+        preg_match_all('/(-?)[0-9]+[YMWDHS]/', $iso, $components);
+        $negative = count(array_filter($components[1], static fn (string $sign): bool => $sign === '-'));
+        if ($negative > 0 && $negative < count($components[1])) {
+            throw new ConverterException(sprintf(
+                "Interval '%s' mixes positive and negative components, which a DateInterval cannot represent.",
+                $data
+            ));
+        }
+
         try {
-            return new \DateInterval((string) preg_replace('/\.[0-9]+S/', 'S', $data));
+            $interval = new \DateInterval($negative > 0 ? str_replace('-', '', $iso) : $iso);
         } catch (\Exception $e) {
             throw new ConverterException(sprintf("Data '%s' is not an ISO8601 interval representation.", $data), 0, $e);
         }
+        $interval->invert = $negative > 0 ? 1 : 0;
+
+        return $interval;
     }
 
     /**
@@ -51,7 +66,7 @@ class PgInterval implements ConverterInterface
     public function toPg(mixed $data, string $type, Session $session): string
     {
         return $data !== null
-            ? sprintf("%s '%s'", $type, $this->checkData($data)->format('%Y years %M months %D days %H:%i:%S'))
+            ? sprintf("%s '%s'", $type, $this->toPostgresInterval($this->checkData($data)))
             : sprintf("NULL::%s", $type);
     }
 
@@ -62,7 +77,7 @@ class PgInterval implements ConverterInterface
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
         return $data !== null
-            ? sprintf('"%s"', $this->checkData($data)->format('%Y years %M months %D days %H:%i:%S'))
+            ? sprintf('"%s"', $this->toPostgresInterval($this->checkData($data)))
             : null;
     }
 
@@ -90,5 +105,11 @@ class PgInterval implements ConverterInterface
         }
 
         return $data;
+    }
+
+    /** Negative intervals (invert) used to be written as positive: 'ago' negates the whole interval. */
+    private function toPostgresInterval(\DateInterval $interval): string
+    {
+        return $interval->format('%Y years %M months %D days %H:%i:%S') . ($interval->invert === 1 ? ' ago' : '');
     }
 }

@@ -40,7 +40,16 @@ class PgTimestamp implements ConverterInterface
         }
         $data = trim($data);
 
-        return $data !== '' ? new \DateTime($data) : null;
+        if ($data === '') {
+            return null;
+        }
+
+        try {
+            return new \DateTime($data);
+        } catch (\Exception $e) {
+            // e.g. 'infinity' / '-infinity', which a DateTime cannot hold.
+            throw new ConverterException(sprintf("Cannot convert PostgreSQL value '%s' to a DateTime.", $data), 0, $e);
+        }
     }
 
     /**

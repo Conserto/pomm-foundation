@@ -38,7 +38,13 @@ class PgFloat implements ConverterInterface
             return null;
         }
 
-        return (float) $data;
+        // A (float) cast turns PostgreSQL's special values into 0.0.
+        return match ($data) {
+            'NaN' => \NAN,
+            'Infinity' => \INF,
+            '-Infinity' => -\INF,
+            default => (float) $data,
+        };
     }
 
     /**
@@ -47,7 +53,7 @@ class PgFloat implements ConverterInterface
      */
     public function toPg(mixed $data, string $type, Session $session): string
     {
-        $data = $this->unwrapEnum($data, $type);
+        $data = $this->specialValue($this->unwrapEnum($data, $type));
 
         // @phpstan-ignore argument.type (sprintf() formats any user value, as it always did)
         return $data !== null ? sprintf("%s '%s'", $type, $data) : sprintf("NULL::%s", $type);
@@ -59,7 +65,7 @@ class PgFloat implements ConverterInterface
      */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
-        $data = $this->unwrapEnum($data, $type);
+        $data = $this->specialValue($this->unwrapEnum($data, $type));
 
         // @phpstan-ignore argument.type (sprintf() formats any user value, as it always did)
         return $data !== null ? sprintf('%s', $data) : null;
@@ -68,5 +74,19 @@ class PgFloat implements ConverterInterface
     protected function acceptsEnum(\UnitEnum $enum): bool
     {
         return $enum instanceof \BackedEnum && is_numeric($enum->value);
+    }
+
+    /**
+     * NAN / INF / -INF written with PostgreSQL's spelling: sprintf() gave NAN / INF / -INF, which PostgreSQL accepts
+     * too, but PHP 8.6 warns when it converts NAN to a string. Any other value is returned unchanged.
+     */
+    private function specialValue(mixed $data): mixed
+    {
+        return match (true) {
+            !is_float($data) || is_finite($data) => $data,
+            is_nan($data) => 'NaN',
+            $data > 0 => 'Infinity',
+            default => '-Infinity',
+        };
     }
 }

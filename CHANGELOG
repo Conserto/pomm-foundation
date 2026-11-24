@@ -36,6 +36,9 @@
  * ParameterHolder: new typed accessors getString() / getBool() / getArray(). Scalars are converted exactly as PHP's coercive mode converts them; anything else raises a FoundationException naming the setting. SessionBuilder and ConnectionConfigurator use them instead of their own private copies (ConnectionConfigurator therefore raises a FoundationException, the parent of ConnectionException, for an invalid internal setting — a case that used to be a TypeError)
  * Simplifications without behaviour change: shared conversion-or-exception helpers in the internal StringCoercion, a shared internal class existence check (Pomm, Inspector / QueryManager poolers), PgHstore::escape() dead addslashes() branch removed (values were always quoted), ResultIterator::count() caches an empty result too
  * ConverterClient::toPgStandardFormat() return type widened from string to ?string: null when the wrapped converter has no standard format for the value (null for a null value with Foundation's converters), instead of a TypeError. Overrides typed `string` remain valid. SimpleQueryManager no longer needs its null special case
+ * Fix PgFloat (float4/float8/numeric) reading PostgreSQL's NaN / Infinity / -Infinity as 0.0: they are now NAN / INF / -INF; writing them uses PostgreSQL's spelling (no PHP 8.6 "NAN coerced to string" warning)
+ * Fix negative intervals: PgInterval could not read them (PostgreSQL's P-1D…), they are now read as inverted DateIntervals; and inverted DateIntervals (e.g. from DateTime::diff()) were written as positive, they are now written negated ('… ago'). Intervals mixing positive and negative components still raise a ConverterException, with an explicit message
+ * PgTimestamp: a value DateTime cannot hold (e.g. 'infinity') raises a ConverterException instead of PHP's DateMalformedStringException
 
 == VERSION 4.0.5
 
