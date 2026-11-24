@@ -4,6 +4,9 @@
  * BC BREAK — Rename the autoload-dev PSR-4 prefix `PommProject\Foundation\Test\` to `PommProject\Foundation\Tests\` to match the `sources/tests/` directory (PSR-4 compliance). Only affects code inside this package's own test tree.
  * The new `*TestCase` helpers force `connection:persist => true` so each `buildSession()` call opens a fresh `pg_connect(..., FORCE_NEW)` backend. Without this, PHPUnit's single-process execution would leak prepared statements across tests through `pg_pconnect`'s pooled connection.
  * Test assertions are now strict (`assertSame` by default); `assertEquals` is reserved for value equality on `DateTime` / `DateInterval` instances. The migration also introduces `#[DataProvider]` / `#[TestWith]` attributes to consolidate repetitive table-driven tests (Inflector, PgBoolean, PgInteger, PgFloat, Pager, PgNumRange, PgTsRange, ConnectionConfigurator).
+ * CI: add PHP 8.6 to the test matrix (8.4, 8.5, 8.6); minimum supported version stays PHP 8.4
+ * PHPUnit: failOnDeprecation and displayDetailsOnTestsThatTriggerDeprecations enabled, so PHP deprecations raised from sources/lib fail the suite instead of passing silently
+ * Fix PHP 8.5+ deprecation "Using null as an array offset" in ClientHolder::get() when called with a null client type (behaviour unchanged: still returns null)
 
 == VERSION 4.0.5
 
