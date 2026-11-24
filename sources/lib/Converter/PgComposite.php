@@ -38,9 +38,6 @@ class PgComposite extends ArrayTypeConverter
      * @throws FoundationException
      * @see ConverterInterface
      *
-     * @param string $type
-     * @param Session $session
-     * @param string|null $data
      * @return array<string, mixed>|null
      */
     public function fromPg(?string $data, string $type, Session $session): ?array
@@ -68,7 +65,7 @@ class PgComposite extends ArrayTypeConverter
 
         return sprintf(
             "ROW(%s)::%s",
-            join(',', $this->convertArrayToPg($data, $session)),
+            implode(',', $this->convertArrayToPg($data, $session)),
             $type
         );
     }
@@ -88,7 +85,7 @@ class PgComposite extends ArrayTypeConverter
         return
             sprintf(
                 "(%s)",
-                join(',', array_map(
+                implode(',', array_map(
                     fn (mixed $val): mixed => match (true) {
                         (null === $val) => '',
                         ('' === $val) => '""',

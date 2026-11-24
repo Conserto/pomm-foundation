@@ -39,9 +39,7 @@ class InspectorPooler extends ClientPooler
      */
     public function getClient(?string $identifier = null): ClientInterface
     {
-        if ($identifier === null) {
-            $identifier = Inspector::class;
-        }
+        $identifier ??= Inspector::class;
 
         return parent::getClient($identifier);
     }

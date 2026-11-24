@@ -64,9 +64,7 @@ class QueryManagerPooler extends ClientPooler
      */
     public function getClient(?string $identifier = null): Client
     {
-        if ($identifier === null) {
-            $identifier = SimpleQueryManager::class;
-        }
+        $identifier ??= SimpleQueryManager::class;
 
         /** @var Client $client */
         $client = parent::getClient($identifier);

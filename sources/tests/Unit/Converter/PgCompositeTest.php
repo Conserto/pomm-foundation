@@ -20,7 +20,7 @@ use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\Session\Session;
 
 #[CoversClass(PgComposite::class)]
-class PgCompositeTest extends BaseConverterTestCase
+final class PgCompositeTest extends BaseConverterTestCase
 {
     private const array STRUCTURE = ['a' => 'int4', 'b' => 'varchar[]', 'c' => 'text'];
 

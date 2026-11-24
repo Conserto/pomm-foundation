@@ -17,7 +17,7 @@ use PommProject\Foundation\Converter\PgLtree;
 use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgLtree::class)]
-class PgLtreeTest extends BaseConverterTestCase
+final class PgLtreeTest extends BaseConverterTestCase
 {
     /**
      * @throws FoundationException

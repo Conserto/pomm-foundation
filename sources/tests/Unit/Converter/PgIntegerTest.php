@@ -21,7 +21,7 @@ use PommProject\Foundation\Tests\Fixture\Enum\IntBackedEnum;
 use PommProject\Foundation\Tests\Fixture\Enum\UnitEnum;
 
 #[CoversClass(PgInteger::class)]
-class PgIntegerTest extends BaseConverterTestCase
+final class PgIntegerTest extends BaseConverterTestCase
 {
     /**
      * @throws FoundationException from buildSession() / PgInteger::fromPg()

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Pomm package.
  *
@@ -39,8 +41,6 @@ interface ConverterInterface
      * Parse the output string from PostgreSQL and returns the converted value into an according PHP representation.
      *
      * @param string|null $data Input string from Pg row result.
-     * @param string $type
-     * @param Session $session
      * @return mixed PHP representation of the data.
      */
     public function fromPg(?string $data, string $type, Session $session): mixed;
@@ -49,8 +49,6 @@ interface ConverterInterface
      * Convert a PHP representation into the according Pg formatted string.
      *
      * @param mixed $data PHP representation.
-     * @param string $type
-     * @param Session $session
      * @return string  Pg converted string for input.
      */
     public function toPg(mixed $data, string $type, Session $session): string;
@@ -59,8 +57,6 @@ interface ConverterInterface
      * Convert a PHP representation into short PostgreSQL format like used in COPY values list.
      *
      * @param mixed $data PHP representation.
-     * @param string $type
-     * @param Session $session
      * @return string|null PostgreSQL standard representation.
      */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string;

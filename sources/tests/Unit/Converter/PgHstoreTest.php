@@ -19,7 +19,7 @@ use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Session\Session;
 
 #[CoversClass(PgHstore::class)]
-class PgHstoreTest extends BaseConverterTestCase
+final class PgHstoreTest extends BaseConverterTestCase
 {
     /**
      * @throws FoundationException

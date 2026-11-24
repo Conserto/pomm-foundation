@@ -167,7 +167,7 @@ class ConnectionConfigurator
             $connectParameters[] = sprintf('password=%s', addslashes($this->configuration['pass']));
         }
 
-        return join(' ', $connectParameters);
+        return implode(' ', $connectParameters);
     }
 
     /**

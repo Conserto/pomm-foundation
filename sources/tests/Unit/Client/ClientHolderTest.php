@@ -20,7 +20,7 @@ use PommProject\Foundation\Client\ClientInterface;
 use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(ClientHolder::class)]
-class ClientHolderTest extends TestCase
+final class ClientHolderTest extends TestCase
 {
     public function testGet(): void
     {

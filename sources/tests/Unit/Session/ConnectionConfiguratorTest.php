@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -20,7 +22,7 @@ use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Session\ConnectionConfigurator;
 
 #[CoversClass(ConnectionConfigurator::class)]
-class ConnectionConfiguratorTest extends TestCase
+final class ConnectionConfiguratorTest extends TestCase
 {
     public const string DSN_TEST = 'pgsql://user:pass@host:5432/db_name';
 

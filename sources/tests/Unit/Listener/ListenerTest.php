@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -19,7 +21,7 @@ use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\FoundationSessionTestCase;
 
 #[CoversClass(Listener::class)]
-class ListenerTest extends FoundationSessionTestCase
+final class ListenerTest extends FoundationSessionTestCase
 {
     /**
      * @throws FoundationException from buildSession() / registerClient()

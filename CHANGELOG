@@ -7,6 +7,9 @@
  * CI: add PHP 8.6 to the test matrix (8.4, 8.5, 8.6); minimum supported version stays PHP 8.4
  * PHPUnit: failOnDeprecation and displayDetailsOnTestsThatTriggerDeprecations enabled, so PHP deprecations raised from sources/lib fail the suite instead of passing silently
  * Fix PHP 8.5+ deprecation "Using null as an array offset" in ClientHolder::get() when called with a null client type (behaviour unchanged: still returns null)
+ * Rector config: drop the Symfony sets (not a Symfony package, and SymfonySetList::SYMFONY_71 no longer exists in Rector 2.8), switch to withPhpSets() (minimum PHP read from composer.json) + prepared sets (deadCode, codeQuality, typeDeclarations, rectorPreset) with name importing; remove the obsolete NewInInitializerRector skip
+ * Rector pass over sources/: declare(strict_types=1) where provably safe (28 lib files, 18 test files), join() -> implode(), redundant else / sprintf('%s') removed, ??= null coalescing, strict comparisons, static:: -> self:: on final constants, redundant @param/@return tags removed, concrete test classes made final. No public or protected signature changed
+ * PgBox::toPg(): document `@param string $type` locally (it relied on a parent tag that is now gone)
 
 == VERSION 4.0.5
 

@@ -70,7 +70,7 @@ class PgCircle extends TypeConverter
      */
     protected function getPointConverter(Session $session): ConverterClient
     {
-        if ($this->pointConverter === null) {
+        if (!$this->pointConverter instanceof ConverterClient) {
             /** @var ConverterClient $converterClient */
             $converterClient = $session->getClientUsingPooler('converter', 'point');
             $this->pointConverter = $converterClient;

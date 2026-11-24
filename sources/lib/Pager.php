@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Pomm's Foundation package.
  *
@@ -76,7 +78,7 @@ class Pager
     /** Get the last page index. */
     public function getLastPage(): int
     {
-        return $this->count == 0 ? 1 : (int) ceil($this->count / $this->maxPerPage);
+        return $this->count === 0 ? 1 : (int) ceil($this->count / $this->maxPerPage);
     }
 
     /** True if a previous page exists. */

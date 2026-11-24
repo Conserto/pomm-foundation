@@ -62,9 +62,7 @@ class Listener extends Client
      *
      * @throws FoundationException
      *
-     * @param string $name
      * @param array<mixed, mixed> $data
-     * @return Listener
      */
     public function notify(string $name, array $data): Listener
     {

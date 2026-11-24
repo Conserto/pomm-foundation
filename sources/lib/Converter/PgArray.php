@@ -38,9 +38,6 @@ class PgArray extends ArrayTypeConverter
      * @throws FoundationException
      * @see ConverterInterface
      *
-     * @param string $type
-     * @param Session $session
-     * @param string|null $data
      *
      * @return null|array<int, null|mixed>
      */
@@ -60,13 +57,11 @@ class PgArray extends ArrayTypeConverter
                     return null !== $val && preg_match('/\\\\/', $val)
                         ? $converter->fromPg(stripslashes($val), $type, $session)
                         : $converter->fromPg($val, $type, $session);
-                } else {
-                    return null;
                 }
+                return null;
             }, str_getcsv(trim($data, "{}"), escape: "\\"));
-        } else {
-            return [];
         }
+        return [];
     }
 
     /**
@@ -86,7 +81,7 @@ class PgArray extends ArrayTypeConverter
 
         return sprintf(
             'ARRAY[%s]::%s[]',
-            join(',', array_map(fn (mixed $val): string => $converter->toPg($val, $type, $session), $data)),
+            implode(',', array_map(fn (mixed $val): string => $converter->toPg($val, $type, $session), $data)),
             $type
         );
     }
@@ -106,7 +101,7 @@ class PgArray extends ArrayTypeConverter
         $data = $this->checkArray($data);
 
         return
-            sprintf('{%s}', join(
+            sprintf('{%s}', implode(
                 ',',
                 array_map(function (mixed $val) use ($converter, $type, $session): ?string {
                     if ($val === null) {

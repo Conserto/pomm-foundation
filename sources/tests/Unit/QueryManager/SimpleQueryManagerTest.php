@@ -26,7 +26,7 @@ use PommProject\Foundation\Tests\Fixture\QueryManager\ListenerTester;
 use PommProject\Foundation\Where;
 
 #[CoversClass(SimpleQueryManager::class)]
-class SimpleQueryManagerTest extends FoundationSessionTestCase
+final class SimpleQueryManagerTest extends FoundationSessionTestCase
 {
     /**
      * @throws FoundationException|SqlException from buildSession() / query()

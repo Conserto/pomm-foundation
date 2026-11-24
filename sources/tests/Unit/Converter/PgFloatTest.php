@@ -21,7 +21,7 @@ use PommProject\Foundation\Tests\Fixture\Enum\IntBackedEnum;
 use PommProject\Foundation\Tests\Fixture\Enum\UnitEnum;
 
 #[CoversClass(PgFloat::class)]
-class PgFloatTest extends BaseConverterTestCase
+final class PgFloatTest extends BaseConverterTestCase
 {
     /**
      * @throws FoundationException

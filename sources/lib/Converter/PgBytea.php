@@ -47,7 +47,7 @@ class PgBytea implements ConverterInterface
      */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
-        return $data !== null ? sprintf('%s', $this->escapeByteString($session, $data)) : null;
+        return $data !== null ? $this->escapeByteString($session, $data) : null;
     }
 
     /**

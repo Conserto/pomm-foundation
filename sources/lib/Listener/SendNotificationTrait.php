@@ -31,9 +31,7 @@ trait SendNotificationTrait
      *
      * @throws FoundationException
      *
-     * @param string $name
      * @param array<mixed, mixed> $data
-     * @return static
      */
     protected function sendNotification(string $name, array $data): static
     {

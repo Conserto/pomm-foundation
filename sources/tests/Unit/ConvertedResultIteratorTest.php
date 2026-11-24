@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -22,7 +24,7 @@ use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\FoundationSessionTestCase;
 
 #[CoversClass(ConvertedResultIterator::class)]
-class ConvertedResultIteratorTest extends FoundationSessionTestCase
+final class ConvertedResultIteratorTest extends FoundationSessionTestCase
 {
     /**
      * @throws ConnectionException|FoundationException|SqlException from buildSession() / getResultResource()

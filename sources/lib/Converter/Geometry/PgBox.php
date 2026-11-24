@@ -34,6 +34,7 @@ class PgBox extends TypeConverter
     }
 
     /**
+     * @param string $type
      * @throws ConverterException
      * @see ConverterInterface
      */

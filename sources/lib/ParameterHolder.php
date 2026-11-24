@@ -66,7 +66,6 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * @param string $name
      * @param bool|string|array<mixed, mixed>|null $value
      * @return $this
      */
@@ -114,7 +113,6 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
 
     /** Returns the parameter "name" or "default" if not set.
      *
-     * @param string $name
      * @param bool|string|array<mixed, mixed>|null $default Optional default value if name not set.
      * @return bool|string|array<mixed, mixed>|null Parameter's value or default.
      */

@@ -57,18 +57,15 @@ abstract class TypeConverter implements ConverterInterface
     {
         if ($data === null) {
             return sprintf("NULL::%s", $type);
-        } else {
-            $dataObject = $this->checkData($data);
-
-            if ($dataObject instanceof \Stringable) {
-                return sprintf("%s('%s')", $type, $dataObject);
-            } else {
-                throw new ConverterException(
-                    sprintf("Unable to transform a '%s' instance to string.", $dataObject::class),
-                    0
-                );
-            }
         }
+        $dataObject = $this->checkData($data);
+        if ($dataObject instanceof \Stringable) {
+            return sprintf("%s('%s')", $type, $dataObject);
+        }
+        throw new ConverterException(
+            sprintf("Unable to transform a '%s' instance to string.", $dataObject::class),
+            0
+        );
     }
 
     /**

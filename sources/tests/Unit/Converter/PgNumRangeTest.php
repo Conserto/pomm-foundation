@@ -20,7 +20,7 @@ use PommProject\Foundation\Converter\Type\NumRange;
 use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgNumRange::class)]
-class PgNumRangeTest extends BaseConverterTestCase
+final class PgNumRangeTest extends BaseConverterTestCase
 {
     /**
      * @param int|float|string|null $expectedStartLimit

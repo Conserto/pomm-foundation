@@ -149,7 +149,7 @@ class PgHstore extends ArrayTypeConverter
             return sprintf("NULL::%s", $type);
         }
 
-        return sprintf("%s(\$hs\$%s\$hs\$)", $type, join(', ', $this->buildArray($this->checkArray($data))));
+        return sprintf("%s(\$hs\$%s\$hs\$)", $type, implode(', ', $this->buildArray($this->checkArray($data))));
     }
 
     /**
@@ -162,7 +162,7 @@ class PgHstore extends ArrayTypeConverter
             return null;
         }
 
-        return sprintf('%s', join(', ', $this->buildArray($this->checkArray($data))));
+        return implode(', ', $this->buildArray($this->checkArray($data)));
     }
 
     /**
@@ -195,8 +195,7 @@ class PgHstore extends ArrayTypeConverter
     {
         if (preg_match('/["\s,]/', $string) === false) {
             return addslashes($string);
-        } else {
-            return sprintf('"%s"', addcslashes($string, '"\\'));
         }
+        return sprintf('"%s"', addcslashes($string, '"\\'));
     }
 }

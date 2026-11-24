@@ -20,7 +20,7 @@ use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\FoundationSessionTestCase;
 
 #[CoversClass(ListenerPooler::class)]
-class ListenerPoolerTest extends FoundationSessionTestCase
+final class ListenerPoolerTest extends FoundationSessionTestCase
 {
     /** @var array<string, array<int, string>> captured notify() arguments per listener identifier */
     private array $notifyCalls = [];

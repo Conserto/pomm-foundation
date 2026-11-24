@@ -39,7 +39,6 @@ class SessionBuilder
      * name: database logical name
      *
      * @param array<string, mixed> $configuration
-     * @param ConverterHolder|null $converterHolder
      */
     public function __construct(array $configuration, ?ConverterHolder $converterHolder = null)
     {
@@ -132,10 +131,7 @@ class SessionBuilder
      * @throws ConnectionException
      * @throws FoundationException
      *
-     * @param string $dsn
-     * @param bool $persist
      * @param array<string, mixed> $connectionConfiguration
-     * @return Connection
      */
     protected function createConnection(string $dsn, bool $persist, array $connectionConfiguration): Connection
     {

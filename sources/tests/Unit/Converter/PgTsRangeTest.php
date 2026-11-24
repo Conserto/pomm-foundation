@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PommProject's Foundation package.
  *
@@ -20,7 +22,7 @@ use PommProject\Foundation\Converter\Type\TsRange;
 use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgTsRange::class)]
-class PgTsRangeTest extends BaseConverterTestCase
+final class PgTsRangeTest extends BaseConverterTestCase
 {
     /**
      * @throws FoundationException

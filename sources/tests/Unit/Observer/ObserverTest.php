@@ -22,7 +22,7 @@ use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\VanillaSessionTestCase;
 
 #[CoversClass(Observer::class)]
-class ObserverTest extends VanillaSessionTestCase
+final class ObserverTest extends VanillaSessionTestCase
 {
     /**
      * @throws ConnectionException|FoundationException|SqlException from buildSession() /

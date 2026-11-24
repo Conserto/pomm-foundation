@@ -62,7 +62,6 @@ class ListenerPooler extends ClientPooler
      * @throws FoundationException
      *
      * @param array<mixed, mixed> $data
-     * @return ListenerPooler
      */
     protected function notifyAll(array $data): ListenerPooler
     {

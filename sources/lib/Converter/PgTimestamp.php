@@ -48,7 +48,7 @@ class PgTimestamp implements ConverterInterface
     {
         return
             $data !== null
-            ? sprintf("%s '%s'", $type, $this->checkData($data)->format(static::TS_FORMAT))
+            ? sprintf("%s '%s'", $type, $this->checkData($data)->format(self::TS_FORMAT))
             : sprintf("NULL::%s", $type);
     }
 
@@ -60,7 +60,7 @@ class PgTimestamp implements ConverterInterface
     {
         return
             $data !== null
-            ? $this->checkData($data)->format(static::TS_FORMAT)
+            ? $this->checkData($data)->format(self::TS_FORMAT)
             : null;
     }
 

@@ -17,7 +17,7 @@ use PommProject\Foundation\Converter\PgArray;
 use PommProject\Foundation\Exception\FoundationException;
 
 #[CoversClass(PgArray::class)]
-class PgArrayTest extends BaseConverterTestCase
+final class PgArrayTest extends BaseConverterTestCase
 {
     /**
      * @throws FoundationException
