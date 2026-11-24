@@ -13,6 +13,7 @@
  * Session: declare the __call() client shortcuts with @method (getQueryManager, getInspector, getPreparedQuery, getConverter, getObserver, getListener) so IDEs and static analysers see their precise return types; no runtime change
  * Mark the parameters carrying the DSN (and its password) with #[\SensitiveParameter] so they are redacted from exception stack traces: Pomm::__construct, Session\SessionBuilder::__construct / addParameter / createConnection, Connection::__construct, ConnectionConfigurator::__construct, Tester\*TestCase::createSessionBuilder. No signature change; overriding methods must add the attribute themselves to redact their own frame
  * Fix the database password leaking into exception messages: ConnectionConfigurator now masks it (user:****@host) in its four DSN error messages, including on malformed DSNs; Connection masks the whole password value on connection failure (a URL-decoded password containing spaces was only partially masked)
+ * QueryManagerInterface::query(): document the return type as \Iterator<int, array<string, mixed>> (one associative array per row, as every Foundation query manager returns); docblock only
 
 == VERSION 4.0.5
 
