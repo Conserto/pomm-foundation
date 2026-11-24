@@ -64,7 +64,11 @@ class Inspector extends Client
             SQL;
         $condition = new Where('n.nspname !~ $* and n.nspname <> $*', ['^pg_', 'information_schema']);
 
-        return $this->executeSql($sql, $condition);
+        // Row shape given by the SQL above, which PHPStan cannot read.
+        /** @var ConvertedResultIterator<array{name: string, oid: int, comment: ?string, relations: int}> $iterator */
+        $iterator = $this->executeSql($sql, $condition);
+
+        return $iterator;
     }
 
     /**
@@ -87,9 +91,11 @@ class Inspector extends Client
         $where = Where::create('n.nspname =  $*', [$schema])
             ->andWhere('c.relname = $*', [$table]);
 
+        // Row shape given by the SQL above, which PHPStan cannot read.
+        /** @var ConvertedResultIterator<array{oid: int}> $iterator */
         $iterator = $this->executeSql($sql, $where);
 
-        return $iterator->isEmpty() ? null : $iterator->current()['oid'];
+        return $iterator->isEmpty() ? null : ($iterator->current()['oid'] ?? null);
     }
 
     /**
@@ -130,7 +136,11 @@ class Inspector extends Client
             ->andWhere('att.attnum > 0')
             ->andWhere('not att.attisdropped');
 
-        return $this->executeSql($sql, $where);
+        // Row shape given by the SQL above, which PHPStan cannot read.
+        /** @var ConvertedResultIterator<array{name: string, type: string, default: mixed, is_notnull: bool, comment: ?string, is_primary: bool}> $iterator */
+        $iterator = $this->executeSql($sql, $where);
+
+        return $iterator;
     }
 
     /**
@@ -154,9 +164,11 @@ class Inspector extends Client
                 :condition
             SQL;
 
+        // Row shape given by the SQL above, which PHPStan cannot read.
+        /** @var ConvertedResultIterator<array{oid: int}> $iterator */
         $iterator = $this->executeSql($sql, $condition);
 
-        return $iterator->isEmpty() ? null : $iterator->current()['oid'];
+        return $iterator->isEmpty() ? null : ($iterator->current()['oid'] ?? null);
     }
 
     /**
@@ -187,9 +199,17 @@ class Inspector extends Client
             Where::create('ind.indrelid = $*', [$tableOid])
             ->andWhere('ind.indisprimary');
 
+        // Row shape given by the SQL above, which PHPStan cannot read.
+        /** @var array{fields: list<string|null>|null}|null $pk */
         $pk = $this->executeSql($sql, $condition)->current();
+        $fields = $pk['fields'] ?? null;
 
-        return ($pk['fields'] === null || $pk['fields'][0] === null) ? [] : array_reverse($pk['fields']);
+        if ($fields === null || ($fields[0] ?? null) === null) {
+            return [];
+        }
+
+        /** @var list<string> $fields a primary key has no null attribute name */
+        return array_reverse($fields);
     }
 
     /**
@@ -227,7 +247,11 @@ class Inspector extends Client
             order by name asc
             SQL;
 
-        return $this->executeSql($sql, $condition);
+        // Row shape given by the SQL above, which PHPStan cannot read.
+        /** @var ConvertedResultIterator<array{name: string, type: string, oid: int, comment: ?string}> $iterator */
+        $iterator = $this->executeSql($sql, $condition);
+
+        return $iterator;
     }
 
     /**
@@ -242,9 +266,11 @@ class Inspector extends Client
             SQL;
 
         $where    = Where::create('objoid = $*', [$tableOid]);
+        // Row shape given by the SQL above, which PHPStan cannot read.
+        /** @var ConvertedResultIterator<array{description: ?string}> $iterator */
         $iterator = $this->executeSql($sql, $where);
 
-        return $iterator->isEmpty() ? null : $iterator->current()['description'];
+        return $iterator->isEmpty() ? null : ($iterator->current()['description'] ?? null);
     }
 
     /**
@@ -274,6 +300,8 @@ class Inspector extends Client
             $sql = strtr($sql, [':join' => '']);
         }
 
+        // Row shape given by the SQL above, which PHPStan cannot read.
+        /** @var ConvertedResultIterator<array{oid: int, category: string}> $iterator */
         $iterator = $this->executeSql($sql, $condition);
 
         return $iterator->isEmpty() ? null : $iterator->current();
@@ -301,6 +329,8 @@ class Inspector extends Client
             where
                 :condition
             SQL;
+        // Row shape given by the SQL above, which PHPStan cannot read.
+        /** @var ConvertedResultIterator<array{name: string, category: string}> $iterator */
         $iterator = $this->executeSql($sql, Where::create('t.oid = $*', [$oid]));
 
         return $iterator->isEmpty() ? null : $iterator->current();
@@ -328,11 +358,13 @@ class Inspector extends Client
             select array_agg(label) as labels from enum_value
             SQL;
 
+        // Row shape given by the SQL above, which PHPStan cannot read.
+        /** @var array{labels: list<string>|null}|null $result */
         $result = $this
             ->executeSql($sql, Where::create('e.enumtypid = $*', [$oid]))
             ->current();
 
-        return $result['labels'];
+        return $result['labels'] ?? null;
     }
 
     /**
@@ -357,7 +389,11 @@ class Inspector extends Client
                 :condition
             SQL;
 
-        return $this->executeSql($sql, Where::create('orig.oid = $*', [$oid]));
+        // Row shape given by the SQL above, which PHPStan cannot read.
+        /** @var ConvertedResultIterator<array{name: string, type: string}> $iterator */
+        $iterator = $this->executeSql($sql, Where::create('orig.oid = $*', [$oid]));
+
+        return $iterator;
     }
 
     /**
@@ -367,7 +403,14 @@ class Inspector extends Client
      */
     public function getVersion(): string
     {
+        // Row shape given by the SQL above, which PHPStan cannot read.
+        /** @var array{server_version: string}|null $row */
         $row = $this->executeSql("show server_version")->current();
+
+        if ($row === null) {
+            // Used to be a TypeError.
+            throw new FoundationException('The server did not return its version.');
+        }
 
         return $row['server_version'];
     }
@@ -377,7 +420,7 @@ class Inspector extends Client
      *
      * @throws FoundationException
      *
-     * @return ConvertedResultIterator<mixed>
+     * @return ConvertedResultIterator<array<string, mixed>>
      */
     protected function executeSql(string $sql, ?Where $condition = null): ConvertedResultIterator
     {

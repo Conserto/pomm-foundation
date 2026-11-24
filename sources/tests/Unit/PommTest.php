@@ -268,6 +268,13 @@ final class PommTest extends TestCase
     {
         return new SessionBuilder([]);
     }
+
+    public function testNonArrayConfiguration(): void
+    {
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage("The configuration of 'db' must be an array, 'string' given.");
+        new Pomm(['db' => 'pgsql://user@host/db']);
+    }
 }
 
 /**

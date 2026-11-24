@@ -59,6 +59,7 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     public function setDefaultValue(string $name, mixed $value): ParameterHolder
     {
         if (!$this->hasParameter($name)) {
+            // @phpstan-ignore argument.type (any default value: the union parameter type converts it, as it always did)
             $this->setParameter($name, $value);
         }
 
@@ -88,6 +89,7 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     {
         if (!in_array($this[$name], $values)) {
             throw new FoundationException(
+                // @phpstan-ignore argument.type (implode() converts each allowed value for the message, as it always did)
                 sprintf('The parameters "%s" must be one of [%s].', $name, implode(', ', $values))
             );
         }

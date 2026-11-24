@@ -12,6 +12,7 @@
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Internal\StringCoercion;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -72,13 +73,23 @@ class PgTimestamp implements ConverterInterface
     protected function checkData(mixed $data): \DateTimeInterface
     {
         if (!$data instanceof \DateTimeInterface) {
+            // Converted as DateTime's string parameter converted it (null meant '', i.e. now).
+            $datetime = $data === null ? '' : StringCoercion::toString($data);
+            if ($datetime === null) {
+                // Used to be a TypeError.
+                throw new ConverterException(sprintf(
+                    "Cannot convert data from invalid datetime representation '%s'.",
+                    get_debug_type($data)
+                ));
+            }
+
             try {
-                $data = new \DateTime($data);
+                $data = new \DateTime($datetime);
             } catch (\Exception $e) {
                 throw new ConverterException(
                     sprintf(
                         "Cannot convert data from invalid datetime representation '%s'.",
-                        $data
+                        $datetime
                     ),
                     0,
                     $e

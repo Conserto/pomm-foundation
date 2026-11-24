@@ -77,7 +77,7 @@ class SimpleQueryManager extends QueryManagerClient
      *
      * @throws FoundationException
      * @param array<int, mixed> $parameters
-     * @return array<int, string>
+     * @return array<int, mixed> (values without a type hint are passed as is)
      */
     protected function prepareArguments(string $sql, array $parameters): array
     {
@@ -107,7 +107,7 @@ class SimpleQueryManager extends QueryManagerClient
      * Perform the query
      *
      * @throws FoundationException
-     * @param array<int, string> $parameters
+     * @param array<int, mixed> $parameters converted values, or values passed as is when untyped
      */
     protected function doQuery(string $sql, array $parameters): ResultHandler
     {

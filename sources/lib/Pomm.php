@@ -12,6 +12,7 @@
 namespace PommProject\Foundation;
 
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\StringCoercion;
 use PommProject\Foundation\Session\Session as BaseSession;
 use PommProject\Foundation\Session\SessionBuilder as VanillaSessionBuilder;
 use Psr\Log\LoggerAwareInterface;
@@ -54,9 +55,23 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     public function __construct(#[\SensitiveParameter] array $configurations = [])
     {
         foreach ($configurations as $name => $configuration) {
+            if (!is_array($configuration)) {
+                // Used to be a TypeError (from the session builder constructor).
+                throw new FoundationException(
+                    sprintf("The configuration of '%s' must be an array, '%s' given.", $name, get_debug_type($configuration))
+                );
+            }
+
             $builderClass = SessionBuilder::class;
             if (isset($configuration['class:session_builder'])) {
-                $builderClass = $this->checkSessionBuilderClass($configuration['class:session_builder']);
+                // Converted as the string parameter of checkSessionBuilderClass() converted it.
+                $builderClassName = StringCoercion::toString($configuration['class:session_builder'])
+                    ?? throw new FoundationException(sprintf(
+                        "The 'class:session_builder' of '%s' must be a class name, '%s' given.",
+                        $name,
+                        get_debug_type($configuration['class:session_builder'])
+                    ));
+                $builderClass = $this->checkSessionBuilderClass($builderClassName);
             }
 
             $this->addBuilder($name, new $builderClass($configuration));

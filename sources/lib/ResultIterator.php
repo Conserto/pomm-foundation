@@ -191,6 +191,7 @@ class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \Seeka
             $results[] = $result;
         }
 
+        // @phpstan-ignore return.type (raw rows are arrays; T only narrows them in subclasses, which override extract())
         return $results;
     }
 

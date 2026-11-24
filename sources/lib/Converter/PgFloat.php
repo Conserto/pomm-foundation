@@ -49,6 +49,7 @@ class PgFloat implements ConverterInterface
     {
         $data = $this->unwrapEnum($data, $type);
 
+        // @phpstan-ignore argument.type (sprintf() formats any user value, as it always did)
         return $data !== null ? sprintf("%s '%s'", $type, $data) : sprintf("NULL::%s", $type);
     }
 
@@ -60,6 +61,7 @@ class PgFloat implements ConverterInterface
     {
         $data = $this->unwrapEnum($data, $type);
 
+        // @phpstan-ignore argument.type (sprintf() formats any user value, as it always did)
         return $data !== null ? sprintf('%s', $data) : null;
     }
 

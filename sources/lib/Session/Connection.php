@@ -230,6 +230,7 @@ class Connection
             $sql[] = sprintf(
                 "set %s = %s",
                 pg_escape_identifier($this->handler, $setting),
+                // @phpstan-ignore cast.string (connection settings are cast to string, as they always were)
                 pg_escape_literal($this->handler, (string) $value)
             );
         }
@@ -369,7 +370,7 @@ class Connection
     /**
      * Execute an asynchronous query with parameters and send the results.
      *
-     * @param  array<int, string> $parameters
+     * @param  array<int, mixed> $parameters converted by pg_send_query_params() (null is SQL NULL)
      * @return ResultHandler query result wrapper
      * @throws SqlException|ConnectionException|FoundationException
      */
@@ -439,6 +440,7 @@ class Connection
         $result = $this
             ->testQuery($ret, sprintf("Prepared query '%s'.", $identifier))
             ->getQueryResult(
+                // @phpstan-ignore argument.type (implode() converts each parameter for the message, as it always did)
                 sprintf("EXECUTE ===\n%s\n ===\nparameters = {%s}", $sql, implode(', ', $parameters))
             );
 

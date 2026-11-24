@@ -14,6 +14,7 @@ namespace PommProject\Foundation\Converter;
 use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\StringCoercion;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -37,7 +38,7 @@ class PgString implements ConverterInterface
         $data = $this->unwrapEnum($data, $type);
 
         return $data !== null
-            ? sprintf("%s %s", $type, $session->getConnection()->escapeLiteral($data))
+            ? sprintf("%s %s", $type, $session->getConnection()->escapeLiteral($this->toText($data)))
             : sprintf("NULL::%s", $type);
     }
 
@@ -47,7 +48,9 @@ class PgString implements ConverterInterface
      */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
-        return $this->unwrapEnum($data, $type);
+        $data = $this->unwrapEnum($data, $type);
+
+        return $data === null ? null : $this->toText($data);
     }
 
     /** @see ConverterInterface */
@@ -59,5 +62,16 @@ class PgString implements ConverterInterface
     protected function acceptsEnum(\UnitEnum $enum): bool
     {
         return !$enum instanceof \BackedEnum || is_string($enum->value);
+    }
+
+    /**
+     * Converted as the string parameter / return type converted it (no strict_types in this file).
+     *
+     * @throws ConverterException for values that used to raise a TypeError (array, non Stringable object).
+     */
+    private function toText(mixed $data): string
+    {
+        return StringCoercion::toString($data)
+            ?? throw new ConverterException(sprintf("Cannot convert a '%s' value to a string.", get_debug_type($data)));
     }
 }

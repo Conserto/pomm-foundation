@@ -61,7 +61,7 @@ class PgComposite extends ArrayTypeConverter
             return sprintf("NULL::%s", $type);
         }
 
-        $this->checkArray($data);
+        $data = $this->checkArray($data);
 
         return sprintf(
             "ROW(%s)::%s",
@@ -80,7 +80,7 @@ class PgComposite extends ArrayTypeConverter
             return null;
         }
 
-        $this->checkArray($data);
+        $data = $this->checkArray($data);
 
         return
             sprintf(
@@ -101,7 +101,7 @@ class PgComposite extends ArrayTypeConverter
     /**
      * @throws FoundationException
      *
-     * @param array<string, mixed> $data
+     * @param array<string, string|null> $data
      * @return array<string, mixed>
      */
     private function convertArrayFromPg(array $data, Session $session): array
@@ -120,7 +120,7 @@ class PgComposite extends ArrayTypeConverter
     /**
      * @throws FoundationException
      *
-     * @param array<string, mixed> $data
+     * @param array<array-key, mixed> $data
      * @return array<string, string>
      */
     private function convertArrayToPg(array $data, Session $session): array
@@ -139,7 +139,7 @@ class PgComposite extends ArrayTypeConverter
     /**
      * @throws FoundationException
      *
-     * @param array<string, mixed> $data
+     * @param array<array-key, mixed> $data
      * @return array<string, ?string>
      */
     private function convertArrayToPgStandardFormat(array $data, Session $session): array

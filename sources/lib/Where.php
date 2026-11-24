@@ -12,6 +12,7 @@
 namespace PommProject\Foundation;
 
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\StringCoercion;
 
 /**
  * This class represents a WHERE clause of a SQL statement. It deals with AND &
@@ -72,7 +73,7 @@ class Where implements \Stringable
     /**
      * Create an array of escaped strings from a value set.
      *
-     * @param array<int, mixed> $values
+     * @param array<array-key, mixed> $values
      * @return array<int, string>
      */
     protected static function escapeSet(array $values): array
@@ -135,7 +136,14 @@ class Where implements \Stringable
     public function addWhere(mixed $element, array $values, string $operator): Where
     {
         if (!$element instanceof Where) {
-            $element = new self($element, $values);
+            // Converted as the ?string constructor parameter converted it (no strict_types in this file).
+            $clause = $element === null ? null : StringCoercion::toString($element);
+            if ($element !== null && $clause === null) {
+                // Used to be a TypeError.
+                throw new FoundationException(sprintf("A Where clause must be a string, '%s' given.", get_debug_type($element)));
+            }
+
+            $element = new self($clause, $values);
         }
 
         if ($element->isEmpty()) {

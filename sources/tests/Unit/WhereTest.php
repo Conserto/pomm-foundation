@@ -122,4 +122,13 @@ final class WhereTest extends TestCase
         $this->expectExceptionMessage('Cannot combine a Where clause stack that has no operator.');
         Where::create()->setStack([Where::create('a'), Where::create('b')])->andWhere('c');
     }
+
+    public function testNonStringElement(): void
+    {
+        self::assertSame('(a AND 42)', (string) Where::create('a')->andWhere(42));
+
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage("A Where clause must be a string, 'array' given.");
+        Where::create('a')->andWhere(['b']);
+    }
 }

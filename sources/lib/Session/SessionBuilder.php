@@ -43,6 +43,7 @@ class SessionBuilder
     public function __construct(#[\SensitiveParameter] array $configuration, ?ConverterHolder $converterHolder = null)
     {
         $this->configuration = new ParameterHolder(
+            // @phpstan-ignore argument.type (user configuration: ParameterHolder accessors convert the values, as they always did)
             array_merge(
                 $this->getDefaultConfiguration(),
                 $configuration
@@ -57,6 +58,7 @@ class SessionBuilder
     /** Add a configuration parameter. */
     public function addParameter(string $name, #[\SensitiveParameter] mixed $value): SessionBuilder
     {
+        // @phpstan-ignore argument.type (user configuration: ParameterHolder accessors convert the values, as they always did)
         $this->configuration->setParameter($name, $value);
 
         return $this;

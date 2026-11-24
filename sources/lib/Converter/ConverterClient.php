@@ -14,6 +14,7 @@ namespace PommProject\Foundation\Converter;
 use PommProject\Foundation\Client\Client;
 use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\StringCoercion;
 
 /**
  * Converter wrapper as Session's client.
@@ -65,8 +66,19 @@ class ConverterClient extends Client
      */
     public function fromPg(mixed $value, ?string $type = null): mixed
     {
+        // Converted as the ?string parameter of fromPg() converted it (no strict_types in this file).
+        $data = $value === null ? null : StringCoercion::toString($value);
+        if ($value !== null && $data === null) {
+            // Used to be a TypeError.
+            throw new ConverterException(sprintf(
+                "The '%s' converter expects a string from PostgreSQL, '%s' given.",
+                $type ?? $this->getClientIdentifier(),
+                get_debug_type($value)
+            ));
+        }
+
         return $this->converter->fromPg(
-            $value,
+            $data,
             $type ?? $this->getClientIdentifier(),
             $this->getSession()
         );

@@ -325,7 +325,7 @@ class SqlException extends FoundationException
     final public const string DATA_CORRUPTED = 'XX001';
     final public const string INDEX_CORRUPTED = 'XX002';
 
-    /** @var array<int, string> */
+    /** @var array<int, mixed> */
     protected array $queryParameters = [];
 
     public function __construct(protected Result $result, protected string $sql, int $code = 0, ?\Exception $e = null)
@@ -388,7 +388,7 @@ class SqlException extends FoundationException
     /**
      * Return the query parameters sent with the query.
      *
-     * @return array<int, string>
+     * @return array<int, mixed>
      */
     public function getQueryParameters(): array
     {
@@ -398,7 +398,7 @@ class SqlException extends FoundationException
     /**
      * Set the query parameters sent with the query.
      *
-     * @param array<int, string> $parameters
+     * @param array<int, mixed> $parameters
      * @return SqlException $this
      */
     public function setQueryParameters(array $parameters): SqlException

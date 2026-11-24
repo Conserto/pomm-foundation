@@ -12,6 +12,7 @@
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Internal\StringCoercion;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -179,10 +180,13 @@ class PgHstore extends ArrayTypeConverter
             if ($value === null) {
                 $insertValues[] = sprintf('%s => NULL', $this->escape($key));
             } else {
+                // Converted as the string parameter of escape() converted it (no strict_types in this file).
+                $string = StringCoercion::toString($value)
+                    ?? throw new ConverterException(sprintf("Cannot convert a '%s' hstore value to a string.", get_debug_type($value)));
                 $insertValues[] = sprintf(
                     '%s => %s',
                     $this->escape($key),
-                    $this->escape($value)
+                    $this->escape($string)
                 );
             }
         }

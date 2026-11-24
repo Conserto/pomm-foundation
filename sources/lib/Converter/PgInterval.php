@@ -12,6 +12,7 @@
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Internal\StringCoercion;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -74,8 +75,15 @@ class PgInterval implements ConverterInterface
     protected function checkData(mixed $data): \DateInterval
     {
         if (!$data instanceof \DateInterval) {
+            // Converted as DateInterval's string parameter converted it (null meant '').
+            $duration = $data === null ? '' : StringCoercion::toString($data);
+            if ($duration === null) {
+                // Used to be a TypeError.
+                throw new ConverterException("First argument is not a \DateInterval instance.");
+            }
+
             try {
-                $data = new \DateInterval($data);
+                $data = new \DateInterval($duration);
             } catch (\Exception $e) {
                 throw new ConverterException("First argument is not a \DateInterval instance.", 0, $e);
             }

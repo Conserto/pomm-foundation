@@ -24,7 +24,7 @@ use PommProject\Foundation\Session\Session as BaseSession;
  * @license   X11 {@link http://opensource.org/licenses/mit-license.php}
  * @see       ResultIterator
  *
- * @template T
+ * @template T = array<string, mixed>
  * @extends ResultIterator<T>
  */
 class ConvertedResultIterator extends ResultIterator
@@ -50,7 +50,8 @@ class ConvertedResultIterator extends ResultIterator
      */
     public function get(int $index): array
     {
-        return $this->parseRow(parent::get($index));
+        // Same as parent::get(), with the row type ResultHandler::fetchRow() documents.
+        return $this->parseRow($this->result->fetchRow($index));
     }
 
     /**
@@ -79,7 +80,7 @@ class ConvertedResultIterator extends ResultIterator
     /**
      * Convert values from Pg.
      *
-     * @param array<string, ?string> $values
+     * @param array<array-key, ?string> $values (PHP turns numeric column names into int keys)
      * @return array<string, mixed>
      */
     protected function parseRow(array $values): array
@@ -107,7 +108,8 @@ class ConvertedResultIterator extends ResultIterator
     public function slice(string $field): array
     {
         $values = [];
-        foreach (parent::slice($field) as $value) {
+        // Same as parent::slice(), with the column type ResultHandler::fetchColumn() documents.
+        foreach ($this->isEmpty() ? [] : $this->result->fetchColumn($field) as $value) {
             $values[] = $this->convertField($field, $value);
         }
 

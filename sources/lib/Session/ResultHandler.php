@@ -47,7 +47,7 @@ class ResultHandler
     /**
      * Fetch a row as associative array. Index starts from 0.
      *
-     * @return array<array-key, mixed> column name => raw value (PHP turns numeric column names into int keys)
+     * @return array<array-key, string|null> column name => raw value (PHP turns numeric column names into int keys)
      * @throws \OutOfBoundsException if $index out of bounds.
      */
     public function fetchRow(int $index): array
@@ -134,7 +134,7 @@ class ResultHandler
     /**
      * Fetch a column from a result.
      *
-     * @return array<int, mixed>
+     * @return array<int, string|null>
      */
     public function fetchColumn(string $name): array
     {
@@ -144,6 +144,7 @@ class ResultHandler
     /** Check if a field exist or not. */
     public function fieldExist(mixed $name): bool
     {
+        // @phpstan-ignore argument.type (fieldExist() accepts any value, converted by pg_field_num(), as it always was)
         return pg_field_num($this->getResult(), $name) > -1;
     }
 

@@ -14,6 +14,7 @@ namespace PommProject\Foundation\Tests\Unit\Converter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\PgString;
+use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Tests\Fixture\Enum\BackedEnum;
 use PommProject\Foundation\Tests\Fixture\Enum\IntBackedEnum;
@@ -97,5 +98,24 @@ final class PgStringTest extends BaseConverterTestCase
                 $e->getMessage()
             );
         }
+    }
+
+    /**
+     * Scalars are converted as before; values that used to raise a TypeError raise a ConverterException.
+     *
+     * @throws FoundationException
+     */
+    public function testNonStringValues(): void
+    {
+        $session = $this->buildSession();
+        $converter = new PgString();
+
+        self::assertSame('42', $converter->toPgStandardFormat(42, 'text', $session));
+        self::assertSame('1', $converter->toPgStandardFormat(true, 'text', $session));
+        self::assertSame("text '1.5'", $converter->toPg(1.5, 'text', $session));
+
+        $this->expectException(ConverterException::class);
+        $this->expectExceptionMessage("Cannot convert a 'array' value to a string.");
+        $converter->toPg([1], 'text', $session);
     }
 }

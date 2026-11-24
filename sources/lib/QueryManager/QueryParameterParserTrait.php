@@ -54,6 +54,7 @@ trait QueryParameterParserTrait
      */
     public function getParametersType(mixed $string): array
     {
+        // @phpstan-ignore cast.string (any value is cast to a query string, as it always was)
         preg_match_all('/\$\*(?:::([\w\."]+(?:\[\])?))?/', (string) $string, $matches);
 
         return str_replace('"', '', $matches[1]);

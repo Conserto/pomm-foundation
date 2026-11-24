@@ -18,6 +18,7 @@ use PommProject\Foundation\Converter\ConverterClient;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Inflector;
 use PommProject\Foundation\Inspector\Inspector;
+use PommProject\Foundation\Internal\StringCoercion;
 use PommProject\Foundation\Listener\Listener;
 use PommProject\Foundation\Observer\Observer;
 use PommProject\Foundation\PreparedQuery\PreparedQuery;
@@ -181,9 +182,19 @@ class Session implements LoggerAwareInterface
             throw new \BadFunctionCallException(sprintf("Unknown method 'Session::%s()'.", $method));
         }
 
+        // Converted as the ?string identifier parameter converted it (no strict_types in this file).
+        $argument = $arguments[0] ?? null;
+        $identifier = $argument === null ? null : StringCoercion::toString($argument);
+        if ($argument !== null && $identifier === null) {
+            // Used to be a TypeError.
+            throw new FoundationException(
+                sprintf("Session::%s() expects a client identifier string, '%s' given.", $method, get_debug_type($argument))
+            );
+        }
+
         return $this->getClientUsingPooler(
             Inflector::underscore($matches[1]),
-            $arguments[0] ?? null
+            $identifier
         );
     }
 
