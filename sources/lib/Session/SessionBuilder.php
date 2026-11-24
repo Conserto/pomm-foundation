@@ -120,7 +120,11 @@ class SessionBuilder
             ];
     }
 
-    /** If any computation to the configuration must be done before each session creation, it goes here. */
+    /**
+     * If any computation to the configuration must be done before each session creation, it goes here.
+     *
+     * @phpstan-impure extension hook: overrides have side effects, calling parent::preConfigure() is meaningful
+     */
     protected function preConfigure(): SessionBuilder
     {
         return $this;
@@ -169,13 +173,21 @@ class SessionBuilder
         return new ClientHolder();
     }
 
-    /** Session configuration once created. All pooler registration stuff goes here. */
+    /**
+     * Session configuration once created. All pooler registration stuff goes here.
+     *
+     * @phpstan-impure extension hook: overrides have side effects, calling parent::postConfigure() is meaningful
+     */
     protected function postConfigure(Session $session): SessionBuilder
     {
         return $this;
     }
 
-    /** Converter initialization at startup. If new converters are to be registered, it goes here. */
+    /**
+     * Converter initialization at startup. If new converters are to be registered, it goes here.
+     *
+     * @phpstan-impure extension hook: overrides have side effects, calling parent::initializeConverterHolder() is meaningful
+     */
     protected function initializeConverterHolder(ConverterHolder $converterHolder): SessionBuilder
     {
         return $this;

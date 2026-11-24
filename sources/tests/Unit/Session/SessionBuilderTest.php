@@ -40,7 +40,7 @@ final class SessionBuilderTest extends TestCase
         $builder = $this->createSpyBuilder(['dsn' => self::DSN] + $settings);
         $builder->buildSession();
 
-        self::assertSame($expected, [$builder->seen['dsn'], $builder->seen['persist']]);
+        self::assertSame($expected, [$builder->seen['dsn'] ?? null, $builder->seen['persist'] ?? null]);
     }
 
     /**
@@ -97,19 +97,23 @@ final class SessionBuilderTest extends TestCase
     /**
      * @param array<string, mixed> $configuration
      */
-    private function createSpyBuilder(array $configuration): SessionBuilder
+    private function createSpyBuilder(array $configuration): SpySessionBuilder
     {
-        return new class ($configuration) extends SessionBuilder {
-            /** @var array{dsn?: string, persist?: bool} */
-            public array $seen = [];
+        return new SpySessionBuilder($configuration);
+    }
+}
 
-            /** @param array<string, mixed> $connectionConfiguration */
-            protected function createConnection(#[\SensitiveParameter] string $dsn, bool $persist, array $connectionConfiguration): Connection
-            {
-                $this->seen = ['dsn' => $dsn, 'persist' => $persist];
+/** Records what buildSession() passes to createConnection(). */
+final class SpySessionBuilder extends SessionBuilder
+{
+    /** @var array{dsn?: string, persist?: bool} */
+    public array $seen = [];
 
-                return parent::createConnection($dsn, $persist, $connectionConfiguration);
-            }
-        };
+    /** @param array<string, mixed> $connectionConfiguration */
+    protected function createConnection(#[\SensitiveParameter] string $dsn, bool $persist, array $connectionConfiguration): Connection
+    {
+        $this->seen = ['dsn' => $dsn, 'persist' => $persist];
+
+        return parent::createConnection($dsn, $persist, $connectionConfiguration);
     }
 }

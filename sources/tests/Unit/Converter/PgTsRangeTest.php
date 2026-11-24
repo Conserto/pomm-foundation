@@ -62,9 +62,11 @@ final class PgTsRangeTest extends BaseConverterTestCase
         self::assertNull($converter->fromPg('', 'whatever', $session));
 
         $range = $converter->fromPg($textRange, 'tstzrange', $session);
+        self::assertInstanceOf(TsRange::class, $range);
         self::assertInstanceOf(\DateTime::class, $range->startLimit);
 
         $rangeWithoutQuotes = $converter->fromPg($textRangeWithoutQuotes, 'tstzrange', $session);
+        self::assertInstanceOf(TsRange::class, $rangeWithoutQuotes);
         self::assertInstanceOf(\DateTime::class, $rangeWithoutQuotes->startLimit);
     }
 

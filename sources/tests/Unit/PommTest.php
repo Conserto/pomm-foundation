@@ -74,6 +74,7 @@ final class PommTest extends TestCase
 
         $this->expectException(FoundationException::class);
         $this->expectExceptionMessage("Only session builders can be added to Pomm, 'stdClass' given.");
+        // @phpstan-ignore offsetAssign.valueType (intentional: the test checks that a non builder is rejected)
         $pomm['pika'] = new \stdClass();
     }
 
@@ -176,11 +177,11 @@ final class PommTest extends TestCase
         }
 
         self::assertInstanceOf(Session::class, $this->getPomm()->getDefaultSession());
-        self::assertStringContainsString('db_two', $this->getPomm()->getDefaultSession()->getStamp());
+        self::assertStringContainsString('db_two', $this->getPomm()->getDefaultSession()->getStamp() ?? '');
 
         self::assertStringContainsString(
             'one',
-            new Pomm(['one' => ['dsn' => ConnectionConfiguratorTest::DSN_TEST]])->getDefaultSession()->getStamp()
+            new Pomm(['one' => ['dsn' => ConnectionConfiguratorTest::DSN_TEST]])->getDefaultSession()->getStamp() ?? ''
         );
 
         try {
@@ -192,7 +193,7 @@ final class PommTest extends TestCase
 
         self::assertStringContainsString(
             'db_one',
-            $this->getPomm()->setDefaultBuilder('db_one')->getDefaultSession()->getStamp()
+            $this->getPomm()->setDefaultBuilder('db_one')->getDefaultSession()->getStamp() ?? ''
         );
     }
 

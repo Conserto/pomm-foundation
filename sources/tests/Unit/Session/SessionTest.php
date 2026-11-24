@@ -141,6 +141,7 @@ final class SessionTest extends VanillaSessionTestCase
         $session = $this->buildSession()->registerClientPooler($clientPoolerMock);
 
         try {
+            // @phpstan-ignore method.notFound (intentional: the test checks that an unknown method is rejected)
             $session->azerty('ok', 'what');
             self::fail('Expected BadFunctionCallException was not thrown.');
         } catch (\BadFunctionCallException $e) {
@@ -148,12 +149,14 @@ final class SessionTest extends VanillaSessionTestCase
         }
 
         try {
+            // @phpstan-ignore method.notFound (intentional: the test checks that a shortcut without pooler is rejected)
             $session->getPika('ok');
             self::fail('Expected FoundationException was not thrown.');
         } catch (FoundationException $e) {
             self::assertStringContainsString('No pooler registered for type', $e->getMessage());
         }
 
+        // @phpstan-ignore method.notFound (shortcut of the test pooler, resolved by __call())
         self::assertInstanceOf(ClientInterface::class, $session->getTest('ok'));
     }
 
@@ -169,6 +172,7 @@ final class SessionTest extends VanillaSessionTestCase
         $session->shutdown();
 
         try {
+            // @phpstan-ignore method.notFound (shortcut of the test pooler, resolved by __call())
             $session->getTest('ok');
             self::fail('Expected FoundationException was not thrown.');
         } catch (FoundationException $e) {

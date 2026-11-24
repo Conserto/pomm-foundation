@@ -31,6 +31,8 @@
  * PHPStan level 10 (implicit mixed): SessionBuilder::createSession() raises a FoundationException when the 'class:session' setting is not a class name or not a Session subclass (it used to be an Error / TypeError); configuration arrays documented as keyed by setting names; one targeted @phpstan-ignore for row keys (numeric column names become int keys)
  * PHPStan: raise the analysis level from 9 to 10 (maximum)
  * ConverterClient, PgHstore, PgString, PgTimestamp: declare(strict_types=1) now that their conversions are explicit. PgHstore casts array keys to string itself (numeric keys are int in PHP, which strict mode would have rejected — Rector had not spotted it); a test covers it
+ * PHPStan now also analyses sources/tests, at the same level (10). Tests narrow types with extra assertions (assertNotNull / assertInstanceOf / assertIsArray) — no assertion removed —, intentionally invalid calls keep a targeted @phpstan-ignore with their reason, the SessionBuilder spy is a named class, and three test files declare strict_types
+ * Observer::getNotification() / Connection::getNotification() documented @phpstan-impure (each call consumes the pending notification); SessionBuilder hooks preConfigure() / postConfigure() / initializeConverterHolder() documented @phpstan-impure so overrides calling parent:: are not reported as no-ops. Docblocks only
 
 == VERSION 4.0.5
 

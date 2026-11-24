@@ -91,7 +91,7 @@ Fixtures live in `sources/tests/Fixture/`.
 
 - PHP strict types are expected everywhere. The minimum PHP version and extension constraints live in [`composer.json`](./composer.json).
 - Modern PHP syntax is enforced by Rector — see [`rector.php`](./rector.php) for the active sets and skipped rules.
-- Static analysis level and scope are defined in [`phpstan.neon`](./phpstan.neon) (tests are currently excluded).
+- Static analysis level and scope are defined in [`phpstan.neon`](./phpstan.neon) (library and tests, both at the configured level).
 - Style is enforced by PHP-CS-Fixer — rules live in [`.php-cs-fixer.dist.php`](./.php-cs-fixer.dist.php); run `composer cs` (dry-run) before opening a PR.
 - This is a **library** with downstream subclass users: do not change public or protected signatures, even for cleanup (see the Pager / Session / Client API shapes — they are part of the contract).
 - File headers (`@author` / `@copyright` docblocks and top-of-file comments) start out crediting Grégoire HUBERT. When a file has been substantially rewritten on the fork, it is fine to update the authorship to Conserto — either by replacing the block for wholly new files, or by adding a Conserto line alongside the original for heavily edited ones. Never remove the pre-existing Grégoire HUBERT notice from a file whose origin content survives (MIT requires preserving the original copyright for substantial portions of the work); the repository-wide notice in [`LICENSE`](./LICENSE) already lists both parties.

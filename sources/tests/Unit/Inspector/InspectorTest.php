@@ -86,6 +86,7 @@ final class InspectorTest extends FoundationSessionTestCase
 
         $simpleInfo = $this->getInspector()
             ->getTableFieldInformation($this->getTableOid('with_simple_pk'));
+        self::assertNotNull($simpleInfo);
         self::assertSame(
             ['int4', 'inspector_test._someone', '_timestamptz'],
             $simpleInfo->slice('type')
@@ -166,8 +167,10 @@ final class InspectorTest extends FoundationSessionTestCase
         );
         self::assertTrue($inspector->getSchemaRelations(null)->isEmpty());
 
+        $current = $tablesInfo->current();
+        self::assertNotNull($current);
         foreach (['name', 'type', 'oid', 'comment'] as $key) {
-            self::assertArrayHasKey($key, $tablesInfo->current());
+            self::assertArrayHasKey($key, $current);
         }
 
         self::assertSame('This table has no primary key', $tablesInfo->get(0)['comment']);
@@ -195,6 +198,7 @@ final class InspectorTest extends FoundationSessionTestCase
     {
         $inspector = $this->getInspector();
         $type = $inspector->getTypeInformation('sponsor_rating', 'inspector_test');
+        self::assertNotNull($type);
 
         self::assertSame(
             ['platinum', 'gold', 'silver', 'bronze', 'aluminium'],
@@ -255,9 +259,12 @@ final class InspectorTest extends FoundationSessionTestCase
     /**
      * @throws FoundationException from getInspector() / getTableOid()
      */
-    private function getTableOid(string $tableName): ?int
+    private function getTableOid(string $tableName): int
     {
-        return $this->getInspector()->getTableOid('inspector_test', $tableName);
+        $oid = $this->getInspector()->getTableOid('inspector_test', $tableName);
+        self::assertNotNull($oid, sprintf("Table 'inspector_test.%s' not found.", $tableName));
+
+        return $oid;
     }
 
     /**

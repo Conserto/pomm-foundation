@@ -56,12 +56,14 @@ final class PgNumRangeTest extends BaseConverterTestCase
         self::assertNull($converter->fromPg(null, 'point', $session));
 
         $intRange = $converter->fromPg('[1,3)', 'int4range', $session);
+        self::assertInstanceOf(NumRange::class, $intRange);
         self::assertSame(1, $intRange->startLimit);
         self::assertSame(3, $intRange->endLimit);
         self::assertTrue($intRange->startIncl);
         self::assertFalse($intRange->endIncl);
 
         $floatRange = $converter->fromPg('(-3.1415, -1.6180]', 'numrange', $session);
+        self::assertInstanceOf(NumRange::class, $floatRange);
         self::assertSame(-3.1415, $floatRange->startLimit);
         self::assertSame(-1.618, $floatRange->endLimit);
         self::assertFalse($floatRange->startIncl);

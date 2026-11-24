@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Pomm's Foundation package.
  *
@@ -18,7 +20,7 @@ class DumbConverter implements ConverterInterface
 {
     public function toPg(mixed $data, string $type, Session $session): string
     {
-        return $data;
+        return is_string($data) ? $data : '';
     }
 
     public function fromPg(?string $data, string $type, Session $session): ?string
@@ -28,6 +30,6 @@ class DumbConverter implements ConverterInterface
 
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
-        return $data;
+        return is_string($data) ? $data : null;
     }
 }

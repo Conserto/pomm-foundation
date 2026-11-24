@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -13,6 +15,7 @@
 namespace PommProject\Foundation\Tests\Unit\Converter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PommProject\Foundation\Converter\ConverterPooler;
 use PommProject\Foundation\Converter\PgComposite;
 use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\FoundationException;
@@ -110,7 +113,9 @@ final class PgCompositeTest extends BaseConverterTestCase
     {
         parent::initializeSession($session);
 
-        $session->getPoolerForType('converter')
+        $converterPooler = $session->getPoolerForType('converter');
+        self::assertInstanceOf(ConverterPooler::class, $converterPooler);
+        $converterPooler
             ->getConverterHolder()
             ->registerConverter('MyComposite', new PgComposite(self::STRUCTURE), ['test_type']);
     }

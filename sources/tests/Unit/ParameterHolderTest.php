@@ -199,6 +199,7 @@ final class ParameterHolderTest extends TestCase
     {
         $holder = new ParameterHolder();
         $holder['name'] = 'a';
+        // @phpstan-ignore offsetAssign.dimType (intentional: an int offset is converted like the string parameter did)
         $holder[3] = 'b';
 
         self::assertSame(['name' => 'a', '3' => 'b'], iterator_to_array($holder));

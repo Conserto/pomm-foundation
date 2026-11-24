@@ -30,16 +30,18 @@ class ListenerTester
     {
         $this->is_called = true;
 
-        if (isset($data['sql'])) {
+        if (isset($data['sql']) && is_string($data['sql'])) {
             $this->sql = $data['sql'];
         }
-        if (isset($data['parameters'])) {
-            $this->parameters = $data['parameters'];
+        if (isset($data['parameters']) && is_array($data['parameters'])) {
+            /** @var array<int, mixed> $parameters */
+            $parameters = $data['parameters'];
+            $this->parameters = $parameters;
         }
-        if (isset($data['session_stamp'])) {
+        if (isset($data['session_stamp']) && is_string($data['session_stamp'])) {
             $this->session_stamp = $data['session_stamp'];
         }
-        if (isset($data['result_count'])) {
+        if (isset($data['result_count']) && is_int($data['result_count'])) {
             $this->result_count = $data['result_count'];
         }
     }

@@ -13,6 +13,7 @@
 namespace PommProject\Foundation\Tests\Unit\Converter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PommProject\Foundation\Converter\ConverterPooler;
 use PommProject\Foundation\Converter\PgHstore;
 use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
@@ -98,7 +99,9 @@ final class PgHstoreTest extends BaseConverterTestCase
     {
         parent::initializeSession($session);
 
-        $session->getPoolerForType('converter')
+        $converterPooler = $session->getPoolerForType('converter');
+        self::assertInstanceOf(ConverterPooler::class, $converterPooler);
+        $converterPooler
             ->getConverterHolder()
             ->registerConverter('hstore', new PgHstore(), ['hstore', 'public.hstore']);
     }

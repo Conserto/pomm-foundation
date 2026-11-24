@@ -476,6 +476,7 @@ class Connection
      * Get pending notifications. If no notifications are waiting, NULL is returned.
      * Otherwise, an associative array containing the optional data and de backend's PID is returned.
      *
+     * @phpstan-impure each call consumes the pending notification
      * @return array{message: string, pid: int, payload: string}|null
      */
     public function getNotification(): ?array

@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\Type\Circle;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Exception\SqlException;
+use PommProject\Foundation\Listener\Listener;
 use PommProject\Foundation\QueryManager\SimpleQueryManager;
 use PommProject\Foundation\Session\Session;
 use PommProject\Foundation\Tester\FoundationSessionTestCase;
@@ -36,8 +37,10 @@ final class SimpleQueryManagerTest extends FoundationSessionTestCase
         $session = $this->buildSession();
         $iterator = $this->getQueryManager($session)->query('select true as "one one", null::int4 as "TWO"');
 
-        self::assertTrue($iterator->current()['one one']);
-        self::assertNull($iterator->current()['TWO']);
+        $row = $iterator->current();
+        self::assertNotNull($row);
+        self::assertTrue($row['one one']);
+        self::assertNull($row['TWO']);
     }
 
     /**
@@ -89,8 +92,9 @@ final class SimpleQueryManagerTest extends FoundationSessionTestCase
     {
         $session = $this->buildSession('test session');
         $listenerTester = new ListenerTester();
-        $session->getClientUsingPooler('listener', 'query')
-            ->attachAction($listenerTester->call(...));
+        $listener = $session->getClientUsingPooler('listener', 'query');
+        self::assertInstanceOf(Listener::class, $listener);
+        $listener->attachAction($listenerTester->call(...));
 
         $this->getQueryManager($session)->query('select $*::bool as one', [true]);
 
@@ -113,15 +117,21 @@ final class SimpleQueryManagerTest extends FoundationSessionTestCase
         $where = Where::createWhereIn("'a'::text", [BackedEnum::A, BackedEnum::NUMERIC]);
         $matchIterator = $this->getQueryManager($session)
             ->query(sprintf('select %s as match', (string) $where), $where->getValues());
-        self::assertTrue($matchIterator->current()['match']);
+        $row = $matchIterator->current();
+        self::assertNotNull($row);
+        self::assertTrue($row['match']);
 
         $intIterator = $this->getQueryManager($session)
             ->query('select $* as v', [IntBackedEnum::TWO]);
-        self::assertSame((string) IntBackedEnum::TWO->value, $intIterator->current()['v']);
+        $row = $intIterator->current();
+        self::assertNotNull($row);
+        self::assertSame((string) IntBackedEnum::TWO->value, $row['v']);
 
         $unitIterator = $this->getQueryManager($session)
             ->query('select $* as v', [TestUnitEnum::Active]);
-        self::assertSame(TestUnitEnum::Active->name, $unitIterator->current()['v']);
+        $row = $unitIterator->current();
+        self::assertNotNull($row);
+        self::assertSame(TestUnitEnum::Active->name, $row['v']);
     }
 
     protected function initializeSession(Session $session): void

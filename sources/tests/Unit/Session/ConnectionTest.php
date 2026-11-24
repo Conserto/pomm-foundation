@@ -44,7 +44,9 @@ final class ConnectionTest extends TestCase
             self::assertSame(SqlException::SYNTAX_ERROR, $e->getSQLErrorState());
         }
 
-        self::assertCount(3, $connection->executeAnonymousQuery('select true; select false; select null'));
+        $results = $connection->executeAnonymousQuery('select true; select false; select null');
+        self::assertIsArray($results);
+        self::assertCount(3, $results);
 
         $this->expectException(SqlException::class);
         $connection->executeAnonymousQuery('select true; bad query');
@@ -159,9 +161,18 @@ final class ConnectionTest extends TestCase
     private function getConnection(): Connection
     {
         return new Connection(
-            $GLOBALS['pomm_db1']['dsn'],
+            $this->getDsn(),
             persist: true,
         );
+    }
+
+    private function getDsn(): string
+    {
+        $database = $GLOBALS['pomm_db1'] ?? null;
+        self::assertIsArray($database);
+        self::assertIsString($database['dsn'] ?? null);
+
+        return $database['dsn'];
     }
 
     /**
@@ -171,7 +182,7 @@ final class ConnectionTest extends TestCase
      */
     public function testStatusWithoutOpenConnection(): void
     {
-        $connection = new Connection($GLOBALS['pomm_db1']['dsn'], persist: true);
+        $connection = new Connection($this->getDsn(), persist: true);
 
         self::assertSame(Connection::CONNECTION_STATUS_NONE, $connection->getConnectionStatus());
         self::assertSame(\PGSQL_TRANSACTION_UNKNOWN, $connection->getTransactionStatus());
