@@ -46,7 +46,7 @@ class ResultHandler
     /**
      * Fetch a row as associative array. Index starts from 0.
      *
-     * @return array<string, mixed>
+     * @return array<array-key, mixed> column name => raw value (PHP turns numeric column names into int keys)
      * @throws \OutOfBoundsException if $index out of bounds.
      */
     public function fetchRow(int $index): array
