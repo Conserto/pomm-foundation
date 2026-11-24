@@ -178,7 +178,9 @@ class Connection
             throw new ConnectionException(
                 sprintf(
                     "Error connecting to the database with parameters '%s'.",
-                    preg_replace('/password=[^ ]+/', 'password=xxxx', $string)
+                    // The password is always the last parameter of the connection string and may contain
+                    // spaces once URL-decoded: mask everything after it.
+                    preg_replace('/password=.*$/s', 'password=xxxx', $string)
                 )
             );
         }

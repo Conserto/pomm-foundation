@@ -91,7 +91,7 @@ class ConnectionConfigurator
             '#^[a-z]+://((?:[a-zA-Z0-9\-._~]|%[0-9A-Fa-f]{2})+)(?::((?:[a-zA-Z0-9\-._~]|%[0-9A-Fa-f]{2})+))?@([a-zA-Z0-9\-_.]+)(?::([0-9]{1,5}))?/([a-zA-Z0-9_\-]+)(\?((?:[a-zA-Z0-9\-._~]|%[0-9A-Fa-f]{2})+=(?:[a-zA-Z0-9\-._~]|%[0-9A-Fa-f]{2})+)(&(?:[a-zA-Z0-9\-._~]|%[0-9A-Fa-f]{2})+=(?:[a-zA-Z0-9\-._~]|%[0-9A-Fa-f]{2})+)*)?$#',
             (string) $dsn
         ) || !$parsedDsn) {
-            throw new ConnectionException(sprintf('Could not parse DSN "%s".', $dsn));
+            throw new ConnectionException(sprintf('Could not parse DSN "%s".', $this->redactDsn((string) $dsn)));
         }
 
         $scheme = $parsedDsn['scheme'] ?? '';
@@ -101,7 +101,7 @@ class ConnectionConfigurator
                 sprintf(
                     "bad protocol information '%s' in dsn '%s'. Pomm does only support 'pgsql' for now.",
                     $scheme,
-                    $dsn
+                    $this->redactDsn($dsn)
                 )
             );
         }
@@ -110,7 +110,7 @@ class ConnectionConfigurator
             throw new ConnectionException(
                 sprintf(
                     "No user information in dsn '%s'.",
-                    $dsn
+                    $this->redactDsn($dsn)
                 )
             );
         }
@@ -121,7 +121,7 @@ class ConnectionConfigurator
             throw new ConnectionException(
                 sprintf(
                     "No database name in dsn '%s'.",
-                    $dsn
+                    $this->redactDsn($dsn)
                 )
             );
         }
@@ -137,6 +137,28 @@ class ConnectionConfigurator
             ->mustHave('database');
 
         return $this;
+    }
+
+    /**
+     * Mask the password of a DSN so it can safely appear in an exception message.
+     *
+     * Works on malformed DSNs too (parse_url() is not reliable there): after the scheme, everything between
+     * the first ':' of the user part and the last '@' is masked, or up to the end of the string when there is no '@'.
+     */
+    private function redactDsn(string $dsn): string
+    {
+        $scheme = preg_match('#^[^:/@\s]+://#', $dsn, $matches) === 1 ? $matches[0] : '';
+        $rest = substr($dsn, strlen($scheme));
+
+        if (preg_match('#^([^:/@]*):.*@(.*)$#s', $rest, $matches) === 1) {
+            return sprintf('%s%s:****@%s', $scheme, $matches[1], $matches[2]);
+        }
+
+        if (preg_match('#^([^:/@]*):#', $rest, $matches) === 1) {
+            return sprintf('%s%s:****', $scheme, $matches[1]);
+        }
+
+        return $dsn;
     }
 
     /**
