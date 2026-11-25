@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace PommProject\Foundation\Tester;
 
+use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\TestCase;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Session\Session;
@@ -28,13 +29,33 @@ abstract class VanillaSessionTestCase extends TestCase
 {
     private ?SessionBuilder $sessionBuilder = null;
 
+    /** @var list<Session> sessions built during the current test, shut down after it */
+    private array $sessions = [];
+
     /** @throws FoundationException */
     protected function buildSession(?string $stamp = null): Session
     {
         $session = $this->getSessionBuilder()->buildSession($stamp);
+        $this->sessions[] = $session;
         $this->initializeSession($session);
 
         return $session;
+    }
+
+    /**
+     * Shut down the sessions built during the test, which closes their connections. A session is referenced by its own
+     * clients, so PHP only frees it, and closes its connection, at a later garbage collection: a suite building many
+     * sessions came close to PostgreSQL's connection limit (too many clients already). Shutting a session down twice
+     * is harmless, so a test may still shut down its sessions itself.
+     */
+    #[After]
+    protected function shutdownSessions(): void
+    {
+        foreach ($this->sessions as $session) {
+            $session->shutdown();
+        }
+
+        $this->sessions = [];
     }
 
     private function getSessionBuilder(): SessionBuilder

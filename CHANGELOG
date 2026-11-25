@@ -14,6 +14,7 @@
  * Mark the parameters carrying the DSN (and its password) with #[\SensitiveParameter] so they are redacted from exception stack traces: Pomm::__construct, Session\SessionBuilder::__construct / addParameter / createConnection, Connection::__construct, ConnectionConfigurator::__construct, Tester\*TestCase::createSessionBuilder. No signature change; overriding methods must add the attribute themselves to redact their own frame
  * Fix the database password leaking into exception messages: ConnectionConfigurator now masks it (user:****@host) in its four DSN error messages, including on malformed DSNs; Connection masks the whole password value on connection failure (a URL-decoded password containing spaces was only partially masked)
  * QueryManagerInterface::query(): document the return type as \Iterator<int, array<string, mixed>> (one associative array per row, as every Foundation query manager returns); docblock only
+ * VanillaSessionTestCase / FoundationSessionTestCase: sessions built with buildSession() are shut down after each test (#[After] hook, no parent::tearDown() call needed), closing their connections. They used to stay open until a garbage collection, and the suite came close to PostgreSQL's connection limit
 
 == VERSION 4.0.5
 
