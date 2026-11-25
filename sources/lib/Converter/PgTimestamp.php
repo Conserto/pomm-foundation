@@ -13,7 +13,10 @@ declare(strict_types=1);
 
 namespace PommProject\Foundation\Converter;
 
+use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\PgText;
 use PommProject\Foundation\Internal\StringCoercion;
 use PommProject\Foundation\Session\Session;
 
@@ -53,15 +56,20 @@ class PgTimestamp implements ConverterInterface
     }
 
     /**
-     * @throws ConverterException
+     * @throws ConnectionException|ConverterException|FoundationException
      * @see ConverterInterface
      */
     public function toPg(mixed $data, string $type, Session $session): string
     {
-        return
-            $data !== null
-            ? sprintf("%s '%s'", $type, $this->checkData($data)->format(self::TS_FORMAT))
-            : sprintf("NULL::%s", $type);
+        if ($data === null) {
+            return sprintf("NULL::%s", $type);
+        }
+
+        $text = $this->passedAsText($data, $type);
+
+        return $text !== null
+            ? sprintf("%s %s", $type, $session->getConnection()->escapeLiteral($text))
+            : sprintf("%s '%s'", $type, $this->checkData($data)->format(self::TS_FORMAT));
     }
 
     /**
@@ -72,7 +80,7 @@ class PgTimestamp implements ConverterInterface
     {
         return
             $data !== null
-            ? $this->checkData($data)->format(self::TS_FORMAT)
+            ? $this->passedAsText($data, $type) ?? $this->checkData($data)->format(self::TS_FORMAT)
             : null;
     }
 
@@ -106,5 +114,30 @@ class PgTimestamp implements ConverterInterface
         }
 
         return $data;
+    }
+
+    /**
+     * Strings are passed unchanged, PostgreSQL accepts or rejects them by its own rules ('2024-01-02', '19940623',
+     * 'now', 'infinity' pass; '', '2024-02-30', '+1 day', '12.7' raise an error), where PHP's DateTime used to turn
+     * them silently into now or another date. Null for DateTimeInterface objects and the other values, formatted by
+     * checkData().
+     *
+     * @throws ConverterException for booleans and numbers (PostgreSQL does not store them into a date column; false
+     * used to become now).
+     */
+    private function passedAsText(mixed $data, string $type): ?string
+    {
+        // Checked first: a DateTime subclass with __toString() (Carbon...) is Stringable, its string form may lose the
+        // time zone or the microseconds.
+        if ($data instanceof \DateTimeInterface) {
+            return null;
+        }
+
+        $text = PgText::of($data);
+        if ($text === null && is_scalar($data)) {
+            throw new ConverterException(sprintf("Cannot convert a '%s' value to %s.", get_debug_type($data), $type));
+        }
+
+        return $text;
     }
 }

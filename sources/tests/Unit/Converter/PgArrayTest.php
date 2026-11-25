@@ -15,6 +15,7 @@ namespace PommProject\Foundation\Tests\Unit\Converter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\PgArray;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
 
 #[CoversClass(PgArray::class)]
 final class PgArrayTest extends BaseConverterTestCase
@@ -140,5 +141,26 @@ final class PgArrayTest extends BaseConverterTestCase
             [' a varchar ', 'another one with "\\quotes\\"', null],
             $this->sendToPostgres([' a varchar ', 'another one with "\\quotes\\"', null], 'varchar[]', $session)
         );
+    }
+
+    /**
+     * A string element 'NULL' or with braces is quoted: unquoted, PostgreSQL would read SQL NULL or a nested array.
+     *
+     * @throws FoundationException
+     */
+    public function testQuotesNullAndBraces(): void
+    {
+        $session = $this->buildSession();
+        $converter = new PgArray();
+
+        self::assertSame('{"NULL","null","{a}",a}', $converter->toPgStandardFormat(['NULL', 'null', '{a}', 'a'], 'text', $session));
+        // Checked on PostgreSQL's side: fromPg() cannot tell a quoted "NULL" element from SQL NULL.
+        self::assertSame(
+            ['j' => '["NULL","null","{a}",null]'],
+            $session->getQueryManager()->query('select array_to_json($*::text[])::text as j', [['NULL', 'null', '{a}', null]])->current()
+        );
+
+        $this->expectException(SqlException::class);
+        $this->sendToPostgres(['1', 'null'], 'int4[]', $session);
     }
 }
