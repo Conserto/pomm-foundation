@@ -107,6 +107,29 @@ final class PgCompositeTest extends BaseConverterTestCase
     }
 
     /**
+     * A field with a quote or a backslash is quoted and escaped: unquoted, PostgreSQL misreads it.
+     *
+     * @throws FoundationException
+     */
+    public function testEscapesQuotesAndBackslashes(): void
+    {
+        $session = $this->buildSession();
+        $converter = new PgComposite(self::STRUCTURE);
+
+        self::assertSame('(1,,"a\\\\b")', $converter->toPgStandardFormat(['a' => 1, 'c' => 'a\\b'], 'test_type', $session));
+        self::assertSame('(1,,"a\\"b")', $converter->toPgStandardFormat(['a' => 1, 'c' => 'a"b'], 'test_type', $session));
+
+        // Checked on PostgreSQL's side: fromPg() cannot read a field holding a quote or a backslash back.
+        foreach (['a\\b', 'a"b', '"', '\\', 'a\\"b c'] as $text) {
+            $data = ['a' => 1, 'b' => ['p"q', 'r\\s'], 'c' => $text];
+            $json = $session->getQueryManager()
+                ->query('select row_to_json($*::test_type)::text as j', [$data])
+                ->current();
+            self::assertSame(['j' => json_encode($data)], $json, $text);
+        }
+    }
+
+    /**
      * @throws FoundationException from getPoolerForType() / registerConverter()
      */
     protected function initializeSession(Session $session): void

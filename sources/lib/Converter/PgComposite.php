@@ -86,11 +86,12 @@ class PgComposite extends ArrayTypeConverter
             sprintf(
                 "(%s)",
                 implode(',', array_map(
-                    fn (mixed $val): mixed => match (true) {
-                        (null === $val) => '',
-                        ('' === $val) => '""',
-                        (bool) preg_match('/[,\s()]/', (string) $val) =>
-                            sprintf('"%s"', str_replace('"', '""', $val)),
+                    // A field is quoted when it contains a separator, parentheses, a quote or a backslash (an escape
+                    // character in a record literal), both escaped.
+                    fn (?string $val): string => match (true) {
+                        null === $val => '',
+                        '' === $val => '""',
+                        preg_match('/[,\s()"\\\\]/', $val) === 1 => sprintf('"%s"', addcslashes($val, '"\\')),
                         default => $val,
                     },
                     $this->convertArrayToPgStandardFormat($data, $session)

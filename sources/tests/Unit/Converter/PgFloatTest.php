@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestWith;
 use PommProject\Foundation\Converter\PgFloat;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\Tests\Fixture\Enum\BackedEnum;
 use PommProject\Foundation\Tests\Fixture\Enum\IntBackedEnum;
 use PommProject\Foundation\Tests\Fixture\Enum\UnitEnum;
@@ -87,6 +88,67 @@ final class PgFloatTest extends BaseConverterTestCase
             UnitEnum::class,
             'float8'
         );
+    }
+
+    /**
+     * A float8 is written with the digits needed to read it back, a numeric with 15 significant digits as PostgreSQL's
+     * float8 to numeric cast. Converting a float to a string used to keep only 14 digits.
+     *
+     * @throws FoundationException|SqlException
+     */
+    public function testFullPrecision(): void
+    {
+        $session = $this->buildSession();
+        $converter = new PgFloat();
+        $third = 1 / 3;
+        $sum = 0.1 + 0.2;
+
+        self::assertSame('0.3333333333333333', $converter->toPgStandardFormat($third, 'float8', $session));
+        self::assertSame('0.30000000000000004', $converter->toPgStandardFormat($sum, 'float8', $session));
+        self::assertSame('0.1', $converter->toPgStandardFormat(0.1, 'float8', $session));
+        self::assertSame($third, $this->sendToPostgres($third, 'float8', $session));
+        self::assertSame($sum, $this->sendToPostgres($sum, 'float8', $session));
+        self::assertSame("float8 '0.3333333333333333'", $converter->toPg($third, 'float8', $session));
+        self::assertSame("numeric '0.3'", $converter->toPg($sum, 'numeric', $session));
+
+        self::assertSame('0.333333333333333', $converter->toPgStandardFormat($third, 'numeric', $session));
+        self::assertSame('0.3', $converter->toPgStandardFormat($sum, 'numeric', $session));
+        self::assertSame('1234567890123.45', $converter->toPgStandardFormat(1234567890123.45, 'numeric', $session));
+        self::assertSame(0.3, $this->sendToPostgres($sum, 'numeric', $session));
+        self::assertSame(1e20, $this->sendToPostgres(1e20, 'numeric', $session));
+        self::assertSame(-1.0e-5, $this->sendToPostgres(-1.0e-5, 'float8', $session));
+    }
+
+    /**
+     * A number is written without the connection: building SQL with a float needs no open session.
+     *
+     * @throws FoundationException
+     */
+    public function testToPgWritesNumbersWithoutTheConnection(): void
+    {
+        $session = $this->buildSession();
+        $session->shutdown();
+        $converter = new PgFloat();
+
+        self::assertSame("float8 '1.5'", $converter->toPg(1.5, 'float8', $session));
+        self::assertSame("float8 '2'", $converter->toPg(2, 'float8', $session));
+        self::assertSame("float8 'NaN'", $converter->toPg(\NAN, 'float8', $session));
+    }
+
+    /**
+     * toPg() escapes the value: a string used to be written between quotes as is.
+     *
+     * @throws FoundationException
+     */
+    public function testToPgEscapes(): void
+    {
+        $session = $this->buildSession();
+        $sql = new PgFloat()->toPg("1'; select 1; --", 'float8', $session);
+
+        self::assertSame("float8 '1''; select 1; --'", $sql);
+        $this->expectException(SqlException::class);
+        $this->expectExceptionMessage('invalid input syntax for type double precision');
+        $session->getConnection()->executeAnonymousQuery('select ' . $sql);
     }
 
     private static function assertIncompatibleEnum(callable $call, string $enumClass, string $pgType): void

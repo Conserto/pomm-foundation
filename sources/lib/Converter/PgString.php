@@ -67,7 +67,7 @@ class PgString implements ConverterInterface
     }
 
     /**
-     * Converted as the string parameter / return type converted it (no strict_types in this file).
+     * Converted as the string parameter / return type converted it.
      *
      * @throws ConverterException for values that used to raise a TypeError (array, non Stringable object).
      */

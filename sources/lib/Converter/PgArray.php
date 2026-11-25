@@ -116,11 +116,12 @@ class PgArray extends ArrayTypeConverter
                     }
 
                     if ($val !== '') {
-                        // A sub-array (int4[][]) stays bare. Any other value is quoted as well when it is NULL (read as SQL
-                        // NULL otherwise) or contains braces (read as a nested array otherwise).
+                        // A sub-array (int4[][]) stays bare. Any other value is quoted when it contains a separator,
+                        // a quote or a backslash (an escape character otherwise: a\b would be read ab), braces (read as a
+                        // nested array otherwise) or is NULL (read as SQL NULL otherwise).
                         if (
-                            preg_match('/[,\\"\s]/', $val)
-                            || (!$converter instanceof self && (strcasecmp($val, 'NULL') === 0 || strpbrk($val, '{}') !== false))
+                            !$converter instanceof self
+                            && (preg_match('/[,"\\\\\s{}]/', $val) === 1 || strcasecmp($val, 'NULL') === 0)
                         ) {
                             $val = sprintf('"%s"', addcslashes($val, '"\\'));
                         }
