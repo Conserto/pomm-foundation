@@ -40,6 +40,7 @@
  * Fix SQL injection in PgLtree::toPg(), PgHstore::toPg() and TypeConverter::toPg() (ranges): labels, hstore text and range descriptions were written into the literal unescaped. PgHstore relied on a $hs$ delimiter a value could close; range descriptions are only checked to contain a range. They are now escaped by the connection, so these toPg() need an open connection, as PgString always did. Parameterized queries were not affected
  * PgLtree::toPg() writes the given type instead of always `ltree`
  * Fix connection string values holding a space, a quote or a backslash: they were written bare, so a password with a space broke the connection and one such as `x sslmode=disable` added a connection parameter. They are now quoted as libpq reads them; other values are unchanged
+ * AGENTS.md: review the staged diff for security flaws (unescaped SQL values, closable delimiters, connection string values, leaked secrets) before every commit
 
 == VERSION 4.0.5
 
