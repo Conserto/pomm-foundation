@@ -15,6 +15,7 @@ use PommProject\Foundation\Converter\ConverterInterface;
 use PommProject\Foundation\Converter\Type\Box;
 use PommProject\Foundation\Converter\TypeConverter;
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -41,7 +42,7 @@ class PgBox extends TypeConverter
     public function toPg(mixed $data, $type, Session $session): string
     {
         if ($data === null) {
-            return sprintf("NULL::%s", $type);
+            return sprintf("NULL::%s", PgTypeName::quote($type));
         }
 
         $data = $this->checkData($data);

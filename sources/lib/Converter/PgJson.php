@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -65,8 +66,8 @@ class PgJson implements ConverterInterface
     {
         return
             $data !== null
-            ? sprintf('%s %s', $type, $session->getConnection()->escapeLiteral($this->jsonEncode($data)))
-            : sprintf("NULL::%s", $type);
+            ? sprintf('%s %s', PgTypeName::quote($type), $session->getConnection()->escapeLiteral($this->jsonEncode($data)))
+            : sprintf("NULL::%s", PgTypeName::quote($type));
     }
 
     /**

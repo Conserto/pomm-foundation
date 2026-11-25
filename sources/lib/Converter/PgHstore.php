@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Internal\StringCoercion;
 use PommProject\Foundation\Session\Session;
 
@@ -149,10 +150,10 @@ class PgHstore extends ArrayTypeConverter
     public function toPg(mixed $data, string $type, Session $session): string
     {
         if ($data === null) {
-            return sprintf("NULL::%s", $type);
+            return sprintf("NULL::%s", PgTypeName::quote($type));
         }
 
-        return sprintf("%s(\$hs\$%s\$hs\$)", $type, implode(', ', $this->buildArray($this->checkArray($data))));
+        return sprintf("%s(\$hs\$%s\$hs\$)", PgTypeName::quote($type), implode(', ', $this->buildArray($this->checkArray($data))));
     }
 
     /**

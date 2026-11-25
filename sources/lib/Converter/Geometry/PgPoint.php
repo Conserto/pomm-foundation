@@ -15,6 +15,7 @@ use PommProject\Foundation\Converter\ConverterInterface;
 use PommProject\Foundation\Converter\Type\Point;
 use PommProject\Foundation\Converter\TypeConverter;
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -42,7 +43,7 @@ class PgPoint extends TypeConverter
     public function toPg(mixed $data, string $type, Session $session): string
     {
         if ($data === null) {
-            return sprintf("NULL::%s", $type);
+            return sprintf("NULL::%s", PgTypeName::quote($type));
         }
 
         /** @var Point $data */

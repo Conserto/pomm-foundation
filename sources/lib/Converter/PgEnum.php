@@ -16,6 +16,7 @@ namespace PommProject\Foundation\Converter;
 use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -71,8 +72,8 @@ class PgEnum implements ConverterInterface
         $value = $this->toText($data);
 
         return $value !== null
-            ? sprintf('%s %s', $type, $session->getConnection()->escapeLiteral($value))
-            : sprintf('NULL::%s', $type);
+            ? sprintf('%s %s', PgTypeName::quote($type), $session->getConnection()->escapeLiteral($value))
+            : sprintf('NULL::%s', PgTypeName::quote($type));
     }
 
     /** @throws ConverterException */

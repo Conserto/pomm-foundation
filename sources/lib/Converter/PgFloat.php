@@ -14,6 +14,7 @@ namespace PommProject\Foundation\Converter;
 use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -63,10 +64,10 @@ class PgFloat implements ConverterInterface
         $value = $this->specialValue($this->unwrapEnum($data, $type));
 
         return match (true) {
-            $value === null => sprintf('NULL::%s', $type),
+            $value === null => sprintf('NULL::%s', PgTypeName::quote($type)),
             // A number only holds digits, a sign, a dot and an exponent: written as is, without the connection.
-            is_int($value), is_float($value) => sprintf("%s '%s'", $type, $this->toText($value, $type)),
-            default => sprintf('%s %s', $type, $session->getConnection()->escapeLiteral($this->toText($value, $type))),
+            is_int($value), is_float($value) => sprintf("%s '%s'", PgTypeName::quote($type), $this->toText($value, $type)),
+            default => sprintf('%s %s', PgTypeName::quote($type), $session->getConnection()->escapeLiteral($this->toText($value, $type))),
         };
     }
 

@@ -17,6 +17,7 @@ use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Internal\PgText;
+use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -54,12 +55,12 @@ class PgInteger implements ConverterInterface
     {
         $data = $this->unwrapEnum($data, $type);
         if ($data === null) {
-            return sprintf("NULL::%s", $type);
+            return sprintf("NULL::%s", PgTypeName::quote($type));
         }
 
         return is_int($data)
-            ? sprintf("%s '%d'", $type, $data)
-            : sprintf("%s %s", $type, $session->getConnection()->escapeLiteral($this->toText($data, $type)));
+            ? sprintf("%s '%d'", PgTypeName::quote($type), $data)
+            : sprintf("%s %s", PgTypeName::quote($type), $session->getConnection()->escapeLiteral($this->toText($data, $type)));
     }
 
     /**
