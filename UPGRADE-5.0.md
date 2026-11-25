@@ -142,3 +142,27 @@ Unchanged: integers, integer strings (`'12'`, `' 7 '`, `'+3'`), integer backed e
 NAN / INF, arrays and non Stringable objects raise a `ConverterException` in the three converters.
 
 To find the values concerned before upgrading, look for writes to integer, boolean and date columns fed by untyped data (request or import values, test fixtures) or by numbers written as booleans (`$x ? 1 : 0`): they now fail loudly instead of storing a wrong value. Parameters without a type hint (`$*`, `$1`) never went through these converters and are unchanged.
+
+## 9. `PgBackedEnum` is replaced with `PgEnum`
+
+`PgEnum` converts both backed enums (a PostgreSQL label maps to the case with the same value) and pure enums (to the case with the same name), the rule Foundation already follows when it turns an enum into a value. `PgBackedEnum` is kept as a deprecated subclass of `PgEnum`, still restricted to backed enums and returning `?\BackedEnum`. It raises a silenced `E_USER_DEPRECATED`, reported by debug tools and deprecation handlers, and will be removed in 6.0: rename it where it is registered.
+
+```php
+// 4.x
+->registerConverter('Status', new PgBackedEnum(Status::class), ['status', 'public.status'])
+// 5.0
+->registerConverter('Status', new PgEnum(Status::class), ['status', 'public.status'])
+```
+
+It fixes two outputs of `PgBackedEnum` that were invalid:
+
+| Method | Value | 4.x returned | 5.0 |
+|---|---|---|---|
+| `toPg()` | `Status::A` | `a` (invalid in an array or a composite type) | `status 'a'` |
+| `toPgStandardFormat()` | `null` | `'NULL::status'` (rejected by PostgreSQL) | `null` (SQL NULL) |
+
+- Code calling these methods directly and adapting their output (adding quotes, testing for `'NULL::'`) must drop that adaptation.
+- A subclass of `PgBackedEnum` overriding `toPg()` also changed the `$*::status` parameters, since `toPgStandardFormat()` called `toPg()`. Extend `PgEnum` and override `toPgStandardFormat()` too.
+- `PgEnum` accepts a raw value besides the cases when writing (`'a'`, `2` / `'2'` for an int backed enum, `'Active'` for a pure enum, or a `Stringable` giving one of them), so code writing raw values can register it without changing its writes. An unknown value raises a `ConverterException`.
+- For an int backed enum, a label matches only the value as the case writes it (`'2'` for `2`), so every label read can be written back. `'02'`, `' 2'` or `'2.0'`, which PHP converted to `2`, raise a `ConverterException`, as `'two'` does (it used to raise a `TypeError`).
+- Error messages change: `Value "x" not found in enum "Status".`, `Enum "X" does not exist.`
