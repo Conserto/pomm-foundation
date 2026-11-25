@@ -11,7 +11,9 @@
 
 namespace PommProject\Foundation\Converter;
 
+use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
@@ -51,7 +53,10 @@ abstract class TypeConverter implements ConverterInterface
     }
 
     /**
-     * @throws ConverterException
+     * The object's text is escaped by the connection: it used to be written between quotes as is, and range
+     * descriptions are only checked to contain a range ('[1,2)'); drop table t; --' was accepted).
+     *
+     * @throws ConnectionException|ConverterException|FoundationException
      * @see ConverterInterface
      */
     public function toPg(mixed $data, string $type, Session $session): string
@@ -61,7 +66,11 @@ abstract class TypeConverter implements ConverterInterface
         }
         $dataObject = $this->checkData($data);
         if ($dataObject instanceof \Stringable) {
-            return sprintf("%s('%s')", PgTypeName::quote($type), $dataObject);
+            return sprintf(
+                '%s(%s)',
+                PgTypeName::quote($type),
+                $session->getConnection()->escapeLiteral((string) $dataObject)
+            );
         }
         throw new ConverterException(
             sprintf("Unable to transform a '%s' instance to string.", $dataObject::class),

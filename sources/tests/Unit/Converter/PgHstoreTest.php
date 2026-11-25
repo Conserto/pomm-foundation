@@ -17,6 +17,7 @@ use PommProject\Foundation\Converter\ConverterPooler;
 use PommProject\Foundation\Converter\PgHstore;
 use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Session\ResultHandler;
 use PommProject\Foundation\Session\Session;
 
 #[CoversClass(PgHstore::class)]
@@ -51,7 +52,7 @@ final class PgHstoreTest extends BaseConverterTestCase
 
         self::assertSame('NULL::hstore', $converter->toPg(null, 'hstore', $session));
         self::assertSame(
-            'hstore($hs$"a" => "b", "b" => NULL, "a b c" => "d \'é\' f"$hs$)',
+            'hstore(\'"a" => "b", "b" => NULL, "a b c" => "d \'\'é\'\' f"\')',
             $converter->toPg(['a' => 'b', 'b' => null, 'a b c' => 'd \'é\' f'], 'hstore', $session)
         );
 
@@ -117,5 +118,27 @@ final class PgHstoreTest extends BaseConverterTestCase
         $converter = new PgHstore();
 
         self::assertSame('"1" => "a", "2" => NULL', $converter->toPgStandardFormat([1 => 'a', '2' => null], 'hstore', $session));
+    }
+
+    /**
+     * A key or a value holding $hs$ or a quote is escaped: $hs$ used to close the delimiter and inject SQL.
+     *
+     * @throws FoundationException
+     */
+    public function testToPgEscapesDelimiters(): void
+    {
+        $session = $this->buildSession();
+        $data = ['k$hs$' => 'v$hs$); select 1; --', "it's" => 'a\\b'];
+        $result = $session->getConnection()->executeAnonymousQuery(
+            'select ' . new PgHstore()->toPg($data, 'hstore', $session) . '::text as h'
+        );
+
+        self::assertInstanceOf(ResultHandler::class, $result);
+        $read = new PgHstore()->fromPg($result->fetchRow(0)['h'], 'hstore', $session);
+        self::assertIsArray($read);
+        // PostgreSQL sorts hstore keys.
+        ksort($data);
+        ksort($read);
+        self::assertSame($data, $read);
     }
 }

@@ -106,6 +106,15 @@ final class ConnectionConfiguratorTest extends TestCase
         yield ['pgsql://user:p.ssW0rD@aHost/dbname', 'user=user dbname=dbname host=aHost password=p.ssW0rD'];
         yield ['pgsql://user:p~ssW0rD@aHost/dbname', 'user=user dbname=dbname host=aHost password=p~ssW0rD'];
         yield ['pgsql://user.name:p4ssW0rD@aHost/dbname', 'user=user.name dbname=dbname host=aHost password=p4ssW0rD'];
+        // Values holding a space, a quote or a backslash are quoted as libpq reads them: written bare, a space broke
+        // the connection or added a parameter.
+        yield 'password with a space' => ['pgsql://user:a%20b@aHost/dbname', "user=user dbname=dbname host=aHost password='a b'"];
+        yield 'parameter injection' => [
+            'pgsql://user:x%20sslmode%3Ddisable@aHost/dbname',
+            "user=user dbname=dbname host=aHost password='x sslmode=disable'",
+        ];
+        yield 'password with a quote' => ["pgsql://user:it%27s@aHost/dbname", "user=user dbname=dbname host=aHost password='it\\'s'"];
+        yield 'password with a backslash' => ['pgsql://user:a%5Cb@aHost/dbname', "user=user dbname=dbname host=aHost password='a\\\\b'"];
     }
 
     /**

@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace PommProject\Foundation\Converter;
 
+use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
@@ -47,15 +49,22 @@ class PgLtree extends ArrayTypeConverter
     }
 
     /**
-     * @throws ConverterException
+     * The labels are escaped by the connection: they used to be written between quotes as is, so a quote in a label
+     * broke the statement or injected SQL.
+     *
+     * @throws ConnectionException|ConverterException|FoundationException
      * @see ConverterInterface
      */
     public function toPg(mixed $data, string $type, Session $session): string
     {
         return
             $data !== null
-            // @phpstan-ignore argument.type (implode() converts each user value itself, as it always did)
-            ? sprintf("ltree '%s'", implode('.', $this->checkArray($data)))
+            ? sprintf(
+                '%s %s',
+                PgTypeName::quote($type),
+                // @phpstan-ignore argument.type (implode() converts each user value itself, as it always did)
+                $session->getConnection()->escapeLiteral(implode('.', $this->checkArray($data)))
+            )
             : sprintf("NULL::%s", PgTypeName::quote($type));
     }
 

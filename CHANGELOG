@@ -37,6 +37,9 @@
  * Fix PgEnum::toPgStandardFormat() (formerly PgBackedEnum) returning 'NULL::status' for null, which PostgreSQL rejected: it returns null. A subclass overriding toPg() must override toPgStandardFormat() too
  * BC BREAK - PgEnum matches a label only against the value as the case writes it ('2', not '02' or '2.0'), so every label read can be written back. Writing also accepts the raw value (backing value or case name, as a string, an int or a Stringable)
  * BC BREAK - Fix converters writing a mixed case type name unquoted in SQL (`Status 'a'`, `NULL::Status`): PostgreSQL folded it to `status`, so a type created as "Status" was not found. A name part mixing upper and lower case letters is now quoted. A name that only worked through folding (`MyEnum` for a type created as myenum) now fails; another name needing quotes ("STATUS", "order") must be given quoted
+ * Fix SQL injection in PgLtree::toPg(), PgHstore::toPg() and TypeConverter::toPg() (ranges): labels, hstore text and range descriptions were written into the literal unescaped. PgHstore relied on a $hs$ delimiter a value could close; range descriptions are only checked to contain a range. They are now escaped by the connection, so these toPg() need an open connection, as PgString always did. Parameterized queries were not affected
+ * PgLtree::toPg() writes the given type instead of always `ltree`
+ * Fix connection string values holding a space, a quote or a backslash: they were written bare, so a password with a space broke the connection and one such as `x sslmode=disable` added a connection parameter. They are now quoted as libpq reads them; other values are unchanged
 
 == VERSION 4.0.5
 

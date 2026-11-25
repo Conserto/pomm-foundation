@@ -18,6 +18,7 @@ use PommProject\Foundation\Converter\PgNumRange;
 use PommProject\Foundation\Converter\Type\BaseRange;
 use PommProject\Foundation\Converter\Type\NumRange;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
 
 #[CoversClass(PgNumRange::class)]
 final class PgNumRangeTest extends BaseConverterTestCase
@@ -139,5 +140,22 @@ final class PgNumRangeTest extends BaseConverterTestCase
             'expectedStartIncl' => null,
             'expectedEndIncl' => null,
         ];
+    }
+
+    /**
+     * The description is escaped: the range pattern only checks it contains a range, so a quote after it used to end
+     * the literal and inject SQL.
+     *
+     * @throws FoundationException
+     */
+    public function testToPgEscapesDescription(): void
+    {
+        $session = $this->buildSession();
+        $sql = new PgNumRange()->toPg(new NumRange("[1,3)'); select 1; --"), 'numrange', $session);
+
+        self::assertSame("numrange('[1,3)''); select 1; --')", $sql);
+        $this->expectException(SqlException::class);
+        $this->expectExceptionMessage('malformed range literal');
+        $session->getConnection()->executeAnonymousQuery('select ' . $sql);
     }
 }

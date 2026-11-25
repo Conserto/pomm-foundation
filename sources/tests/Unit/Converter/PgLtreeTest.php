@@ -15,6 +15,7 @@ namespace PommProject\Foundation\Tests\Unit\Converter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PommProject\Foundation\Converter\PgLtree;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
 
 #[CoversClass(PgLtree::class)]
 final class PgLtreeTest extends BaseConverterTestCase
@@ -53,5 +54,21 @@ final class PgLtreeTest extends BaseConverterTestCase
 
         self::assertSame('_a_b_.c.d', $converter->toPgStandardFormat(['_a_b_', 'c', 'd'], 'ltree', $session));
         self::assertNull($converter->toPgStandardFormat(null, 'ltree', $session));
+    }
+
+    /**
+     * A label holding a quote is escaped: it used to end the literal and inject SQL.
+     *
+     * @throws FoundationException
+     */
+    public function testToPgEscapesLabels(): void
+    {
+        $session = $this->buildSession();
+        $sql = new PgLtree()->toPg(['a', "b'); select 1; --"], 'ltree', $session);
+
+        self::assertSame("ltree 'a.b''); select 1; --'", $sql);
+        $this->expectException(SqlException::class);
+        $this->expectExceptionMessage('ltree syntax error');
+        $session->getConnection()->executeAnonymousQuery('select ' . $sql);
     }
 }
