@@ -134,7 +134,7 @@ final class PgTimestampTest extends BaseConverterTestCase
     #[TestWith(['+1 day'])]
     #[TestWith(['t'])]
     #[TestWith(['12.7'])]
-    #[TestWith(['26-11-25'])]
+    #[TestWith(['32-13-25'])]
     #[TestWith(['03:04:05'])]
     public function testPostgresRejectsInvalidDates(string $input): void
     {
