@@ -177,3 +177,18 @@ It fixes two outputs of `PgBackedEnum` that were invalid:
 - `Point`, `Box` and `Circle` refuse a description holding anything else than their numbers (`'(1,2) junk'`, `'xInfinity,1'`, `'1-2,3'`, a radius `'abc'` that was read `0`) with an `InvalidArgumentException`, which the converters turn into a `ConverterException`. They read PostgreSQL's usual input forms, which were partly refused: `(1,2)` and `1,2` for a point, `((1,2),(3,4))`, `(1,2),(3,4)`, `(1,2,3,4)` and `1,2,3,4` for a box, `<(1,2),3>`, `((1,2),3)`, `(1,2),3`, `<1,2,3>` and `1,2,3` for a circle, with spaces anywhere, and the special values in any case and with a sign (`inf`, `+Infinity`, `nan`). Like PostgreSQL, they refuse a number out of float8's range (`1e400`, `1e-400`) and a negative radius. Hexadecimal numbers and the mismatched delimiters PostgreSQL tolerates (`<(1,2),3)`) are not read.
 - Code comparing `toPg()` output or `(string) $point` with a fixed text must expect the new text.
 - `PgCircle::getPointConverter()` is no longer called: a subclass overriding it to change how the center is written must override `Point::__toString()` or `toPg()` instead. Such a subclass gets a silenced `E_USER_DEPRECATED` when it is built, reported by debug tools and deprecation handlers. The method is deprecated and will be removed in 6.0.
+
+## 11. Values Pomm cannot send to an untyped parameter are refused
+
+Pomm converts only `$*::type` parameters. A `$*` without a type, or a numbered `$1`, is turned into text by pgsql itself. `SimpleQueryManager` and `PreparedQuery` now check these values:
+
+| Value | 4.x sent | 5.0 |
+|---|---|---|
+| array | `'Array'`, with a PHP warning | `ConverterException` |
+| object PHP cannot turn into text (`DateTime`, `stdClass`...) | PHP `Error` | `ConverterException` |
+| resource | `'Resource id #N'` | `ConverterException` |
+| `bool`, `float` | `'1'` / `''`, the float with PHP's `precision` digits | unchanged, with a silenced `E_USER_DEPRECATED` |
+
+`null`, strings, integers, `Stringable` objects, other objects PHP turns into text (`GMP`) and enums are sent as before. Each position is noticed once per value kind (`true`, `false`, float) for a prepared query, and for a query sent through `SimpleQueryManager` (the 100 most recently sent queries are remembered).
+
+To fix a refused or noticed value, write the parameter `$*::type` (with `$*` for every parameter of the query, since Pomm numbers them), or pass the value already converted to a string, for instance for the `$*` that `Where::createWhereIn()` writes. The notices are silenced: PHP's default handler ignores them, while debug tools, deprecation loggers and PHPUnit's `ignoreSuppressionOfDeprecations="true"` report them. An error handler that throws on every error without checking `error_reporting()` ignores the `@` and therefore throws on these notices, as on any silenced deprecation.

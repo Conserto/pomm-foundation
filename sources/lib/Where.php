@@ -283,13 +283,15 @@ class Where implements \Stringable
         }
 
         if ($this->hasElement()) {
-            return $this->values;
+            // Renumbered too: a caller merging the values of several clauses must not lose those sharing a key.
+            return array_values($this->values);
         }
 
         $values = [];
 
         foreach ($this->stack as $where) {
-            $values[] = $where->getValues();
+            // Renumbered: array_merge() keeps one value per string key, and each condition has its own parameters.
+            $values[] = array_values($where->getValues());
         }
 
         return array_merge(...$values);

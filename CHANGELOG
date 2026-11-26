@@ -6,6 +6,7 @@
  * BC BREAK - PgEnum reads a label only as the case writes it ('2', not '02'); writing also accepts the raw value
  * BC BREAK - Mixed case type names are quoted in converter SQL: a name relying on case folding (MyEnum for myenum) now fails
  * BC BREAK - Geometric converters write the given type (a domain checks its constraints) and refuse a malformed description. See UPGRADE-5.0.md
+ * BC BREAK - Untyped parameters ($*, $1) refuse arrays, DateTime and resources; bool and float raise a silenced deprecation. See UPGRADE-5.0.md
  * Test sessions open their own connection and are shut down after each test: they must not be shared between tests
  * Calls that ended in a PHP TypeError / Error raise a Pomm exception naming the faulty value or setting
  * Accessors that ended in a TypeError return a default: '' for SqlException error fields, null for getNotification()
@@ -29,6 +30,9 @@
  * Fix PgComposite writing fields holding a quote or a backslash unescaped
  * Fix PgEnum (formerly PgBackedEnum) writing invalid SQL in arrays and composites, and 'NULL::type' for a null parameter
  * Fix PgPoint / PgBox / PgCircle writing 14 digits only and INF as invalid SQL, failing on a circle domain, and refusing x,y,r or inf
+ * Fix query parameter types matched by array key instead of position: with named keys, $*::type values were not converted
+ * Fix Where::getValues() losing values that share a string key
+ * Fix PreparedQuery parsing its SQL at every execute when it has no $* parameter
 
 == VERSION 4.0.5
 

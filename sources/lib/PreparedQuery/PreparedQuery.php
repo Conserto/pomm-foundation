@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -16,6 +18,7 @@ use PommProject\Foundation\Converter\ConverterClient;
 use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Exception\SqlException;
+use PommProject\Foundation\Internal\UntypedParameter;
 use PommProject\Foundation\Listener\SendNotificationTrait;
 use PommProject\Foundation\QueryManager\QueryParameterParserTrait;
 use PommProject\Foundation\Session\ResultHandler;
@@ -35,6 +38,9 @@ class PreparedQuery extends Client
     private string $identifier;
     /** @var array<int, ?callable>|null  */
     private ?array $converters = null;
+
+    /** @var array<string, true> notices already given for untyped parameters, by position and value kind */
+    private array $noticed = [];
 
     /** Returns a hash for a given sql query. */
     public static function getSignatureFor(string $sql): string
@@ -170,7 +176,7 @@ class PreparedQuery extends Client
      * without caching because it targets one-shot queries.
      *
      * @param array<int, mixed> $values
-     * @return array<int, mixed> $prepared_values (values without a type hint are passed as is)
+     * @return array<int, mixed> $prepared_values (untyped values are checked by the internal UntypedParameter)
      * @throws FoundationException
      */
     protected function prepareValues(mixed $sql, array $values): array
@@ -179,12 +185,18 @@ class PreparedQuery extends Client
             $this->prepareConverters($sql);
         }
 
-        foreach ($values as $index => $value) {
-            if (isset($this->converters[$index])) {
-                $values[$index] = ($this->converters[$index])($value);
-            } elseif ($value instanceof \UnitEnum) {
-                $values[$index] = $value instanceof \BackedEnum ? $value->value : $value->name;
+        // pgsql sends the values in order, whatever their keys: converters are matched by position.
+        $position = 0;
+
+        foreach ($values as $key => $value) {
+            if (isset($this->converters[$position])) {
+                $values[$key] = ($this->converters[$position])($value);
+            } else {
+                // Noticed once per position and value kind: a prepared query may be executed for many rows.
+                $values[$key] = UntypedParameter::check($value, $position, $this->noticed);
             }
+
+            ++$position;
         }
 
         return $values;
@@ -197,9 +209,14 @@ class PreparedQuery extends Client
      */
     protected function prepareConverters(mixed $sql): PreparedQuery
     {
+        // Built aside and stored once complete: a type without converter leaves the cache unset, so the next execute
+        // tries again instead of sending the remaining parameters unconverted. Stored even when empty (no $*
+        // parameter), so the SQL is parsed once.
+        $converters = [];
+
         foreach ($this->getParametersType($sql) as $index => $type) {
             if ($type === '') {
-                $this->converters[$index] = null;
+                $converters[$index] = null;
             } else {
                 /** @var ConverterClient $converterClient */
                 $converterClient = $this
@@ -208,10 +225,12 @@ class PreparedQuery extends Client
 
                 $converter = $converterClient->getConverter();
 
-                $this->converters[$index] =
+                $converters[$index] =
                     fn ($value) => $converter->toPgStandardFormat($value, $type, $this->getSession());
             }
         }
+
+        $this->converters = $converters;
 
         return $this;
     }
