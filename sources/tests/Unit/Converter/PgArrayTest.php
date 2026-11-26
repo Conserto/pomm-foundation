@@ -13,10 +13,13 @@
 namespace PommProject\Foundation\Tests\Unit\Converter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PommProject\Foundation\Converter\ConverterPooler;
 use PommProject\Foundation\Converter\PgArray;
+use PommProject\Foundation\Converter\PgString;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\Session\ResultHandler;
+use PommProject\Foundation\Session\Session;
 
 #[CoversClass(PgArray::class)]
 final class PgArrayTest extends BaseConverterTestCase
@@ -200,5 +203,37 @@ final class PgArrayTest extends BaseConverterTestCase
             self::assertInstanceOf(ResultHandler::class, $result);
             self::assertSame(['j' => $json], $result->fetchRow(0));
         }
+    }
+
+    /**
+     * An element its converter writes as null is written NULL: an empty element ({a,,c}) is rejected by PostgreSQL.
+     *
+     * @throws FoundationException|SqlException
+     */
+    public function testWritesNullForElementConvertedToNull(): void
+    {
+        $session = $this->buildSession();
+        $converterPooler = $session->getPoolerForType('converter');
+        self::assertInstanceOf(ConverterPooler::class, $converterPooler);
+        $converterPooler->getConverterHolder()->registerConverter(
+            'EmptyAsNull',
+            new class () extends PgString {
+                #[\Override]
+                public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
+                {
+                    return $data === '' ? null : parent::toPgStandardFormat($data, $type, $session);
+                }
+            },
+            ['empty_as_null']
+        );
+
+        $text = new PgArray()->toPgStandardFormat(['a', '', 'c'], 'empty_as_null', $session);
+        self::assertSame('{a,NULL,c}', $text);
+        $connection = $session->getConnection();
+        $result = $connection->executeAnonymousQuery(
+            sprintf('select array_to_json(%s::text[])::text as j', $connection->escapeLiteral($text))
+        );
+        self::assertInstanceOf(ResultHandler::class, $result);
+        self::assertSame(['j' => '["a",null,"c"]'], $result->fetchRow(0));
     }
 }

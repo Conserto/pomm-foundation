@@ -103,16 +103,13 @@ class PgArray extends ArrayTypeConverter
         return
             sprintf('{%s}', implode(
                 ',',
-                array_map(function (mixed $val) use ($converter, $type, $session): ?string {
+                array_map(function (mixed $val) use ($converter, $type, $session): string {
+                    // A converter may return null for a value it writes as SQL NULL: an empty element ({1,,3}) is
+                    // rejected by PostgreSQL.
+                    $val = $val !== null ? $converter->toPgStandardFormat($val, $type, $session) : null;
+
                     if ($val === null) {
                         return 'NULL';
-                    }
-
-                    $val = $converter->toPgStandardFormat($val, $type, $session);
-
-                    if ($val === null) {
-                        // Same output as before (implode() turns null into ''), without passing null to preg_match().
-                        return null;
                     }
 
                     if ($val !== '') {

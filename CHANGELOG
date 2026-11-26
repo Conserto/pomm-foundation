@@ -29,7 +29,7 @@
  * Fix SQL injection in PgJson::toPg() and PgFloat::toPg(): a string was written between quotes unescaped. It is now escaped by the connection, as PgString does; PgFloat writes numbers directly, without the connection. Parameterized queries were not affected
  * PgJson::toPg() writes the given type (`jsonb '…'`) instead of always `json '…'`; the stored value is the same
  * Fix PgBoolean writing '1', 't', 'true', 'yes', 'on' as false
- * Fix PgArray writing an element 'NULL' as SQL NULL, braces as a nested array, and a backslash as an escape character (a\b was stored ab); sub-arrays (int4[][]) were quoted as strings. Reading is unchanged: a quoted "NULL" element still gives null, and arrays with several dimensions cannot be read
+ * Fix PgArray writing an element 'NULL' as SQL NULL, braces as a nested array, and a backslash as an escape character (a\b was stored ab); sub-arrays (int4[][]) were quoted as strings, and an element its converter returned null for was left empty ({1,,3}). Reading is unchanged: a quoted "NULL" element still gives null, and arrays with several dimensions cannot be read
  * Fix PgComposite writing a field holding a quote or a backslash unescaped, which PostgreSQL misread. Reading such a field back is still not supported
  * BC BREAK - The integer, boolean and date converters follow PostgreSQL instead of PHP: strings are passed unchanged and PostgreSQL accepts or rejects them; floats are rounded half to even into integers (they were truncated); booleans into integers or dates and numbers into booleans or dates raise a ConverterException. Values that were silently altered ('abc' stored as 0, 'yes' as false, '2024-02-30' as 2024-03-01) now fail. See UPGRADE-5.0.md section 8
 
