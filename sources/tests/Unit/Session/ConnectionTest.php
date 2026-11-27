@@ -13,6 +13,7 @@
 namespace PommProject\Foundation\Tests\Unit\Session;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\FoundationException;
@@ -53,31 +54,66 @@ final class ConnectionTest extends TestCase
     }
 
     /**
-     * @throws ConnectionException from getConnection()
-     * @throws FoundationException|SqlException from sendQueryWithParameters on the happy path.
+     * The two ways of sending a query with parameters: directly, or as a prepared statement.
+     *
+     * @return iterable<string, array{\Closure(Connection, string, array<int, mixed>): ResultHandler}>
      */
-    public function testSendQueryWithParameters(): void
+    public static function parameterizedQuerySenders(): iterable
     {
-        $badQuery = 'select n where true = $1';
-        // true is kept unquoted here: Connection::sendQueryWithParameters is expected to
-        // coerce scalars to their Postgres text form transparently, and the SqlException
-        // path must preserve the raw parameters as supplied (asserted below).
-        $parameters = [true];
+        yield 'query with parameters' => [self::sendDirect(...)];
+        yield 'prepared statement' => [self::sendPrepared(...)];
+    }
 
+    /**
+     * @param array<int, mixed> $parameters
+     * @throws FoundationException|SqlException
+     */
+    private static function sendDirect(Connection $connection, string $sql, array $parameters): ResultHandler
+    {
+        return $connection->sendQueryWithParameters($sql, $parameters);
+    }
+
+    /**
+     * @param array<int, mixed> $parameters
+     * @throws FoundationException|SqlException
+     */
+    private static function sendPrepared(Connection $connection, string $sql, array $parameters): ResultHandler
+    {
+        $identifier = 'test_' . md5($sql);
+        $connection->sendPrepareQuery($identifier, $sql);
+
+        return $connection->sendExecuteQuery($identifier, $parameters, $sql);
+    }
+
+    /**
+     * A failing query keeps its parameters available, but out of the exception message, which ends up in logs.
+     *
+     * @param \Closure(Connection, string, array<int, mixed>): ResultHandler $send
+     * @throws ConnectionException from getConnection()
+     * @throws FoundationException|SqlException from $send on the happy path.
+     */
+    #[DataProvider('parameterizedQuerySenders')]
+    public function testParameterizedQuery(\Closure $send): void
+    {
+        // true stays a PHP bool: the exception must keep the parameters as supplied.
+        $parameters = ['s3cr3t-token', true];
         $connection = $this->getConnection();
 
         self::assertInstanceOf(
             ResultHandler::class,
-            $connection->sendQueryWithParameters('select true where true = $1', $parameters)
+            $send($connection, 'select $1::text where $2::bool', $parameters)
         );
 
+        // The division fails at execution, with a message that does not quote the parameters.
+        $badQuery = 'select length($1::text) / 0 where $2::bool';
         try {
-            $connection->sendQueryWithParameters($badQuery, $parameters);
+            $send($connection, $badQuery, $parameters);
             self::fail('Expected SqlException was not thrown.');
         } catch (SqlException $e) {
-            self::assertSame(SqlException::UNDEFINED_COLUMN, $e->getSQLErrorState());
+            self::assertSame(SqlException::DIVISION_BY_ZERO, $e->getSQLErrorState());
             self::assertSame($parameters, $e->getQueryParameters());
-            self::assertSame($badQuery, $e->getQuery());
+            self::assertStringContainsString($badQuery, $e->getQuery());
+            self::assertStringNotContainsString('s3cr3t-token', $e->getMessage());
         }
     }
 
