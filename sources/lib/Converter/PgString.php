@@ -16,6 +16,7 @@ namespace PommProject\Foundation\Converter;
 use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Internal\StringCoercion;
 use PommProject\Foundation\Session\Session;
 
@@ -40,8 +41,8 @@ class PgString implements ConverterInterface
         $data = $this->unwrapEnum($data, $type);
 
         return $data !== null
-            ? sprintf("%s %s", $type, $session->getConnection()->escapeLiteral($this->toText($data)))
-            : sprintf("NULL::%s", $type);
+            ? sprintf("%s %s", PgTypeName::quote($type), $session->getConnection()->escapeLiteral($this->toText($data)))
+            : sprintf("NULL::%s", PgTypeName::quote($type));
     }
 
     /**

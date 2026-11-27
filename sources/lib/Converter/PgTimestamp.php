@@ -17,6 +17,7 @@ use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Internal\PgText;
+use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Internal\StringCoercion;
 use PommProject\Foundation\Session\Session;
 
@@ -62,14 +63,14 @@ class PgTimestamp implements ConverterInterface
     public function toPg(mixed $data, string $type, Session $session): string
     {
         if ($data === null) {
-            return sprintf("NULL::%s", $type);
+            return sprintf("NULL::%s", PgTypeName::quote($type));
         }
 
         $text = $this->passedAsText($data, $type);
 
         return $text !== null
-            ? sprintf("%s %s", $type, $session->getConnection()->escapeLiteral($text))
-            : sprintf("%s '%s'", $type, $this->checkData($data)->format(self::TS_FORMAT));
+            ? sprintf("%s %s", PgTypeName::quote($type), $session->getConnection()->escapeLiteral($text))
+            : sprintf("%s '%s'", PgTypeName::quote($type), $this->checkData($data)->format(self::TS_FORMAT));
     }
 
     /**

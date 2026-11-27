@@ -12,6 +12,7 @@
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Internal\StringCoercion;
 use PommProject\Foundation\Session\Session;
 
@@ -66,8 +67,8 @@ class PgInterval implements ConverterInterface
     public function toPg(mixed $data, string $type, Session $session): string
     {
         return $data !== null
-            ? sprintf("%s '%s'", $type, $this->toPostgresInterval($this->checkData($data)))
-            : sprintf("NULL::%s", $type);
+            ? sprintf("%s '%s'", PgTypeName::quote($type), $this->toPostgresInterval($this->checkData($data)))
+            : sprintf("NULL::%s", PgTypeName::quote($type));
     }
 
     /**

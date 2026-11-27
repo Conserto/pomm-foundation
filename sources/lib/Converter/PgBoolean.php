@@ -17,6 +17,7 @@ use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Internal\PgText;
+use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -58,9 +59,9 @@ class PgBoolean implements ConverterInterface
     public function toPg(mixed $data, string $type, Session $session): string
     {
         return match (true) {
-            $data === null => sprintf("NULL::%s", $type),
-            is_bool($data) => sprintf("%s '%s'", $type, $data ? "true" : "false"),
-            default => sprintf("%s %s", $type, $session->getConnection()->escapeLiteral($this->toText($data, $type))),
+            $data === null => sprintf("NULL::%s", PgTypeName::quote($type)),
+            is_bool($data) => sprintf("%s '%s'", PgTypeName::quote($type), $data ? "true" : "false"),
+            default => sprintf("%s %s", PgTypeName::quote($type), $session->getConnection()->escapeLiteral($this->toText($data, $type))),
         };
     }
 

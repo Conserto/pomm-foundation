@@ -36,6 +36,7 @@
  * Fix PgEnum::toPg() (formerly PgBackedEnum) returning the bare value (`a`), which made arrays and composite types of an enum invalid SQL: it returns `status 'a'`
  * Fix PgEnum::toPgStandardFormat() (formerly PgBackedEnum) returning 'NULL::status' for null, which PostgreSQL rejected: it returns null. A subclass overriding toPg() must override toPgStandardFormat() too
  * BC BREAK - PgEnum matches a label only against the value as the case writes it ('2', not '02' or '2.0'), so every label read can be written back. Writing also accepts the raw value (backing value or case name, as a string, an int or a Stringable)
+ * BC BREAK - Fix converters writing a mixed case type name unquoted in SQL (`Status 'a'`, `NULL::Status`): PostgreSQL folded it to `status`, so a type created as "Status" was not found. A name part mixing upper and lower case letters is now quoted. A name that only worked through folding (`MyEnum` for a type created as myenum) now fails; another name needing quotes ("STATUS", "order") must be given quoted
 
 == VERSION 4.0.5
 

@@ -16,6 +16,7 @@ use PommProject\Foundation\Converter\ConverterInterface;
 use PommProject\Foundation\Converter\Type\Circle;
 use PommProject\Foundation\Converter\TypeConverter;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -47,7 +48,7 @@ class PgCircle extends TypeConverter
     public function toPg(mixed $data, string $type, Session $session): string
     {
         if ($data === null) {
-            return sprintf("NULL::%s", $type);
+            return sprintf("NULL::%s", PgTypeName::quote($type));
         }
 
         /** @var Circle $data */
@@ -56,7 +57,7 @@ class PgCircle extends TypeConverter
         return
             sprintf(
                 "%s(%s,%s)",
-                $type,
+                PgTypeName::quote($type),
                 $this->getPointConverter($session)
                     ->toPg($data->center, 'point'),
                 $data->radius

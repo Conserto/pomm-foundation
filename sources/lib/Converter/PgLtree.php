@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -55,7 +56,7 @@ class PgLtree extends ArrayTypeConverter
             $data !== null
             // @phpstan-ignore argument.type (implode() converts each user value itself, as it always did)
             ? sprintf("ltree '%s'", implode('.', $this->checkArray($data)))
-            : sprintf("NULL::%s", $type);
+            : sprintf("NULL::%s", PgTypeName::quote($type));
     }
 
     /**

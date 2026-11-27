@@ -13,6 +13,7 @@ namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -58,7 +59,7 @@ class PgComposite extends ArrayTypeConverter
     public function toPg(mixed $data, string $type, Session $session): string
     {
         if ($data === null) {
-            return sprintf("NULL::%s", $type);
+            return sprintf("NULL::%s", PgTypeName::quote($type));
         }
 
         $data = $this->checkArray($data);
@@ -66,7 +67,7 @@ class PgComposite extends ArrayTypeConverter
         return sprintf(
             "ROW(%s)::%s",
             implode(',', $this->convertArrayToPg($data, $session)),
-            $type
+            PgTypeName::quote($type)
         );
     }
 

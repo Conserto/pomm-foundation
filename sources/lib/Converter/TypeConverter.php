@@ -12,6 +12,7 @@
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -56,11 +57,11 @@ abstract class TypeConverter implements ConverterInterface
     public function toPg(mixed $data, string $type, Session $session): string
     {
         if ($data === null) {
-            return sprintf("NULL::%s", $type);
+            return sprintf("NULL::%s", PgTypeName::quote($type));
         }
         $dataObject = $this->checkData($data);
         if ($dataObject instanceof \Stringable) {
-            return sprintf("%s('%s')", $type, $dataObject);
+            return sprintf("%s('%s')", PgTypeName::quote($type), $dataObject);
         }
         throw new ConverterException(
             sprintf("Unable to transform a '%s' instance to string.", $dataObject::class),

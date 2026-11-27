@@ -12,6 +12,7 @@
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -73,7 +74,7 @@ class PgArray extends ArrayTypeConverter
         $type = static::getSubType($type);
 
         if ($data === null) {
-            return sprintf("NULL::%s[]", $type);
+            return sprintf("NULL::%s[]", PgTypeName::quote($type));
         }
 
         $converter = $this->getSubtypeConverter($type, $session);
@@ -82,7 +83,7 @@ class PgArray extends ArrayTypeConverter
         return sprintf(
             'ARRAY[%s]::%s[]',
             implode(',', array_map(fn (mixed $val): string => $converter->toPg($val, $type, $session), $data)),
-            $type
+            PgTypeName::quote($type)
         );
     }
 
