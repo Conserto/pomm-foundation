@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace PommProject\Foundation\Converter;
 
+use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Internal\StringCoercion;
 use PommProject\Foundation\Session\Session;
@@ -144,7 +146,10 @@ class PgHstore extends ArrayTypeConverter
     }
 
     /**
-     * @throws ConverterException
+     * The hstore text is escaped by the connection: it used to be delimited by $hs$, so a key or a value holding $hs$
+     * closed the delimiter and injected SQL.
+     *
+     * @throws ConnectionException|ConverterException|FoundationException
      * @see \Pomm\Converter\ConverterInterface
      */
     public function toPg(mixed $data, string $type, Session $session): string
@@ -153,7 +158,11 @@ class PgHstore extends ArrayTypeConverter
             return sprintf("NULL::%s", PgTypeName::quote($type));
         }
 
-        return sprintf("%s(\$hs\$%s\$hs\$)", PgTypeName::quote($type), implode(', ', $this->buildArray($this->checkArray($data))));
+        return sprintf(
+            '%s(%s)',
+            PgTypeName::quote($type),
+            $session->getConnection()->escapeLiteral(implode(', ', $this->buildArray($this->checkArray($data))))
+        );
     }
 
     /**

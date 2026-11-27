@@ -177,28 +177,41 @@ class ConnectionConfigurator
         $connectParameters = [
             sprintf(
                 "user=%s dbname=%s",
-                $this->configuration->getString('user'),
-                $this->configuration->getString('database')
+                $this->connectionValue($this->configuration->getString('user')),
+                $this->connectionValue($this->configuration->getString('database'))
             ),
         ];
 
         $host = $this->configuration->getString('host');
         if ($host !== '') {
-            $connectParameters[] = sprintf('host=%s', $host);
+            $connectParameters[] = sprintf('host=%s', $this->connectionValue($host));
         }
 
         $port = $this->configuration->getString('port');
         if ($port !== '') {
-            $connectParameters[] = sprintf('port=%s', $port);
+            $connectParameters[] = sprintf('port=%s', $this->connectionValue($port));
         }
 
         $pass = $this->configuration->getString('pass');
         if ($pass !== '') {
-            $connectParameters[] = sprintf('password=%s', addslashes($pass));
+            $connectParameters[] = sprintf('password=%s', $this->connectionValue($pass));
         }
 
         return implode(' ', $connectParameters);
     }
+
+    /**
+     * A value of the connection string, quoted as libpq reads it. A value holding a space, a quote or a backslash
+     * used to be written bare: a password with a space broke the connection, and one such as 'x sslmode=disable'
+     * added a connection parameter. Other values are written unchanged.
+     */
+    private function connectionValue(string $value): string
+    {
+        return preg_match('/^[^\s\'\\\\]+\z/', $value) === 1
+            ? $value
+            : sprintf("'%s'", addcslashes($value, "'\\"));
+    }
+
     /**
      * Standalone, default configuration.
      *
