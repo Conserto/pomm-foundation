@@ -33,9 +33,9 @@ use PommProject\Foundation\Session\Session;
 class PgEnum implements ConverterInterface
 {
     /**
-     * Cases by PostgreSQL label, built on first use.
+     * Cases by PostgreSQL label, built on first use. PHP turns a numeric label ('2') into an int key.
      *
-     * @var array<string, \UnitEnum>|null
+     * @var array<int|string, \UnitEnum>|null
      */
     private ?array $cases = null;
 
@@ -47,7 +47,11 @@ class PgEnum implements ConverterInterface
     public function __construct(private readonly string $enumFqcn)
     {
         if (!enum_exists($this->enumFqcn)) {
-            throw new ConverterException(sprintf('Enum "%s" does not exist.', $this->enumFqcn));
+            throw new ConverterException(
+                class_exists($this->enumFqcn) || interface_exists($this->enumFqcn) || trait_exists($this->enumFqcn)
+                    ? sprintf('"%s" is not an enum.', $this->enumFqcn)
+                    : sprintf('Enum "%s" does not exist.', $this->enumFqcn)
+            );
         }
     }
 

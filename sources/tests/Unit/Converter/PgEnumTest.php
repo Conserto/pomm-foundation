@@ -154,6 +154,22 @@ final class PgEnumTest extends BaseConverterTestCase
     }
 
     /**
+     * A class that does not exist, or is not an enum, is reported as such, not as a pure enum.
+     *
+     * @param class-string $class
+     * @throws ConverterException
+     */
+    #[IgnoreDeprecations]
+    #[TestWith(['App\\Missing', 'Enum "App\\Missing" does not exist.'])]
+    #[TestWith([\DateTime::class, '"DateTime" is not an enum.'])]
+    public function testPgBackedEnumRejectsNonEnums(string $class, string $message): void
+    {
+        $this->expectException(ConverterException::class);
+        $this->expectExceptionMessage($message);
+        new PgBackedEnum($class);
+    }
+
+    /**
      * A Stringable is written as its string, like PgString does.
      *
      * @throws FoundationException
@@ -313,9 +329,20 @@ final class PgEnumTest extends BaseConverterTestCase
     public function testConstructorRejectsNonEnums(): void
     {
         $this->expectException(ConverterException::class);
-        $this->expectExceptionMessage('Enum "UnitEnum" does not exist.');
+        $this->expectExceptionMessage('"UnitEnum" is not an enum.');
         // The interface itself: a valid class-string<UnitEnum> that is not an enum.
         new PgEnum(\UnitEnum::class);
+    }
+
+    /**
+     * @throws ConverterException
+     */
+    public function testConstructorRejectsMissingClass(): void
+    {
+        $this->expectException(ConverterException::class);
+        $this->expectExceptionMessage('Enum "App\\Missing" does not exist.');
+        // @phpstan-ignore argument.type (a class that does not exist, on purpose)
+        new PgEnum('App\\Missing');
     }
 
     /**

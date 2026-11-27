@@ -36,10 +36,12 @@ class PgBackedEnum extends PgEnum
             E_USER_DEPRECATED
         );
 
-        if (!is_a($enumFqcn, \BackedEnum::class, true)) {
+        if (enum_exists($enumFqcn) && !is_a($enumFqcn, \BackedEnum::class, true)) {
             throw new ConverterException(sprintf('"%s" is not a backed enum: use PgEnum.', $enumFqcn));
         }
 
+        // PgEnum reports a class that does not exist or is not an enum.
+        // @phpstan-ignore argument.type (checked by PgEnum's constructor, which throws for anything but an enum)
         parent::__construct($enumFqcn);
     }
 

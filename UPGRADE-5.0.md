@@ -165,4 +165,4 @@ It fixes two outputs of `PgBackedEnum` that were invalid:
 - A subclass of `PgBackedEnum` overriding `toPg()` also changed the `$*::status` parameters, since `toPgStandardFormat()` called `toPg()`. Extend `PgEnum` and override `toPgStandardFormat()` too.
 - `PgEnum` accepts a raw value besides the cases when writing (`'a'`, `2` / `'2'` for an int backed enum, `'Active'` for a pure enum, or a `Stringable` giving one of them), so code writing raw values can register it without changing its writes. An unknown value raises a `ConverterException`.
 - For an int backed enum, a label matches only the value as the case writes it (`'2'` for `2`), so every label read can be written back. `'02'`, `' 2'` or `'2.0'`, which PHP converted to `2`, raise a `ConverterException`, as `'two'` does (it used to raise a `TypeError`).
-- Error messages change: `Value "x" not found in enum "Status".`, `Enum "X" does not exist.`
+- Error messages change: `Value "x" not found in enum "Status".`, `Enum "X" does not exist.`, `"X" is not an enum.`, and for `PgBackedEnum` given a pure enum, `"X" is not a backed enum: use PgEnum.`
