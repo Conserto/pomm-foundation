@@ -436,13 +436,15 @@ class Connection
     {
         $ret = pg_send_execute($this->getHandler(), $identifier, $parameters);
 
-        /** @var ResultHandler $result */
-        $result = $this
-            ->testQuery($ret, sprintf("Prepared query '%s'.", $identifier))
-            ->getQueryResult(
-                // @phpstan-ignore argument.type (implode() converts each parameter for the message, as it always did)
-                sprintf("EXECUTE ===\n%s\n ===\nparameters = {%s}", $sql, implode(', ', $parameters))
-            );
+        try {
+            /** @var ResultHandler $result */
+            $result = $this
+                ->testQuery($ret, sprintf("Prepared query '%s'.", $identifier))
+                ->getQueryResult(sprintf("EXECUTE ===\n%s\n ===", $sql));
+        } catch (SqlException $e) {
+            // The values may be secrets: they are kept out of the message, which ends up in logs.
+            throw $e->setQueryParameters($parameters);
+        }
 
         return $result;
     }
