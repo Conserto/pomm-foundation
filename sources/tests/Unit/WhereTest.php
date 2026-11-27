@@ -107,6 +107,17 @@ final class WhereTest extends TestCase
         self::assertSame([1, 2, 3, 4], $where->getValues());
     }
 
+    /** Each condition keeps its values when they share a key: there is one value per parameter. */
+    public function testValuesWithSameKeys(): void
+    {
+        // Named keys are not documented, but they are accepted and used to lose values.
+        $where = Where::create('a = $*', ['id' => 1]); // @phpstan-ignore argument.type
+        $where->andWhere('b = $*', ['id' => 2]); // @phpstan-ignore argument.type
+
+        self::assertSame([1, 2], $where->getValues());
+        self::assertSame([3], Where::create('c = $*', ['id' => 3])->getValues()); // @phpstan-ignore argument.type
+    }
+
     public function testGetElementWithoutElement(): void
     {
         self::assertSame('a', Where::create('a')->getElement());

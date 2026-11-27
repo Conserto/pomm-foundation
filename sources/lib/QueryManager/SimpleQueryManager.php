@@ -16,6 +16,7 @@ namespace PommProject\Foundation\QueryManager;
 use PommProject\Foundation\ConvertedResultIterator;
 use PommProject\Foundation\Converter\ConverterClient;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\UntypedParameter;
 use PommProject\Foundation\Listener\SendNotificationTrait;
 use PommProject\Foundation\Session\ResultHandler;
 
@@ -30,6 +31,12 @@ class SimpleQueryManager extends QueryManagerClient
 {
     use SendNotificationTrait;
     use QueryParameterParserTrait;
+
+    /** Number of queries whose notices are remembered (the least recently sent is forgotten first). */
+    private const int NOTICED_QUERIES = 100;
+
+    /** @var array<string, array<string, true>> notices already given for untyped parameters, by query signature */
+    private array $noticed = [];
 
     /**
      * Perform a simple escaped query and return converted result iterator.
@@ -77,33 +84,63 @@ class SimpleQueryManager extends QueryManagerClient
      *
      * @throws FoundationException
      * @param array<int, mixed> $parameters
-     * @return array<int, mixed> (values without a type hint are passed as is)
+     * @return array<int, mixed> (values without a type hint are checked by the internal UntypedParameter)
      */
     protected function prepareArguments(string $sql, array $parameters): array
     {
         $types = $this->getParametersType($sql);
 
-        foreach ($parameters as $index => $value) {
-            if (isset($types[$index]) && $types[$index] !== '') {
-                /** @var ConverterClient $converterClient */
-                $converterClient = $this
-                    ->getSession()
-                    ->getClientUsingPooler('converter', $types[$index]);
+        // pgsql sends the values in order, whatever their keys: types are matched by position.
+        $position = 0;
+        $signature = md5($sql);
+        $noticed = $this->noticed[$signature] ?? [];
 
-                $parameters[$index] = $converterClient->toPgStandardFormat($value, $types[$index]);
-            } elseif ($value instanceof \UnitEnum) {
-                $parameters[$index] = $value instanceof \BackedEnum ? $value->value : $value->name;
+        try {
+            foreach ($parameters as $key => $value) {
+                if (isset($types[$position]) && $types[$position] !== '') {
+                    /** @var ConverterClient $converterClient */
+                    $converterClient = $this
+                        ->getSession()
+                        ->getClientUsingPooler('converter', $types[$position]);
+
+                    $parameters[$key] = $converterClient->toPgStandardFormat($value, $types[$position]);
+                } else {
+                    // Noticed once per query, position and value kind: a query may be sent in a loop.
+                    $parameters[$key] = UntypedParameter::check($value, $position, $noticed);
+                }
+
+                ++$position;
             }
+        } finally {
+            // Remembered even when a parameter is refused, so a retried query is not noticed again.
+            $this->rememberNotices($signature, $noticed);
         }
 
         return $parameters;
+    }
+
+    /** @param array<string, true> $noticed */
+    private function rememberNotices(string $signature, array $noticed): void
+    {
+        if ($noticed === []) {
+            return;
+        }
+
+        // Moved to the end: the first entry is the least recently sent query.
+        unset($this->noticed[$signature]);
+
+        if (count($this->noticed) >= self::NOTICED_QUERIES) {
+            array_shift($this->noticed);
+        }
+
+        $this->noticed[$signature] = $noticed;
     }
 
     /**
      * Perform the query
      *
      * @throws FoundationException
-     * @param array<int, mixed> $parameters converted values, or values passed as is when untyped
+     * @param array<int, mixed> $parameters converted values, or checked values when untyped
      */
     protected function doQuery(string $sql, array $parameters): ResultHandler
     {

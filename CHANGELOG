@@ -1,51 +1,38 @@
 == VERSION 5.0.0
 
- * BC BREAK — Replace atoum with PHPUnit 11.5 as the test framework. The helper base classes `PommProject\Foundation\Tester\VanillaSessionAtoum` and `FoundationSessionAtoum` are removed in favor of `VanillaSessionTestCase` and `FoundationSessionTestCase` (both extend `PHPUnit\Framework\TestCase`). Downstream packages must update their test base classes accordingly — see UPGRADE-5.0.md.
- * BC BREAK — Rename the autoload-dev PSR-4 prefix `PommProject\Foundation\Test\` to `PommProject\Foundation\Tests\` to match the `sources/tests/` directory (PSR-4 compliance). Only affects code inside this package's own test tree.
- * The new `*TestCase` helpers force `connection:persist => true` so each `buildSession()` call opens a fresh `pg_connect(..., FORCE_NEW)` backend. Without this, PHPUnit's single-process execution would leak prepared statements across tests through `pg_pconnect`'s pooled connection.
- * Test assertions are now strict (`assertSame` by default); `assertEquals` is reserved for value equality on `DateTime` / `DateInterval` instances. The migration also introduces `#[DataProvider]` / `#[TestWith]` attributes to consolidate repetitive table-driven tests (Inflector, PgBoolean, PgInteger, PgFloat, Pager, PgNumRange, PgTsRange, ConnectionConfigurator).
- * CI: add PHP 8.6 to the test matrix (8.4, 8.5, 8.6); minimum supported version stays PHP 8.4
- * PHPUnit: failOnDeprecation and displayDetailsOnTestsThatTriggerDeprecations enabled, so PHP deprecations raised from sources/lib fail the suite instead of passing silently
- * Fix PHP 8.5+ deprecation "Using null as an array offset" in ClientHolder::get() when called with a null client type (behaviour unchanged: still returns null)
- * Rector config: drop the Symfony sets (not a Symfony package, and SymfonySetList::SYMFONY_71 no longer exists in Rector 2.8), switch to withPhpSets() (minimum PHP read from composer.json) + prepared sets (deadCode, codeQuality, typeDeclarations, rectorPreset) with name importing; remove the obsolete NewInInitializerRector skip
- * Rector pass over sources/: declare(strict_types=1) where provably safe (28 lib files, 18 test files), join() -> implode(), redundant else / sprintf('%s') removed, ??= null coalescing, strict comparisons, static:: -> self:: on final constants, redundant @param/@return tags removed, concrete test classes made final. No public or protected signature changed
- * PgBox::toPg(): document `@param string $type` locally (it relied on a parent tag that is now gone)
- * Session: declare the __call() client shortcuts with @method (getQueryManager, getInspector, getPreparedQuery, getConverter, getObserver, getListener) so IDEs and static analysers see their precise return types; no runtime change
- * Mark the parameters carrying the DSN (and its password) with #[\SensitiveParameter] so they are redacted from exception stack traces: Pomm::__construct, Session\SessionBuilder::__construct / addParameter / createConnection, Connection::__construct, ConnectionConfigurator::__construct, Tester\*TestCase::createSessionBuilder. No signature change; overriding methods must add the attribute themselves to redact their own frame
- * Fix the database password leaking into exception messages: ConnectionConfigurator now masks it (user:****@host) in its four DSN error messages, including on malformed DSNs; Connection masks the whole password value on connection failure (a URL-decoded password containing spaces was only partially masked)
- * QueryManagerInterface::query(): document the return type as \Iterator<int, array<string, mixed>> (one associative array per row, as every Foundation query manager returns); docblock only
- * VanillaSessionTestCase / FoundationSessionTestCase: sessions built with buildSession() are shut down after each test (final #[After] hook, no parent::tearDown() call needed), closing their connections. They used to stay open until a garbage collection, and the suite came close to PostgreSQL's connection limit. A session built with buildSession() therefore lives for one test and must not be shared between tests (static property, #[Depends])
- * PHPStan: level 10 (maximum, up from 6), on sources/lib and sources/tests; docblocks typed (query results, configuration, Inspector results)
- * declare(strict_types=1) where proven safe; values PHP coerced implicitly are converted explicitly, with the same result
- * Error paths that ended in a PHP TypeError / Error now raise a Pomm exception (ConverterException, FoundationException, ConnectionException) naming the faulty value or setting
- * Accessors that ended in a TypeError before a connection or without a value now return one: SqlException::getSQLErrorState() / getSQLErrorSeverity() / getSqlErrorMessage() return '', Connection::getTransactionStatus() returns PGSQL_TRANSACTION_UNKNOWN, getNotification() returns null, ResultIterator::count() is never negative
- * ParameterHolder: new typed accessors getString() / getBool() / getArray()
- * ConverterClient::toPgStandardFormat() returns ?string: null instead of a TypeError when the converter has nothing to write
- * Fix SimpleQueryManager failing with a TypeError on a null typed parameter (`$*::int4`): null is sent as SQL NULL
- * Fix PgFloat reading NaN / Infinity / -Infinity as 0.0; writing them uses PostgreSQL's spelling (no PHP 8.6 warning)
- * Fix PgFloat losing digits: floats were written with 14 significant digits (PHP's precision setting), so 1/3 was stored 0.33333333333333. float4 / float8 are now written with the digits needed to read them back (at most 17); numeric and any other type, such as a domain, with 15, as PostgreSQL's float8 to numeric cast (0.1 + 0.2 gives 0.3). The precision setting no longer applies
+ * BC BREAK - PHPUnit 11.5 replaces atoum: use VanillaSessionTestCase / FoundationSessionTestCase. See UPGRADE-5.0.md
+ * BC BREAK - Integer, boolean and date converters follow PostgreSQL: values PHP silently altered ('abc', '2024-02-30') now fail. See UPGRADE-5.0.md
+ * BC BREAK - PgEnum replaces PgBackedEnum (deprecated, removed in 6.0) and also handles pure enums. See UPGRADE-5.0.md
+ * BC BREAK - PgEnum reads a label only as the case writes it ('2', not '02'); writing also accepts the raw value
+ * BC BREAK - Mixed case type names are quoted in converter SQL: a name relying on case folding (MyEnum for myenum) now fails
+ * BC BREAK - Geometric converters write the given type (a domain checks its constraints) and refuse a malformed description. See UPGRADE-5.0.md
+ * BC BREAK - Untyped parameters ($*, $1) refuse arrays, DateTime and resources; bool and float raise a silenced deprecation. See UPGRADE-5.0.md
+ * Test sessions open their own connection and are shut down after each test: they must not be shared between tests
+ * Calls that ended in a PHP TypeError / Error raise a Pomm exception naming the faulty value or setting
+ * Accessors that ended in a TypeError return a default: '' for SqlException error fields, null for getNotification()
+ * ParameterHolder: new typed accessors getString(), getBool() and getArray()
+ * ConverterClient::toPgStandardFormat() returns null instead of a TypeError when the converter has nothing to write
+ * Docblocks typed for PHPStan level 10 (query results, configuration, Session client shortcuts)
+ * The DSN parameters are marked #[\SensitiveParameter]: the password no longer shows in stack traces
+ * PgTimestamp raises a ConverterException for a value DateTime cannot hold ('infinity')
+ * PgJson::toPg() and PgLtree::toPg() write the given type (jsonb...) instead of always json / ltree
+ * PgLtree, PgHstore, range and geometric toPg() need an open connection, as PgString always did
+ * PgCircle::getPointConverter() is deprecated: PgCircle no longer calls it
+ * Fix SQL injection in toPg() of PgJson, PgFloat, PgLtree, PgHstore and ranges (parameterized queries were not affected)
+ * Fix the database password showing in connection error messages
+ * Fix connection string values holding a space, a quote or a backslash: a password could break or alter the connection
+ * Fix the PHP 8.5 deprecation "Using null as an array offset" in ClientHolder::get()
+ * Fix SimpleQueryManager failing with a TypeError on a null typed parameter
+ * Fix PgFloat reading NaN / Infinity as 0.0, and writing floats with 14 digits only (1/3 lost digits)
  * Fix PgInterval: negative intervals could not be read, and inverted DateIntervals were written as positive
- * PgTimestamp: a value DateTime cannot hold ('infinity') raises a ConverterException instead of a DateMalformedStringException
- * Fix SQL injection in PgJson::toPg() and PgFloat::toPg(): a string was written between quotes unescaped. It is now escaped by the connection, as PgString does; PgFloat writes numbers directly, without the connection. Parameterized queries were not affected
- * PgJson::toPg() writes the given type (`jsonb '…'`) instead of always `json '…'`; the stored value is the same
- * Fix PgBoolean writing '1', 't', 'true', 'yes', 'on' as false
- * Fix PgArray writing an element 'NULL' as SQL NULL, braces as a nested array, and a backslash as an escape character (a\b was stored ab); sub-arrays (int4[][]) were quoted as strings, and an element its converter returned null for was left empty ({1,,3}). Reading is unchanged: a quoted "NULL" element still gives null, and arrays with several dimensions cannot be read
- * Fix PgComposite writing a field holding a quote or a backslash unescaped, which PostgreSQL misread. Reading such a field back is still not supported
- * BC BREAK - The integer, boolean and date converters follow PostgreSQL instead of PHP: strings are passed unchanged and PostgreSQL accepts or rejects them; floats are rounded half to even into integers (they were truncated); booleans into integers or dates and numbers into booleans or dates raise a ConverterException. Values that were silently altered ('abc' stored as 0, 'yes' as false, '2024-02-30' as 2024-03-01) now fail. See UPGRADE-5.0.md section 8
- * BC BREAK - Replace PgBackedEnum with PgEnum, which also handles pure enums: a label maps to the case with the same value for a backed enum, with the same name for a pure one. PgBackedEnum stays as a deprecated subclass restricted to backed enums, removed in 6.0. See UPGRADE-5.0.md
- * Fix PgEnum::toPg() (formerly PgBackedEnum) returning the bare value (`a`), which made arrays and composite types of an enum invalid SQL: it returns `status 'a'`
- * Fix PgEnum::toPgStandardFormat() (formerly PgBackedEnum) returning 'NULL::status' for null, which PostgreSQL rejected: it returns null. A subclass overriding toPg() must override toPgStandardFormat() too
- * BC BREAK - PgEnum matches a label only against the value as the case writes it ('2', not '02' or '2.0'), so every label read can be written back. Writing also accepts the raw value (backing value or case name, as a string, an int or a Stringable)
- * BC BREAK - Fix converters writing a mixed case type name unquoted in SQL (`Status 'a'`, `NULL::Status`): PostgreSQL folded it to `status`, so a type created as "Status" was not found. A name part mixing upper and lower case letters is now quoted. A name that only worked through folding (`MyEnum` for a type created as myenum) now fails; another name needing quotes ("STATUS", "order") must be given quoted
- * Fix SQL injection in PgLtree::toPg(), PgHstore::toPg() and TypeConverter::toPg() (ranges): labels, hstore text and range descriptions were written into the literal unescaped. PgHstore relied on a $hs$ delimiter a value could close; range descriptions are only checked to contain a range. They are now escaped by the connection, so these toPg() need an open connection, as PgString always did. Parameterized queries were not affected
- * PgLtree::toPg() writes the given type instead of always `ltree`
- * Fix connection string values holding a space, a quote or a backslash: they were written bare, so a password with a space broke the connection and one such as `x sslmode=disable` added a connection parameter. They are now quoted as libpq reads them; other values are unchanged
- * BC BREAK - PgPoint / PgBox / PgCircle write the given type, so a domain checks its constraints and a circle domain no longer fails
- * Fix Point / Box / Circle losing digits (1/3 was stored 0.33333333333333) and writing INF as invalid SQL; Infinity and NaN are read back
- * BC BREAK - Point / Box / Circle refuse a description holding anything else than their numbers ('(1,2) junk', a radius 'abc' read 0)
- * Point / Box / Circle read PostgreSQL's usual input forms: x1,y1,x2,y2, ((x,y),r), x,y,r, inf or nan were refused
- * PgCircle::getPointConverter() is deprecated: PgCircle no longer calls it, and warns a subclass overriding it
- * AGENTS.md: review the staged diff for security flaws (unescaped SQL values, closable delimiters, connection string values, leaked secrets) before every commit
+ * Fix PgBoolean writing '1', 't', 'true', 'yes' and 'on' as false
+ * Fix PgArray writing 'NULL', braces, backslashes, sub-arrays and elements converted to null incorrectly
+ * Fix PgComposite writing fields holding a quote or a backslash unescaped
+ * Fix PgEnum (formerly PgBackedEnum) writing invalid SQL in arrays and composites, and 'NULL::type' for a null parameter
+ * Fix PgPoint / PgBox / PgCircle writing 14 digits only and INF as invalid SQL, failing on a circle domain, and refusing x,y,r or inf
+ * Fix query parameter types matched by array key instead of position: with named keys, $*::type values were not converted
+ * Fix Where::getValues() losing values that share a string key
+ * Fix PreparedQuery parsing its SQL at every execute when it has no $* parameter
 
 == VERSION 4.0.5
 

@@ -13,8 +13,10 @@
 namespace PommProject\Foundation\Tests\Unit\PreparedQuery;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PommProject\Foundation\Converter\Type\Circle;
 use PommProject\Foundation\Exception\ConnectionException;
+use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Exception\SqlException;
 use PommProject\Foundation\PreparedQuery\PreparedQuery;
@@ -94,6 +96,124 @@ final class PreparedQueryTest extends FoundationSessionTestCase
             TestUnitEnum::Active->name,
             $query->execute([TestUnitEnum::Active])->fetchRow(0)['v']
         );
+    }
+
+    /**
+     * Parameters are sent in order, whatever their keys: pgsql reads the values only.
+     *
+     * @throws FoundationException
+     */
+    public function testExecuteWithAnyKeys(): void
+    {
+        $session = $this->buildSession();
+        $query = new PreparedQuery('select $* as a, $*::int4 as b');
+        $session->registerClient($query);
+
+        $named = ['first' => 'x', 'second' => 2];
+        self::assertSame(['a' => 'x', 'b' => '2'], $query->execute($named)->fetchRow(0)); // @phpstan-ignore argument.type (named keys are not documented, but accepted)
+        self::assertSame(['a' => 'y', 'b' => '3'], $query->execute([5 => 'y', 9 => 3])->fetchRow(0));
+
+        // Converters used to be matched by key: with named keys, $*::bool was not converted and false was sent as ''.
+        $flag = new PreparedQuery('select $*::bool::text as f');
+        $session->registerClient($flag);
+        self::assertSame(['f' => 'false'], $flag->execute(['flag' => false])->fetchRow(0)); // @phpstan-ignore argument.type (named keys are not documented, but accepted)
+    }
+
+    /**
+     * A prepared query notices an untyped true, false or float once per position, however many times it is executed.
+     *
+     * @throws FoundationException
+     */
+    #[IgnoreDeprecations]
+    public function testExecuteNoticesOncePerPositionAndType(): void
+    {
+        $session = $this->buildSession();
+        $query = new PreparedQuery('select $* as a, $* as b');
+        $session->registerClient($query);
+        $notices = [];
+        set_error_handler(static function (int $errno, string $message) use (&$notices): bool {
+            $notices[] = $message;
+
+            return true;
+        }, E_USER_DEPRECATED);
+
+        try {
+            $query->execute([true, 'x']);
+            $query->execute([false, 1.5]);
+            $query->execute([true, 2.5]);
+            $query->execute([1.5, 'y']);
+        } finally {
+            restore_error_handler();
+        }
+
+        self::assertCount(4, $notices);
+        self::assertStringStartsWith("Parameter 1 is not converted by Pomm (only \$*::type parameters are) and was given a value of type bool, sent as '1'", $notices[0]);
+        self::assertStringStartsWith("Parameter 1 is not converted by Pomm (only \$*::type parameters are) and was given a value of type bool, sent as ''", $notices[1]);
+        self::assertStringStartsWith('Parameter 2 is not converted by Pomm (only $*::type parameters are) and was given a value of type float', $notices[2]);
+        self::assertStringStartsWith('Parameter 1 is not converted by Pomm (only $*::type parameters are) and was given a value of type float', $notices[3]);
+    }
+
+    /**
+     * A type without converter fails every execute: the remaining parameters are never sent unconverted.
+     *
+     * @throws FoundationException
+     */
+    public function testTypeWithoutConverterFailsEveryExecute(): void
+    {
+        $session = $this->buildSession();
+        $query = new PreparedQuery('select $*::int4 as a, $*::pg_lsn as b');
+        $session->registerClient($query);
+
+        for ($attempt = 0; $attempt < 2; ++$attempt) {
+            try {
+                $query->execute([1, '0/0']);
+                self::fail('A ConverterException was expected.');
+            } catch (ConverterException $exception) {
+                self::assertSame("No converter registered for type 'pg_lsn'.", $exception->getMessage());
+            }
+        }
+    }
+
+    /**
+     * A query without $* parameter is parsed once, not at every execute.
+     *
+     * @throws FoundationException
+     */
+    public function testQueryWithoutTypedParameterIsParsedOnce(): void
+    {
+        $session = $this->buildSession();
+        $query = new class ('select $1::int4 as v') extends PreparedQuery {
+            public int $parsed = 0;
+
+            #[\Override]
+            public function getParametersType(mixed $string): array
+            {
+                ++$this->parsed;
+
+                return parent::getParametersType($string);
+            }
+        };
+        $session->registerClient($query);
+
+        self::assertSame(['v' => '1'], $query->execute([1])->fetchRow(0));
+        self::assertSame(['v' => '2'], $query->execute([2])->fetchRow(0));
+        self::assertSame(1, $query->parsed);
+    }
+
+    /**
+     * A value an untyped parameter cannot send is refused before reaching pgsql, which raised a PHP Error.
+     *
+     * @throws FoundationException
+     */
+    public function testExecuteRefusesObjectOnUntypedParameter(): void
+    {
+        $session = $this->buildSession();
+        $query = new PreparedQuery('select $* as v');
+        $session->registerClient($query);
+
+        $this->expectException(ConverterException::class);
+        $this->expectExceptionMessage('Parameter 1 is not converted by Pomm (only $*::type parameters are) and was given a value of type DateTime');
+        $query->execute([new \DateTime()]);
     }
 
     protected function initializeSession(Session $session): void
