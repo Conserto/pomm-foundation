@@ -98,6 +98,7 @@ final class ResultIteratorTest extends VanillaSessionTestCase
             }
 
             // Postgres returns ids as strings by default (no converter registered on the vanilla session).
+            self::assertIsArray($element);
             self::assertSame((string) ($index + 1), $element['id']);
         }
     }

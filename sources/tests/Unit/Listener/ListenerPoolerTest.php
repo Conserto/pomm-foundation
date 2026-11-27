@@ -35,7 +35,7 @@ final class ListenerPoolerTest extends FoundationSessionTestCase
 
         self::assertInstanceOf(
             ListenerPooler::class,
-            $session->getPoolerForType('listener')->notify('pika', ['data' => 1])
+            $this->getListenerPooler($session)->notify('pika', ['data' => 1])
         );
 
         self::assertSame(['pika'], $this->notifyCalls['pika']);
@@ -50,7 +50,7 @@ final class ListenerPoolerTest extends FoundationSessionTestCase
         $session = $this->buildSession();
         $session->registerClientPooler(new ListenerPooler());
 
-        $session->getPoolerForType('listener')->notify(['pika', 'chu', 'whatever'], ['data' => 1]);
+        $this->getListenerPooler($session)->notify(['pika', 'chu', 'whatever'], ['data' => 1]);
 
         self::assertContains('pika', $this->notifyCalls['pika']);
         self::assertContains('chu', $this->notifyCalls['chu']);
@@ -66,7 +66,7 @@ final class ListenerPoolerTest extends FoundationSessionTestCase
 
         self::assertInstanceOf(
             ListenerPooler::class,
-            $session->getPoolerForType('listener')->notify('*', ['data' => 1])
+            $this->getListenerPooler($session)->notify('*', ['data' => 1])
         );
 
         self::assertContains('*', $this->notifyCalls['pika']);
@@ -83,7 +83,7 @@ final class ListenerPoolerTest extends FoundationSessionTestCase
 
         self::assertInstanceOf(
             ListenerPooler::class,
-            $session->getPoolerForType('listener')->notify('pika:plop', ['data' => 1])
+            $this->getListenerPooler($session)->notify('pika:plop', ['data' => 1])
         );
 
         self::assertSame(['pika:plop'], $this->notifyCalls['pika']);
@@ -118,5 +118,14 @@ final class ListenerPoolerTest extends FoundationSessionTestCase
 
             $session->registerClient($mock);
         }
+    }
+
+    /** @throws FoundationException */
+    private function getListenerPooler(Session $session): ListenerPooler
+    {
+        $pooler = $session->getPoolerForType('listener');
+        self::assertInstanceOf(ListenerPooler::class, $pooler);
+
+        return $pooler;
     }
 }

@@ -103,15 +103,23 @@ class PgArray extends ArrayTypeConverter
         return
             sprintf('{%s}', implode(
                 ',',
-                array_map(function (mixed $val) use ($converter, $type, $session): ?string {
+                array_map(function (mixed $val) use ($converter, $type, $session): string {
+                    // A converter may return null for a value it writes as SQL NULL: an empty element ({1,,3}) is
+                    // rejected by PostgreSQL.
+                    $val = $val !== null ? $converter->toPgStandardFormat($val, $type, $session) : null;
+
                     if ($val === null) {
                         return 'NULL';
                     }
 
-                    $val = $converter->toPgStandardFormat($val, $type, $session);
-
                     if ($val !== '') {
-                        if (preg_match('/[,\\"\s]/', $val)) {
+                        // A sub-array (int4[][]) stays bare. Any other value is quoted when it contains a separator,
+                        // a quote or a backslash (an escape character otherwise: a\b would be read ab), braces (read as a
+                        // nested array otherwise) or is NULL (read as SQL NULL otherwise).
+                        if (
+                            !$converter instanceof self
+                            && (preg_match('/[,"\\\\\s{}]/', $val) === 1 || strcasecmp($val, 'NULL') === 0)
+                        ) {
                             $val = sprintf('"%s"', addcslashes($val, '"\\'));
                         }
                     } else {

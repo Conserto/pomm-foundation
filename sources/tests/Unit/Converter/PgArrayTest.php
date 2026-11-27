@@ -13,8 +13,13 @@
 namespace PommProject\Foundation\Tests\Unit\Converter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PommProject\Foundation\Converter\ConverterPooler;
 use PommProject\Foundation\Converter\PgArray;
+use PommProject\Foundation\Converter\PgString;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
+use PommProject\Foundation\Session\ResultHandler;
+use PommProject\Foundation\Session\Session;
 
 #[CoversClass(PgArray::class)]
 final class PgArrayTest extends BaseConverterTestCase
@@ -140,5 +145,95 @@ final class PgArrayTest extends BaseConverterTestCase
             [' a varchar ', 'another one with "\\quotes\\"', null],
             $this->sendToPostgres([' a varchar ', 'another one with "\\quotes\\"', null], 'varchar[]', $session)
         );
+    }
+
+    /**
+     * A string element 'NULL' or with braces is quoted: unquoted, PostgreSQL would read SQL NULL or a nested array.
+     *
+     * @throws FoundationException
+     */
+    public function testQuotesNullAndBraces(): void
+    {
+        $session = $this->buildSession();
+        $converter = new PgArray();
+
+        self::assertSame('{"NULL","null","{a}",a}', $converter->toPgStandardFormat(['NULL', 'null', '{a}', 'a'], 'text', $session));
+        // Checked on PostgreSQL's side: fromPg() cannot tell a quoted "NULL" element from SQL NULL.
+        self::assertSame(
+            ['j' => '["NULL","null","{a}",null]'],
+            $session->getQueryManager()->query('select array_to_json($*::text[])::text as j', [['NULL', 'null', '{a}', null]])->current()
+        );
+
+        $this->expectException(SqlException::class);
+        $this->sendToPostgres(['1', 'null'], 'int4[]', $session);
+    }
+
+    /**
+     * An element with a backslash is quoted, the backslash escaped: unquoted, PostgreSQL reads it as an escape
+     * character (a\b became ab). Sub-arrays stay bare.
+     *
+     * @throws FoundationException|SqlException
+     */
+    public function testQuotesBackslashesAndKeepsSubArraysBare(): void
+    {
+        $session = $this->buildSession();
+        $converter = new PgArray();
+        $query = $session->getQueryManager();
+
+        self::assertSame('{"a\\\\b",c}', $converter->toPgStandardFormat(['a\\b', 'c'], 'text', $session));
+        self::assertSame(['a\\b', 'c"d', 'e f'], $this->sendToPostgres(['a\\b', 'c"d', 'e f'], 'text[]', $session));
+        self::assertSame(
+            ['j' => '["a\\\\b","c\\"d"]'],
+            $query->query('select array_to_json($*::text[])::text as j', [['a\\b', 'c"d']])->current()
+        );
+        // Sub-arrays used to be quoted as strings ({"{1,2}","{3,4}"}), which PostgreSQL rejects. The converter output is
+        // sent as is: the query manager cannot pass a nested array as a parameter.
+        $connection = $session->getConnection();
+        $nested = [
+            'int4' => [[[1, 2], [3, 4]], '{{1,2},{3,4}}', '[[1,2],[3,4]]'],
+            'text' => [[['a\\b', 'c d'], ['e"f', 'NULL']], '{{"a\\\\b","c d"},{"e\\"f","NULL"}}', '[["a\\\\b","c d"],["e\\"f","NULL"]]'],
+        ];
+
+        foreach ($nested as $type => [$value, $literal, $json]) {
+            $text = $converter->toPgStandardFormat($value, $type . '[][]', $session);
+            self::assertSame($literal, $text);
+            $result = $connection->executeAnonymousQuery(
+                sprintf('select array_to_json(%s::%s[])::text as j', $connection->escapeLiteral($text), $type)
+            );
+            self::assertInstanceOf(ResultHandler::class, $result);
+            self::assertSame(['j' => $json], $result->fetchRow(0));
+        }
+    }
+
+    /**
+     * An element its converter writes as null is written NULL: an empty element ({a,,c}) is rejected by PostgreSQL.
+     *
+     * @throws FoundationException|SqlException
+     */
+    public function testWritesNullForElementConvertedToNull(): void
+    {
+        $session = $this->buildSession();
+        $converterPooler = $session->getPoolerForType('converter');
+        self::assertInstanceOf(ConverterPooler::class, $converterPooler);
+        $converterPooler->getConverterHolder()->registerConverter(
+            'EmptyAsNull',
+            new class () extends PgString {
+                #[\Override]
+                public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
+                {
+                    return $data === '' ? null : parent::toPgStandardFormat($data, $type, $session);
+                }
+            },
+            ['empty_as_null']
+        );
+
+        $text = new PgArray()->toPgStandardFormat(['a', '', 'c'], 'empty_as_null', $session);
+        self::assertSame('{a,NULL,c}', $text);
+        $connection = $session->getConnection();
+        $result = $connection->executeAnonymousQuery(
+            sprintf('select array_to_json(%s::text[])::text as j', $connection->escapeLiteral($text))
+        );
+        self::assertInstanceOf(ResultHandler::class, $result);
+        self::assertSame(['j' => '["a",null,"c"]'], $result->fetchRow(0));
     }
 }

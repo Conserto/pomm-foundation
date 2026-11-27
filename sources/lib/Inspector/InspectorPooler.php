@@ -16,6 +16,7 @@ use PommProject\Foundation\Client\ClientInterface;
 use PommProject\Foundation\Client\ClientPooler;
 use PommProject\Foundation\Client\ClientPoolerInterface;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\ClassName;
 
 /**
  * Pooler for Inspector client.
@@ -51,7 +52,7 @@ class InspectorPooler extends ClientPooler
     protected function createClient(string $identifier): Client
     {
         try {
-            new \ReflectionClass($identifier);
+            ClassName::mustExist($identifier);
         } catch (\ReflectionException) {
             throw new FoundationException(
                 sprintf(
@@ -61,6 +62,12 @@ class InspectorPooler extends ClientPooler
             );
         }
 
-        return new $identifier();
+        $inspector = new $identifier();
+
+        if (!$inspector instanceof Client) {
+            throw new FoundationException(sprintf("Inspector '%s' must extend %s.", $identifier, Client::class));
+        }
+
+        return $inspector;
     }
 }

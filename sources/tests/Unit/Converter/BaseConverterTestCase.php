@@ -44,7 +44,7 @@ abstract class BaseConverterTestCase extends FoundationSessionTestCase
     /**
      * @throws FoundationException|SqlException from getQueryManager() / QueryManager::query()
      */
-    protected function sendToPostgres(mixed $value, mixed $type, Session $session): mixed
+    protected function sendToPostgres(mixed $value, string $type, Session $session): mixed
     {
         $result = $session->getQueryManager()
             ->query(sprintf('select $*::%s as my_test', $type), [$value])

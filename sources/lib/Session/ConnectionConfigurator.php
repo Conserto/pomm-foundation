@@ -42,10 +42,12 @@ class ConnectionConfigurator
 
     /**
      * Return whether or not to persist the connection to the DB.
+     *
+     * @throws FoundationException if the stored setting is not a boolean-like scalar
      */
     public function getPersist(): bool
     {
-        return $this->configuration['persist'];
+        return $this->configuration->getBool('persist');
     }
 
     /**
@@ -58,7 +60,7 @@ class ConnectionConfigurator
         $this ->configuration->setParameter(
             'configuration',
             array_merge(
-                $this->configuration->getParameter('configuration'),
+                $this->configuration->getArray('configuration'),
                 $configuration
             )
         );
@@ -70,6 +72,8 @@ class ConnectionConfigurator
     public function set(string $name, mixed $value): ConnectionConfigurator
     {
         $configuration = $this->configuration->getParameter('configuration');
+        // Offset assignment used to turn null (and false) into an array: keep accepting them.
+        $configuration = $configuration === null || $configuration === false ? [] : $this->configuration->getArray('configuration');
         $configuration[$name] = $value;
         $this->configuration
             ->setParameter('configuration', $configuration);
@@ -84,14 +88,15 @@ class ConnectionConfigurator
      */
     private function parseDsn(): ConnectionConfigurator
     {
-        $dsn = $this->configuration->mustHave('dsn')->getParameter('dsn');
+        $this->configuration->mustHave('dsn');
+        $dsn = $this->configuration->getString('dsn');
         $parsedDsn = parse_url($dsn);
 
         if (!preg_match(
             '#^[a-z]+://((?:[a-zA-Z0-9\-._~]|%[0-9A-Fa-f]{2})+)(?::((?:[a-zA-Z0-9\-._~]|%[0-9A-Fa-f]{2})+))?@([a-zA-Z0-9\-_.]+)(?::([0-9]{1,5}))?/([a-zA-Z0-9_\-]+)(\?((?:[a-zA-Z0-9\-._~]|%[0-9A-Fa-f]{2})+=(?:[a-zA-Z0-9\-._~]|%[0-9A-Fa-f]{2})+)(&(?:[a-zA-Z0-9\-._~]|%[0-9A-Fa-f]{2})+=(?:[a-zA-Z0-9\-._~]|%[0-9A-Fa-f]{2})+)*)?$#',
-            (string) $dsn
+            $dsn
         ) || !$parsedDsn) {
-            throw new ConnectionException(sprintf('Could not parse DSN "%s".', $this->redactDsn((string) $dsn)));
+            throw new ConnectionException(sprintf('Could not parse DSN "%s".', $this->redactDsn($dsn)));
         }
 
         $scheme = $parsedDsn['scheme'] ?? '';
@@ -130,8 +135,8 @@ class ConnectionConfigurator
             ->setParameter('adapter', $scheme)
             ->setParameter('user', urldecode($parsedDsn['user']))
             ->setParameter('pass', urldecode($parsedDsn['pass'] ?? ''))
-            ->setParameter('host', $parsedDsn['host'])
-            ->setParameter('port', $parsedDsn['port'] ?? '')
+            ->setParameter('host', $parsedDsn['host'] ?? '')
+            ->setParameter('port', (string) ($parsedDsn['port'] ?? ''))
             ->setParameter('database', $database)
             ->mustHave('user')
             ->mustHave('database');
@@ -172,26 +177,28 @@ class ConnectionConfigurator
         $connectParameters = [
             sprintf(
                 "user=%s dbname=%s",
-                $this->configuration['user'],
-                $this->configuration['database']
+                $this->configuration->getString('user'),
+                $this->configuration->getString('database')
             ),
         ];
 
-        if ($this->configuration['host'] !== '') {
-            $connectParameters[] = sprintf('host=%s', $this->configuration['host']);
+        $host = $this->configuration->getString('host');
+        if ($host !== '') {
+            $connectParameters[] = sprintf('host=%s', $host);
         }
 
-        if ($this->configuration['port'] !== '') {
-            $connectParameters[] = sprintf('port=%s', $this->configuration['port']);
+        $port = $this->configuration->getString('port');
+        if ($port !== '') {
+            $connectParameters[] = sprintf('port=%s', $port);
         }
 
-        if ($this->configuration['pass'] !== '') {
-            $connectParameters[] = sprintf('password=%s', addslashes($this->configuration['pass']));
+        $pass = $this->configuration->getString('pass');
+        if ($pass !== '') {
+            $connectParameters[] = sprintf('password=%s', addslashes($pass));
         }
 
         return implode(' ', $connectParameters);
     }
-
     /**
      * Standalone, default configuration.
      *
@@ -221,6 +228,7 @@ class ConnectionConfigurator
             );
         }
 
+        /** @var array<string, mixed> $configuration keys are setting names (built by addConfiguration() / set()) */
         return $configuration;
     }
 }

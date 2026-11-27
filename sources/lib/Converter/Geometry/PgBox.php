@@ -46,6 +46,13 @@ class PgBox extends TypeConverter
 
         $data = $this->checkData($data);
 
-        return sprintf("box%s", (string) $data);
+        if (!$data instanceof \Stringable) {
+            throw new ConverterException(
+                sprintf("Unable to transform a '%s' instance to string.", $data::class),
+                0
+            );
+        }
+
+        return sprintf("box%s", $data);
     }
 }

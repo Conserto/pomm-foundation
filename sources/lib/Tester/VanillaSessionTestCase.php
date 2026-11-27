@@ -82,7 +82,13 @@ abstract class VanillaSessionTestCase extends TestCase
             // connection:persist => true forces pg_connect(..., FORCE_NEW) so every test
             // gets its own backend; without this the shared pg_pconnect pool leaks prepared
             // statements across tests since PHPUnit keeps the process alive.
-            $configuration = ['connection:persist' => true] + $GLOBALS['pomm_db1'];
+            $database = $GLOBALS['pomm_db1'] ?? null;
+            if (!is_array($database)) {
+                // Used to be a TypeError (array union with a non array).
+                throw new FoundationException("\$GLOBALS['pomm_db1'] must hold the test database configuration array.");
+            }
+            /** @var array<string, mixed> $database */
+            $configuration = ['connection:persist' => true] + $database;
             $this->sessionBuilder = $this->createSessionBuilder($configuration);
         }
 

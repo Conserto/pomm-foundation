@@ -61,7 +61,7 @@ class PgComposite extends ArrayTypeConverter
             return sprintf("NULL::%s", $type);
         }
 
-        $this->checkArray($data);
+        $data = $this->checkArray($data);
 
         return sprintf(
             "ROW(%s)::%s",
@@ -80,17 +80,18 @@ class PgComposite extends ArrayTypeConverter
             return null;
         }
 
-        $this->checkArray($data);
+        $data = $this->checkArray($data);
 
         return
             sprintf(
                 "(%s)",
                 implode(',', array_map(
-                    fn (mixed $val): mixed => match (true) {
-                        (null === $val) => '',
-                        ('' === $val) => '""',
-                        (bool) preg_match('/[,\s()]/', (string) $val) =>
-                            sprintf('"%s"', str_replace('"', '""', $val)),
+                    // A field is quoted when it contains a separator, parentheses, a quote or a backslash (an escape
+                    // character in a record literal), both escaped.
+                    fn (?string $val): string => match (true) {
+                        null === $val => '',
+                        '' === $val => '""',
+                        preg_match('/[,\s()"\\\\]/', $val) === 1 => sprintf('"%s"', addcslashes($val, '"\\')),
                         default => $val,
                     },
                     $this->convertArrayToPgStandardFormat($data, $session)
@@ -101,7 +102,7 @@ class PgComposite extends ArrayTypeConverter
     /**
      * @throws FoundationException
      *
-     * @param array<string, mixed> $data
+     * @param array<string, string|null> $data
      * @return array<string, mixed>
      */
     private function convertArrayFromPg(array $data, Session $session): array
@@ -120,7 +121,7 @@ class PgComposite extends ArrayTypeConverter
     /**
      * @throws FoundationException
      *
-     * @param array<string, mixed> $data
+     * @param array<array-key, mixed> $data
      * @return array<string, string>
      */
     private function convertArrayToPg(array $data, Session $session): array
@@ -139,7 +140,7 @@ class PgComposite extends ArrayTypeConverter
     /**
      * @throws FoundationException
      *
-     * @param array<string, mixed> $data
+     * @param array<array-key, mixed> $data
      * @return array<string, ?string>
      */
     private function convertArrayToPgStandardFormat(array $data, Session $session): array

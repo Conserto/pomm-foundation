@@ -34,7 +34,11 @@ class Inflector
         );
     }
 
-    /** Underscore a string. */
+    /**
+     * Underscore a string.
+     *
+     * @return ($string is null ? null : string)
+     */
     public static function underscore(?string $string = null): ?string
     {
         if ($string === null) {

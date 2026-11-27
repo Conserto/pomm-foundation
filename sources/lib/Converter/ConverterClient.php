@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Pomm's Foundation package.
  *
@@ -12,7 +14,9 @@
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Client\Client;
+use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\StringCoercion;
 
 /**
  * Converter wrapper as Session's client.
@@ -64,20 +68,28 @@ class ConverterClient extends Client
      */
     public function fromPg(mixed $value, ?string $type = null): mixed
     {
+        // Converted as PHP's coercive mode converted it for fromPg()'s ?string parameter; it raised a TypeError otherwise.
+        $data = StringCoercion::toNullableStringOr($value, fn (): ConverterException => new ConverterException(sprintf(
+            "The '%s' converter expects a string from PostgreSQL, '%s' given.",
+            $type ?? $this->getClientIdentifier(),
+            get_debug_type($value)
+        )));
+
         return $this->converter->fromPg(
-            $value,
+            $data,
             $type ?? $this->getClientIdentifier(),
             $this->getSession()
         );
     }
 
     /**
-     * Export data as CSV representation
+     * Export data as CSV representation. Null when the converter has no standard format for the value
+     * (Foundation's converters return null for a null value, sent as SQL NULL).
      *
      * @throws FoundationException
      * @see ConverterInterface
      */
-    public function toPgStandardFormat(mixed $value, ?string $type = null): string
+    public function toPgStandardFormat(mixed $value, ?string $type = null): ?string
     {
         return $this->converter->toPgStandardFormat(
             $value,

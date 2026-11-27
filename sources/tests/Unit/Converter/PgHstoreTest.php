@@ -13,6 +13,7 @@
 namespace PommProject\Foundation\Tests\Unit\Converter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PommProject\Foundation\Converter\ConverterPooler;
 use PommProject\Foundation\Converter\PgHstore;
 use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
@@ -98,8 +99,23 @@ final class PgHstoreTest extends BaseConverterTestCase
     {
         parent::initializeSession($session);
 
-        $session->getPoolerForType('converter')
+        $converterPooler = $session->getPoolerForType('converter');
+        self::assertInstanceOf(ConverterPooler::class, $converterPooler);
+        $converterPooler
             ->getConverterHolder()
             ->registerConverter('hstore', new PgHstore(), ['hstore', 'public.hstore']);
+    }
+
+    /**
+     * Numeric keys are int array keys in PHP: they must still be written as hstore keys (the file declares strict_types).
+     *
+     * @throws FoundationException
+     */
+    public function testIntKeys(): void
+    {
+        $session = $this->buildSession();
+        $converter = new PgHstore();
+
+        self::assertSame('"1" => "a", "2" => NULL', $converter->toPgStandardFormat([1 => 'a', '2' => null], 'hstore', $session));
     }
 }

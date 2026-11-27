@@ -25,7 +25,7 @@ use PommProject\Foundation\Session\Session;
  */
 abstract class ArrayTypeConverter implements ConverterInterface
 {
-    /** @var array<string, ConverterClient> */
+    /** @var array<string, ConverterInterface> sub-type converters, cached by type name */
     protected array $converters = [];
 
     /**

@@ -1,6 +1,8 @@
 # Upgrading to 5.0
 
-This release replaces atoum with PHPUnit 11.5 as the project's test framework. The library code itself is unchanged — only the test helpers and the autoload-dev prefix are affected. Downstream packages that ship their own test suites on top of Foundation's `Tester\*` helpers need the changes described below.
+This release replaces atoum with PHPUnit 11.5 as the project's test framework: downstream packages that ship their own test suites on top of Foundation's `Tester\*` helpers need the changes described in sections 1 to 6.
+
+It also changes the library itself: `ConverterClient::toPgStandardFormat()` may return null (section 7), and the integer, boolean and date converters follow PostgreSQL instead of silently altering values (section 8). Applications writing untyped data (request or import values, test fixtures) to such columns should read section 8.
 
 ## 1. Update your test base classes
 
@@ -104,3 +106,39 @@ The new `*TestCase` helpers inject `connection:persist => true` into the session
 ## 6. Autoload-dev prefix
 
 The PSR-4 prefix for the package's own tests changed from `PommProject\Foundation\Test\` to `PommProject\Foundation\Tests\` (the `sources/tests/` directory already used the plural name). This does not affect downstream packages — only contributors who patch Foundation's own test tree.
+
+## 7. `ConverterClient::toPgStandardFormat()` may return null
+
+Its return type is widened from `string` to `?string`, matching `ConverterInterface::toPgStandardFormat()`: it returns null when the wrapped converter has no standard format for the value — with Foundation's converters, for a null value (sent to PostgreSQL as SQL NULL). It used to fail with a `TypeError` in that case.
+
+- Subclasses overriding it with a `string` return type remain valid (covariant return type): nothing to change.
+- Code calling it directly and relying on a `string` should handle null; static analysers will now report it. None of the Pomm packages (ModelManager, Cli, bundle, Symfony bridge) call it: they use `getConverter()` and call the converter itself.
+
+## 8. Integer, boolean and date values follow PostgreSQL
+
+The integer (`int2`, `int4`, `int8`, `oid`), boolean and date (`date`, `time`, `timestamp`, `timestamptz`) converters used to turn any value into an integer, a boolean or a `DateTime` with PHP's rules, silently storing another value than the one given. They now follow PostgreSQL:
+
+- strings are passed unchanged: PostgreSQL accepts or rejects them by its own input rules, raising a `SqlException`;
+- other PHP values follow PostgreSQL's assignment rules, i.e. what PostgreSQL does when storing a value of that type into a column of the target type: a PHP float, which is a `double precision`, is rounded half to even into an integer, as `12.5::float8::int4` gives `12` (a `numeric` such as the SQL literal `12.5::int4` would give `13`); a boolean is not stored into an integer or a date column, a number into a boolean or a date column (`ConverterException`).
+
+| Converter | Value | 4.x wrote | 5.0 |
+|---|---|---|---|
+| `PgInteger` | `''`, `'abc'` | `0` | rejected by PostgreSQL |
+| | `'12.7'` | `12` | rejected by PostgreSQL |
+| | `12.7`, `12.5`, `13.5` | `12`, `12`, `13` (truncated) | `13`, `12`, `14` (rounded half to even) |
+| | `'99999999999999999999'`, `1e20` | a clamped value | rejected by PostgreSQL (out of range) |
+| | `true`, `false` | `1`, `0` | `ConverterException` |
+| `PgBoolean` | `'1'`, `'t'`, `'true'`, `'yes'`, `'on'` | `false` | `true` |
+| | `''`, `'abc'` | `false` | rejected by PostgreSQL |
+| | `1`, `0`, `2`, `1.0` | `false` | `ConverterException` |
+| `PgTimestamp` | `''` | now | rejected by PostgreSQL |
+| | `'2024-02-30'` | 2024-03-01 | rejected by PostgreSQL |
+| | `'+1 day'`, `'12.7'`, `'t'` | tomorrow, today 12:07, now in another time zone | rejected by PostgreSQL |
+| | `'26-11-25'` | 2026-11-25 | rejected by PostgreSQL (year-month-day needs four year digits) |
+| | `false`, `20240101`, `1.5` | now, 2024-01-01, today 01:05 | `ConverterException` |
+
+Unchanged: integers, integer strings (`'12'`, `' 7 '`, `'+3'`), integer backed enums; PHP booleans; `DateTimeInterface` objects and the date strings PostgreSQL reads (`'2024-01-02'`, `'2024-01-02 03:04:05+02:00'`, `'19940623'`, `'2050/03/29'`, `'now'`, `'today'`). Date strings are now read in the session time zone, which Pomm sets to PHP's default time zone (`connection:configuration` / `timezone`): the result is the same unless that setting is overridden. `'now'` is the start of the current transaction, as in PostgreSQL.
+
+NAN / INF, arrays and non Stringable objects raise a `ConverterException` in the three converters.
+
+To find the values concerned before upgrading, look for writes to integer, boolean and date columns fed by untyped data (request or import values, test fixtures) or by numbers written as booleans (`$x ? 1 : 0`): they now fail loudly instead of storing a wrong value. Parameters without a type hint (`$*`, `$1`) never went through these converters and are unchanged.

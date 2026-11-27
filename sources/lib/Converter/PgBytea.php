@@ -12,7 +12,9 @@
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConnectionException;
+use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\StringCoercion;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -57,6 +59,13 @@ class PgBytea implements ConverterInterface
      */
     protected function escapeByteString(Session $session, mixed $string): string
     {
-        return preg_replace(["/\\\\/", '/"/'], ["\\", '""'], $session->getConnection()->escapeBytea($string));
+        // preg_replace() only returns null on a regex failure, impossible with these constant patterns.
+        // Converted as PHP's coercive mode converted it for escapeBytea()'s ?string parameter; it raised a TypeError otherwise.
+        $bytes = StringCoercion::toNullableStringOr(
+            $string,
+            fn (): ConverterException => new ConverterException(sprintf("Cannot convert a '%s' value to bytea.", get_debug_type($string)))
+        );
+
+        return (string) preg_replace(["/\\\\/", '/"/'], ["\\", '""'], $session->getConnection()->escapeBytea($bytes));
     }
 }

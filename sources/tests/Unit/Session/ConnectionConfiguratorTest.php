@@ -19,6 +19,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use PommProject\Foundation\Exception\ConnectionException;
+use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\ParameterHolder;
 use PommProject\Foundation\Session\ConnectionConfigurator;
 
 #[CoversClass(ConnectionConfigurator::class)]
@@ -143,5 +145,55 @@ final class ConnectionConfiguratorTest extends TestCase
             $configurator->set('encoding', 'utf-8')
         );
         self::assertSame(['encoding' => 'utf-8'], $configurator->getConfiguration());
+    }
+
+    /**
+     * Offset assignment used to turn a null configuration into an array: set() must keep accepting it.
+     *
+     * @throws ConnectionException
+     */
+    public function testSetOnNullConfiguration(): void
+    {
+        $configurator = $this->createTamperedConfigurator('configuration', null);
+        $configurator->set('encoding', 'utf-8');
+
+        self::assertSame(['encoding' => 'utf-8'], $configurator->getConfiguration());
+    }
+
+    public function testInvalidConfigurationRaisesFoundationException(): void
+    {
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage("Invalid 'configuration' setting: an array is expected, 'string' given.");
+
+        $this->createTamperedConfigurator('configuration', 'x')->addConfiguration(['encoding' => 'utf-8']);
+    }
+
+    /**
+     * getPersist() keeps converting scalars like the bool return type did, and rejects what used to be a TypeError.
+     *
+     * @throws FoundationException
+     */
+    public function testGetPersistConversion(): void
+    {
+        self::assertTrue($this->createTamperedConfigurator('persist', '1')->getPersist());
+        self::assertFalse($this->createTamperedConfigurator('persist', '0')->getPersist());
+
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage("Invalid 'persist' setting: a boolean is expected, 'null' given.");
+        $this->createTamperedConfigurator('persist', null)->getPersist();
+    }
+
+    /**
+     * A subclass can write anything into the protected parameter holder.
+     *
+     * @param bool|string|array<mixed>|null $value
+     * @throws ConnectionException
+     */
+    private function createTamperedConfigurator(string $name, bool|string|array|null $value): ConnectionConfigurator
+    {
+        $configurator = new ConnectionConfigurator(self::DSN_TEST);
+        (fn (): ParameterHolder => $this->configuration->setParameter($name, $value))->call($configurator);
+
+        return $configurator;
     }
 }

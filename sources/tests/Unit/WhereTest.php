@@ -16,6 +16,7 @@ namespace PommProject\Foundation\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use PommProject\Foundation\Exception\FoundationException;
 use PommProject\Foundation\Tests\Fixture\Enum\BackedEnum;
 use PommProject\Foundation\Tests\Fixture\Enum\IntBackedEnum;
 use PommProject\Foundation\Tests\Fixture\Enum\UnitEnum as TestUnitEnum;
@@ -104,5 +105,30 @@ final class WhereTest extends TestCase
 
         self::assertSame('(((a AND b) OR c OR d) AND e)', $where->__toString());
         self::assertSame([1, 2, 3, 4], $where->getValues());
+    }
+
+    public function testGetElementWithoutElement(): void
+    {
+        self::assertSame('a', Where::create('a')->getElement());
+
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage('This Where clause has no element');
+        Where::create('a')->andWhere('b')->getElement();
+    }
+
+    public function testStackWithoutOperatorCannotBeCombined(): void
+    {
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage('Cannot combine a Where clause stack that has no operator.');
+        Where::create()->setStack([Where::create('a'), Where::create('b')])->andWhere('c');
+    }
+
+    public function testNonStringElement(): void
+    {
+        self::assertSame('(a AND 42)', (string) Where::create('a')->andWhere(42));
+
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage("A Where clause must be a string, 'array' given.");
+        Where::create('a')->andWhere(['b']);
     }
 }

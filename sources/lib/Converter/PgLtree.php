@@ -53,6 +53,7 @@ class PgLtree extends ArrayTypeConverter
     {
         return
             $data !== null
+            // @phpstan-ignore argument.type (implode() converts each user value itself, as it always did)
             ? sprintf("ltree '%s'", implode('.', $this->checkArray($data)))
             : sprintf("NULL::%s", $type);
     }
@@ -64,6 +65,7 @@ class PgLtree extends ArrayTypeConverter
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
         return
+            // @phpstan-ignore argument.type (implode() converts each user value itself, as it always did)
             $data !== null ? implode('.', $this->checkArray($data)) : null;
     }
 }

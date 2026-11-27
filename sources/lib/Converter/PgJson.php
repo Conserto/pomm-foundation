@@ -65,7 +65,7 @@ class PgJson implements ConverterInterface
     {
         return
             $data !== null
-            ? sprintf("json '%s'", $this->jsonEncode($data))
+            ? sprintf('%s %s', $type, $session->getConnection()->escapeLiteral($this->jsonEncode($data)))
             : sprintf("NULL::%s", $type);
     }
 

@@ -112,7 +112,13 @@ class Connection
                 $this->launch();
                 // no break
             case self::CONNECTION_STATUS_GOOD:
-                return $this->handler;
+                if ($this->handler instanceof PgSqlConnection) {
+                    return $this->handler;
+                }
+
+                throw new ConnectionException(
+                    "Connection has unexpected status."
+                );
             case self::CONNECTION_STATUS_BAD:
                 throw new ConnectionException(
                     "Connection problem. Read your server's log about this, I have no more informations."
@@ -141,6 +147,11 @@ class Connection
             return $this->isClosed ? self::CONNECTION_STATUS_CLOSED : self::CONNECTION_STATUS_NONE;
         }
 
+        if (!$this->handler instanceof PgSqlConnection) {
+            // hasHandler() is overridable: without an actual handler, behave as if there were none.
+            return $this->isClosed ? self::CONNECTION_STATUS_CLOSED : self::CONNECTION_STATUS_NONE;
+        }
+
         if (@pg_connection_status($this->handler) === \PGSQL_CONNECTION_OK) {
             return self::CONNECTION_STATUS_GOOD;
         }
@@ -155,6 +166,11 @@ class Connection
      */
     public function getTransactionStatus(): int
     {
+        if (!$this->handler instanceof PgSqlConnection) {
+            // No connection opened yet (or closed): no transaction can be in progress. Used to be a TypeError.
+            return \PGSQL_TRANSACTION_UNKNOWN;
+        }
+
         return pg_transaction_status($this->handler);
     }
 
@@ -214,6 +230,7 @@ class Connection
             $sql[] = sprintf(
                 "set %s = %s",
                 pg_escape_identifier($this->handler, $setting),
+                // @phpstan-ignore cast.string (connection settings are cast to string, as they always were)
                 pg_escape_literal($this->handler, (string) $value)
             );
         }
@@ -282,7 +299,7 @@ class Connection
             $status = pg_result_status($result);
 
             if ($status !== \PGSQL_COMMAND_OK && $status !== \PGSQL_TUPLES_OK) {
-                throw new SqlException($result, $sql);
+                throw new SqlException($result, $sql ?? '');
             }
 
             $results[] = new ResultHandler($result);
@@ -306,7 +323,14 @@ class Connection
      */
     public function escapeIdentifier(?string $string): string
     {
-        return \pg_escape_identifier($this->getHandler(), $string ?? '');
+        $handler = $this->getHandler();
+        $escaped = \pg_escape_identifier($handler, $string ?? '');
+
+        if ($escaped === false) {
+            throw new ConnectionException(sprintf('Could not escape identifier: %s', pg_last_error($handler)));
+        }
+
+        return $escaped;
     }
 
     /**
@@ -316,7 +340,15 @@ class Connection
      */
     public function escapeLiteral(?string $string): string
     {
-        return \pg_escape_literal($this->getHandler(), $string ?? '');
+        $handler = $this->getHandler();
+        $escaped = \pg_escape_literal($handler, $string ?? '');
+
+        if ($escaped === false) {
+            // The value itself is not echoed: it may be sensitive.
+            throw new ConnectionException(sprintf('Could not escape literal: %s', pg_last_error($handler)));
+        }
+
+        return $escaped;
     }
 
     /**
@@ -338,7 +370,7 @@ class Connection
     /**
      * Execute an asynchronous query with parameters and send the results.
      *
-     * @param  array<int, string> $parameters
+     * @param  array<int, mixed> $parameters converted by pg_send_query_params() (null is SQL NULL)
      * @return ResultHandler query result wrapper
      * @throws SqlException|ConnectionException|FoundationException
      */
@@ -347,11 +379,20 @@ class Connection
         $res = pg_send_query_params($this->getHandler(), $query, $parameters);
 
         try {
-            return $this->testQuery($res, $query)
+            $result = $this->testQuery($res, $query)
                 ->getQueryResult($query);
         } catch (SqlException $e) {
             throw $e->setQueryParameters($parameters);
         }
+
+        if (is_array($result)) {
+            // A parameterized query is a single statement: several results mean pending ones from a previous query.
+            throw new ConnectionException(
+                sprintf("One result was expected, %d received.\nQuery = '%s'.", count($result), $query)
+            );
+        }
+
+        return $result;
     }
 
     /**
@@ -399,6 +440,7 @@ class Connection
         $result = $this
             ->testQuery($ret, sprintf("Prepared query '%s'.", $identifier))
             ->getQueryResult(
+                // @phpstan-ignore argument.type (implode() converts each parameter for the message, as it always did)
                 sprintf("EXECUTE ===\n%s\n ===\nparameters = {%s}", $sql, implode(', ', $parameters))
             );
 
@@ -434,12 +476,26 @@ class Connection
      * Get pending notifications. If no notifications are waiting, NULL is returned.
      * Otherwise, an associative array containing the optional data and de backend's PID is returned.
      *
+     * @phpstan-impure each call consumes the pending notification
      * @return array{message: string, pid: int, payload: string}|null
      */
     public function getNotification(): ?array
     {
+        if (!$this->handler instanceof PgSqlConnection) {
+            // No connection opened yet (or closed): nothing can have been notified. Used to be a TypeError.
+            return null;
+        }
+
         $data = pg_get_notify($this->handler, \PGSQL_ASSOC);
 
-        return $data === false ? null : $data;
+        if ($data === false) {
+            return null;
+        }
+
+        return [
+            'message' => (string) $data['message'],
+            'pid' => (int) $data['pid'],
+            'payload' => (string) ($data['payload'] ?? ''),
+        ];
     }
 }

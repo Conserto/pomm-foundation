@@ -24,18 +24,19 @@ trait QueryParameterParserTrait
 {
     abstract protected function getSession(): Session;
 
-    /** Transform an ordered parameters list with $1, $2 to $* parameters. */
+    /** Transform an ordered parameters list with $1, $2 to $* parameters. preg_* only return null on a regex failure. */
     public function unorderParameters(string $string): string
     {
-        return preg_replace('/\$[0-9]+/', '$*', $string);
+        return (string) preg_replace('/\$[0-9]+/', '$*', $string);
     }
 
     /** Transform an unordered parameters list $* to ordered $1, $2 parameters. */
     public function orderParameters(string $string): string
     {
-        return preg_replace_callback(
+        return (string) preg_replace_callback(
             '/\$\*/',
             function (): string {
+                /** @var int $nb */
                 static $nb = 0;
 
                 return sprintf("$%d", ++$nb);
@@ -54,6 +55,7 @@ trait QueryParameterParserTrait
      */
     public function getParametersType(mixed $string): array
     {
+        // @phpstan-ignore cast.string (any value is cast to a query string, as it always was)
         preg_match_all('/\$\*(?:::([\w\."]+(?:\[\])?))?/', (string) $string, $matches);
 
         return str_replace('"', '', $matches[1]);

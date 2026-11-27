@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Pomm package.
  *
@@ -12,6 +14,7 @@
 namespace PommProject\Foundation\Converter;
 
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Internal\StringCoercion;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -168,7 +171,7 @@ class PgHstore extends ArrayTypeConverter
     /**
      * Return an array of HStore elements.
      *
-     * @param  array<string, null|string> $data
+     * @param  array<array-key, mixed> $data keys and non-null values are converted to string
      * @return array<int, string>
      */
     protected function buildArray(array $data): array
@@ -177,12 +180,18 @@ class PgHstore extends ArrayTypeConverter
 
         foreach ($data as $key => $value) {
             if ($value === null) {
-                $insertValues[] = sprintf('%s => NULL', $this->escape($key));
+                // Keys are cast as the string parameter used to coerce them (int keys for numeric names).
+                $insertValues[] = sprintf('%s => NULL', $this->escape((string) $key));
             } else {
+                // Converted as PHP's coercive mode converted it for escape()'s string parameter; it raised a TypeError otherwise.
+                $string = StringCoercion::toStringOr(
+                    $value,
+                    fn (): ConverterException => new ConverterException(sprintf("Cannot convert a '%s' hstore value to a string.", get_debug_type($value)))
+                );
                 $insertValues[] = sprintf(
                     '%s => %s',
-                    $this->escape($key),
-                    $this->escape($value)
+                    $this->escape((string) $key),
+                    $this->escape($string)
                 );
             }
         }
@@ -193,9 +202,7 @@ class PgHstore extends ArrayTypeConverter
     /** Escape a string. */
     protected function escape(string $string): string
     {
-        if (preg_match('/["\s,]/', $string) === false) {
-            return addslashes($string);
-        }
+        // Values are always quoted: the former addslashes() branch only ran on a preg_match() failure.
         return sprintf('"%s"', addcslashes($string, '"\\'));
     }
 }

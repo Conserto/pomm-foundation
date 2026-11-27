@@ -68,6 +68,16 @@ final class PommTest extends TestCase
         );
     }
 
+    public function testOffsetSetRejectsNonBuilder(): void
+    {
+        $pomm = new Pomm([]);
+
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage("Only session builders can be added to Pomm, 'stdClass' given.");
+        // @phpstan-ignore offsetAssign.valueType (intentional: the test checks that a non builder is rejected)
+        $pomm['pika'] = new \stdClass();
+    }
+
     /**
      * @throws FoundationException from getBuilder() on the happy-path arm
      */
@@ -167,11 +177,11 @@ final class PommTest extends TestCase
         }
 
         self::assertInstanceOf(Session::class, $this->getPomm()->getDefaultSession());
-        self::assertStringContainsString('db_two', $this->getPomm()->getDefaultSession()->getStamp());
+        self::assertStringContainsString('db_two', $this->getPomm()->getDefaultSession()->getStamp() ?? '');
 
         self::assertStringContainsString(
             'one',
-            new Pomm(['one' => ['dsn' => ConnectionConfiguratorTest::DSN_TEST]])->getDefaultSession()->getStamp()
+            new Pomm(['one' => ['dsn' => ConnectionConfiguratorTest::DSN_TEST]])->getDefaultSession()->getStamp() ?? ''
         );
 
         try {
@@ -183,7 +193,7 @@ final class PommTest extends TestCase
 
         self::assertStringContainsString(
             'db_one',
-            $this->getPomm()->setDefaultBuilder('db_one')->getDefaultSession()->getStamp()
+            $this->getPomm()->setDefaultBuilder('db_one')->getDefaultSession()->getStamp() ?? ''
         );
     }
 
@@ -258,6 +268,13 @@ final class PommTest extends TestCase
     private function getSessionBuilder(): SessionBuilder
     {
         return new SessionBuilder([]);
+    }
+
+    public function testNonArrayConfiguration(): void
+    {
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage("The configuration of 'db' must be an array, 'string' given.");
+        new Pomm(['db' => 'pgsql://user@host/db']);
     }
 }
 

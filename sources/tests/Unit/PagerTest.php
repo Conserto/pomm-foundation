@@ -95,8 +95,12 @@ final class PagerTest extends FoundationSessionTestCase
      */
     private function getResultIterator(int $end, int $start = 1): ConvertedResultIterator
     {
-        return $this->buildSession()
+        $iterator = $this->buildSession()
             ->getQueryManager()
             ->query('SELECT generate_series($*::int4, $*::int4) AS row', [$start, $end]);
+        self::assertInstanceOf(ConvertedResultIterator::class, $iterator);
+
+        /** @var ConvertedResultIterator<array{row: int}> $iterator row shape given by the SQL above */
+        return $iterator;
     }
 }

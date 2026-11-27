@@ -170,7 +170,7 @@ class PreparedQuery extends Client
      * without caching because it targets one-shot queries.
      *
      * @param array<int, mixed> $values
-     * @return array<int, null|string> $prepared_values
+     * @return array<int, mixed> $prepared_values (values without a type hint are passed as is)
      * @throws FoundationException
      */
     protected function prepareValues(mixed $sql, array $values): array

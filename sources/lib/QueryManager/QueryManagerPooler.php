@@ -15,6 +15,7 @@ use PommProject\Foundation\Client\Client;
 use PommProject\Foundation\Client\ClientInterface;
 use PommProject\Foundation\Client\ClientPooler;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\ClassName;
 
 /**
  * Pooler for the query_manager clients type.
@@ -50,12 +51,20 @@ class QueryManagerPooler extends ClientPooler
     protected function createClient(string $identifier): ClientInterface
     {
         try {
-            new \ReflectionClass($identifier);
+            ClassName::mustExist($identifier);
         } catch (\ReflectionException $e) {
             throw new FoundationException(sprintf("Could not load class '%s'.", $identifier), 0, $e);
         }
 
-        return new $identifier();
+        $queryManager = new $identifier();
+
+        if (!$queryManager instanceof ClientInterface) {
+            throw new FoundationException(
+                sprintf("Query manager '%s' must implement %s.", $identifier, ClientInterface::class)
+            );
+        }
+
+        return $queryManager;
     }
 
     /**

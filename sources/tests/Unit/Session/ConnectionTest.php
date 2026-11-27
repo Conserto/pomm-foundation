@@ -44,7 +44,9 @@ final class ConnectionTest extends TestCase
             self::assertSame(SqlException::SYNTAX_ERROR, $e->getSQLErrorState());
         }
 
-        self::assertCount(3, $connection->executeAnonymousQuery('select true; select false; select null'));
+        $results = $connection->executeAnonymousQuery('select true; select false; select null');
+        self::assertIsArray($results);
+        self::assertCount(3, $results);
 
         $this->expectException(SqlException::class);
         $connection->executeAnonymousQuery('select true; bad query');
@@ -80,6 +82,29 @@ final class ConnectionTest extends TestCase
     }
 
     /**
+     * Every SqlException accessor, on a real server error (the file declares strict_types).
+     *
+     * @throws ConnectionException from getConnection()
+     * @throws FoundationException propagated from Connection's constructor
+     */
+    public function testSqlExceptionAccessors(): void
+    {
+        try {
+            $this->getConnection()->executeAnonymousQuery('select 1 from no_such_table_for_sql_exception');
+            self::fail('Expected SqlException was not thrown.');
+        } catch (SqlException $e) {
+            self::assertSame(SqlException::UNDEFINED_TABLE, $e->getSQLErrorState());
+            self::assertSame('ERROR', $e->getSQLErrorSeverity());
+            self::assertStringContainsString('no_such_table_for_sql_exception', $e->getSqlErrorMessage(true));
+            self::assertStringContainsString('no_such_table_for_sql_exception', $e->getSqlErrorMessage());
+            self::assertStringContainsString('no_such_table_for_sql_exception', $e->getSQLDetailedErrorMessage());
+            self::assertSame('select 1 from no_such_table_for_sql_exception', $e->getQuery());
+            self::assertSame([], $e->getQueryParameters());
+            self::assertSame(['x'], $e->setQueryParameters(['x'])->getQueryParameters());
+        }
+    }
+
+    /**
      * A URL-decoded password may contain spaces: the whole value must be masked in the error message.
      *
      * @throws FoundationException propagated from Connection's constructor
@@ -105,14 +130,77 @@ final class ConnectionTest extends TestCase
     }
 
     /**
+     * Invalid UTF-8 cannot be escaped: a ConnectionException instead of a TypeError on the string return type.
+     *
+     * @throws FoundationException propagated from Connection's constructor
+     */
+    public function testEscapeInvalidEncodingRaisesConnectionException(): void
+    {
+        $connection = $this->getConnection();
+        $connection->executeAnonymousQuery("set client_encoding to 'UTF8'");
+
+        foreach (['escapeLiteral' => 'Could not escape literal', 'escapeIdentifier' => 'Could not escape identifier'] as $method => $message) {
+            // pg_escape_*() raise a PHP warning on failure, on top of the ConnectionException under test.
+            set_error_handler(static fn (): bool => true, \E_WARNING);
+            try {
+                $connection->{$method}("invalid \xff utf-8");
+                self::fail(sprintf('A ConnectionException was expected from %s().', $method));
+            } catch (ConnectionException $e) {
+                self::assertStringStartsWith($message, $e->getMessage());
+                self::assertStringNotContainsString("\xff", $e->getMessage());
+            } finally {
+                restore_error_handler();
+            }
+        }
+    }
+
+    /**
      * @throws ConnectionException if the pgsql extension is missing
      * @throws FoundationException propagated from Connection's constructor
      */
     private function getConnection(): Connection
     {
         return new Connection(
-            $GLOBALS['pomm_db1']['dsn'],
+            $this->getDsn(),
             persist: true,
         );
+    }
+
+    private function getDsn(): string
+    {
+        $database = $GLOBALS['pomm_db1'] ?? null;
+        self::assertIsArray($database);
+        self::assertIsString($database['dsn'] ?? null);
+
+        return $database['dsn'];
+    }
+
+    /**
+     * Before any query, no connection is open: no transaction and no notification (they used to end in a TypeError).
+     *
+     * @throws FoundationException propagated from Connection's constructor
+     */
+    public function testStatusWithoutOpenConnection(): void
+    {
+        $connection = new Connection($this->getDsn(), persist: true);
+
+        self::assertSame(Connection::CONNECTION_STATUS_NONE, $connection->getConnectionStatus());
+        self::assertSame(\PGSQL_TRANSACTION_UNKNOWN, $connection->getTransactionStatus());
+        self::assertNull($connection->getNotification());
+    }
+
+    /**
+     * @throws FoundationException
+     */
+    public function testFreedResultHandler(): void
+    {
+        $result = $this->getConnection()->executeAnonymousQuery('select 1');
+        self::assertInstanceOf(ResultHandler::class, $result);
+        self::assertSame(1, $result->countRows());
+
+        $result->free();
+        $this->expectException(FoundationException::class);
+        $this->expectExceptionMessage('The query result has already been freed.');
+        $result->countRows();
     }
 }

@@ -39,7 +39,7 @@ class ListenerPooler extends ClientPooler
     public function notify(string|array $identifiers, array $data): ListenerPooler
     {
         if ($this->getSession()->hasLogger()) {
-            $this->getSession()->getLogger()->debug(
+            $this->getSession()->getLogger()?->debug(
                 "Pomm: ListenerPooler: notification received.",
                 ['receivers' => $identifiers]
             );
@@ -90,9 +90,8 @@ class ListenerPooler extends ClientPooler
     protected function notifyClients(array $identifiers, array $data): ListenerPooler
     {
         foreach ($identifiers as $identifier) {
-            $clientName = str_contains((string) $identifier, ':')
-                ? substr((string) $identifier, 0, strpos((string) $identifier, ':'))
-                : $identifier;
+            // 'pika:chu' notifies client 'pika'.
+            $clientName = explode(':', (string) $identifier, 2)[0];
 
             /** @var ?Listener $client */
             $client = $this

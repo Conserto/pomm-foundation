@@ -12,6 +12,8 @@
 namespace PommProject\Foundation;
 
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\ClassName;
+use PommProject\Foundation\Internal\StringCoercion;
 use PommProject\Foundation\Session\Session as BaseSession;
 use PommProject\Foundation\Session\SessionBuilder as VanillaSessionBuilder;
 use Psr\Log\LoggerAwareInterface;
@@ -54,11 +56,28 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
     public function __construct(#[\SensitiveParameter] array $configurations = [])
     {
         foreach ($configurations as $name => $configuration) {
-            $builderClass = SessionBuilder::class;
-            if (isset($configuration['class:session_builder'])) {
-                $builderClass = $this->checkSessionBuilderClass($configuration['class:session_builder']);
+            if (!is_array($configuration)) {
+                // Used to be a TypeError (from the session builder constructor).
+                throw new FoundationException(
+                    sprintf("The configuration of '%s' must be an array, '%s' given.", $name, get_debug_type($configuration))
+                );
             }
 
+            $builderClass = SessionBuilder::class;
+            if (isset($configuration['class:session_builder'])) {
+                // Converted as PHP's coercive mode converted it for checkSessionBuilderClass()'s string parameter.
+                $builderClassName = StringCoercion::toStringOr(
+                    $configuration['class:session_builder'],
+                    fn (): FoundationException => new FoundationException(sprintf(
+                        "The 'class:session_builder' of '%s' must be a class name, '%s' given.",
+                        $name,
+                        get_debug_type($configuration['class:session_builder'])
+                    ))
+                );
+                $builderClass = $this->checkSessionBuilderClass($builderClassName);
+            }
+
+            /** @var array<string, mixed> $configuration keys are setting names */
             $this->addBuilder($name, new $builderClass($configuration));
 
             if (isset($configuration['pomm:default']) && $configuration['pomm:default'] === true) {
@@ -71,13 +90,13 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
      * Check if the given builder class is valid.
      *
      * @throws FoundationException if not valid
+     * @return class-string<VanillaSessionBuilder>
      */
     private function checkSessionBuilderClass(string $builderClass): string
     {
         try {
-            $reflection = new \ReflectionClass($builderClass);
-
-            if (!$reflection->isSubclassOf(VanillaSessionBuilder::class)) {
+            ClassName::mustExist($builderClass);
+            if (!is_subclass_of($builderClass, VanillaSessionBuilder::class)) {
                 throw new FoundationException(
                     sprintf(
                         "Class '%s' is not a subclass of \PommProject\Foundation\Session\SessionBuilder.",
@@ -278,7 +297,19 @@ class Pomm implements \ArrayAccess, LoggerAwareInterface
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        $this->addBuilder($offset, $value);
+        if (!$value instanceof VanillaSessionBuilder) {
+            throw new FoundationException(
+                sprintf("Only session builders can be added to Pomm, '%s' given.", get_debug_type($value))
+            );
+        }
+
+        if (!is_scalar($offset)) {
+            // Appending ($pomm[] = …) used to end in a TypeError: builders are named.
+            throw new FoundationException(sprintf("A session builder name is required, '%s' given.", get_debug_type($offset)));
+        }
+
+        // Scalars are converted as the string parameter type converted them (no strict_types in this file).
+        $this->addBuilder((string) $offset, $value);
     }
 
     /**

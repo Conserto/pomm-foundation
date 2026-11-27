@@ -70,11 +70,11 @@ class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \Seeka
     /** @see    \Countable */
     public function count(): int
     {
-        if ($this->rowsCount == null) {
-            $this->rowsCount = $this->result->countRows();
-        }
+        // Also caches an empty result (0 == null used to recount it on every call).
+        $this->rowsCount ??= $this->result->countRows();
 
-        return $this->rowsCount;
+        // pg_num_rows() is documented to return -1 on error, which a valid PgSql\Result cannot produce.
+        return max(0, $this->rowsCount);
     }
 
     /** @see \Iterator */
@@ -190,6 +190,7 @@ class ResultIterator implements \Iterator, \Countable, \JsonSerializable, \Seeka
             $results[] = $result;
         }
 
+        // @phpstan-ignore return.type (raw rows are arrays; T only narrows them in subclasses, which override extract())
         return $results;
     }
 

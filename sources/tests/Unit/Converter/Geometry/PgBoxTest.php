@@ -90,4 +90,31 @@ final class PgBoxTest extends BaseConverterTestCase
         $this->expectException(ConverterException::class);
         $converter->toPgStandardFormat('azsdf', 'box', $session);
     }
+
+    /**
+     * A subclass mapping to a non Stringable type gets a ConverterException, not a PHP Error.
+     *
+     * @throws FoundationException
+     */
+    public function testNonStringableTypeRaisesConverterException(): void
+    {
+        $session = $this->buildSession();
+        $converter = new class () extends PgBox {
+            public function getTypeClassName(): string
+            {
+                return \stdClass::class;
+            }
+        };
+
+        try {
+            $converter->toPgStandardFormat(new \stdClass(), 'box', $session);
+            self::fail('A ConverterException was expected.');
+        } catch (ConverterException $e) {
+            self::assertSame("Unable to transform a 'stdClass' instance to string.", $e->getMessage());
+        }
+
+        $this->expectException(ConverterException::class);
+        $this->expectExceptionMessage("Unable to transform a 'stdClass' instance to string.");
+        $converter->toPg(new \stdClass(), 'box', $session);
+    }
 }

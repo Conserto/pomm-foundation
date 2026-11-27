@@ -15,8 +15,11 @@ declare(strict_types=1);
 namespace PommProject\Foundation\Tests\Unit\Converter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestWith;
+use PommProject\Foundation\Converter\PgArray;
 use PommProject\Foundation\Converter\PgJson;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Session\Session;
 
 #[CoversClass(PgJson::class)]
 final class PgJsonTest extends BaseConverterTestCase
@@ -58,6 +61,62 @@ final class PgJsonTest extends BaseConverterTestCase
             $converter->toPg($data, 'json', $session)
         );
         self::assertSame('NULL::json', $converter->toPg(null, 'json', $session));
+        self::assertSame('jsonb \'{"e":"f"}\'', $converter->toPg(['e' => 'f'], 'jsonb', $session));
+        self::assertSame('NULL::jsonb', $converter->toPg(null, 'jsonb', $session));
+    }
+
+    /**
+     * Values written by toPg() are escaped: they come back unchanged from PostgreSQL.
+     *
+     * @throws FoundationException
+     */
+    #[TestWith(["l'eau", 'json'])]
+    #[TestWith(["l'eau", 'jsonb'])]
+    #[TestWith(['C:\\dossier "x"', 'jsonb'])]
+    #[TestWith(["x'; SELECT 1; --", 'jsonb'])]
+    #[TestWith([['k\'ey' => ["it's", 'a\\b"c']], 'jsonb'])]
+    public function testToPgEscapesValue(mixed $value, string $type): void
+    {
+        $session = $this->buildSession();
+        $literal = new PgJson()->toPg($value, $type, $session);
+
+        self::assertSame($value, $this->fetchLiteral($literal, $session));
+    }
+
+    /**
+     * @throws FoundationException
+     */
+    public function testToPgEscapesApostrophe(): void
+    {
+        $session = $this->buildSession();
+
+        self::assertSame("jsonb '\"l''eau\"'", new PgJson()->toPg("l'eau", 'jsonb', $session));
+    }
+
+    /**
+     * json[] values go through PgArray::toPg(), which calls PgJson::toPg() for each element.
+     *
+     * @throws FoundationException
+     */
+    public function testToPgEscapesArrayElements(): void
+    {
+        $session = $this->buildSession();
+        $value = [["l'eau"], ['k' => "x'; SELECT 1; --"]];
+        $literal = new PgArray()->toPg($value, 'json', $session);
+
+        self::assertSame($value, $this->fetchLiteral($literal, $session));
+    }
+
+    /**
+     * Runs a literal produced by toPg() and returns the value read back by Pomm.
+     *
+     * @throws FoundationException
+     */
+    private function fetchLiteral(string $literal, Session $session): mixed
+    {
+        $row = $session->getQueryManager()->query(sprintf('select %s as my_test', $literal))->current();
+
+        return $row['my_test'];
     }
 
     /**

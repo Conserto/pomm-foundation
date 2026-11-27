@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the PommProject/Foundation package.
  *
@@ -17,6 +19,7 @@ use PHPUnit\Framework\Attributes\TestWith;
 use PommProject\Foundation\Converter\PgBoolean;
 use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Exception\SqlException;
 
 #[CoversClass(PgBoolean::class)]
 final class PgBooleanTest extends BaseConverterTestCase
@@ -68,5 +71,63 @@ final class PgBooleanTest extends BaseConverterTestCase
     {
         $session = $this->buildSession();
         self::assertSame($expected, new PgBoolean()->toPgStandardFormat($input, 'bool', $session));
+    }
+
+    /**
+     * Strings are passed unchanged: PostgreSQL reads its own literals ('1', 't', 'yes'... used to be written as false).
+     *
+     * @throws FoundationException
+     */
+    #[TestWith(['1', true])]
+    #[TestWith(['t', true])]
+    #[TestWith([' TRUE ', true])]
+    #[TestWith(['yes', true])]
+    #[TestWith(['on', true])]
+    #[TestWith(['0', false])]
+    #[TestWith(['f', false])]
+    #[TestWith(['false', false])]
+    #[TestWith(['no', false])]
+    #[TestWith(['off', false])]
+    public function testLiteralsAreReadByPostgres(string $input, bool $expected): void
+    {
+        $session = $this->buildSession();
+
+        self::assertSame($input, new PgBoolean()->toPgStandardFormat($input, 'bool', $session));
+        self::assertSame($expected, $this->sendToPostgres($input, 'bool', $session));
+    }
+
+    /**
+     * Values that are not PostgreSQL booleans are rejected by PostgreSQL (they used to be written as false).
+     *
+     * @throws FoundationException
+     */
+    #[TestWith(['not a boolean'])]
+    #[TestWith([''])]
+    #[TestWith(['2'])]
+    public function testPostgresRejectsNonBooleans(string $input): void
+    {
+        $this->expectException(SqlException::class);
+        $this->sendToPostgres($input, 'bool', $this->buildSession());
+    }
+
+    /**
+     * Numbers (PostgreSQL does not store them into a boolean column), arrays and objects are rejected before reaching
+     * PostgreSQL.
+     *
+     * @throws FoundationException
+     */
+    public function testRejectsNonStrings(): void
+    {
+        $session = $this->buildSession();
+        $converter = new PgBoolean();
+
+        foreach ([1, 0, 2, 1.0, NAN, [true], new \stdClass()] as $input) {
+            try {
+                $converter->toPgStandardFormat($input, 'bool', $session);
+                self::fail(sprintf("A ConverterException was expected for a '%s' value.", get_debug_type($input)));
+            } catch (ConverterException) {
+                $this->addToAssertionCount(1);
+            }
+        }
     }
 }

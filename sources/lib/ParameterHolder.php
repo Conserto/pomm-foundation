@@ -12,6 +12,7 @@
 namespace PommProject\Foundation;
 
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\StringCoercion;
 
 /**
  * @copyright 2014 - 2015 Grégoire HUBERT
@@ -23,7 +24,7 @@ use PommProject\Foundation\Exception\FoundationException;
  */
 class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
 {
-    /** @param array<string, bool|string|array<mixed, mixed>> $parameters */
+    /** @param array<string, bool|string|array<mixed, mixed>|null> $parameters */
     public function __construct(protected array $parameters = [])
     {
     }
@@ -59,6 +60,7 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     public function setDefaultValue(string $name, mixed $value): ParameterHolder
     {
         if (!$this->hasParameter($name)) {
+            // @phpstan-ignore argument.type (any default value: the union parameter type converts it, as it always did)
             $this->setParameter($name, $value);
         }
 
@@ -88,6 +90,7 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     {
         if (!in_array($this[$name], $values)) {
             throw new FoundationException(
+                // @phpstan-ignore argument.type (implode() converts each allowed value for the message, as it always did)
                 sprintf('The parameters "%s" must be one of [%s].', $name, implode(', ', $values))
             );
         }
@@ -122,6 +125,60 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
+     * Returns the parameter as a string. Scalars and Stringable objects are converted exactly as PHP's coercive
+     * typing mode converts them for a string parameter (`1` gives "1", `true` gives "1").
+     *
+     * @throws FoundationException when the value cannot be converted (unset/null, array, other objects).
+     */
+    public function getString(string $name): string
+    {
+        $value = $this->getParameter($name);
+
+        return StringCoercion::toStringOr($value, fn (): FoundationException => $this->invalidSetting($name, 'a string', $value));
+    }
+
+    /**
+     * Returns the parameter as a boolean. Scalars are converted exactly as PHP's coercive typing mode converts them
+     * for a bool parameter (`1` and "yes" give true, `0`, "0" and "" give false).
+     *
+     * @throws FoundationException when the value cannot be converted (unset/null, array).
+     */
+    public function getBool(string $name): bool
+    {
+        $value = $this->getParameter($name);
+
+        if (!is_scalar($value)) {
+            throw $this->invalidSetting($name, 'a boolean', $value);
+        }
+
+        return (bool) $value;
+    }
+
+    /**
+     * Returns the parameter as an array.
+     *
+     * @throws FoundationException when the value is not an array (unset/null included).
+     * @return array<mixed>
+     */
+    public function getArray(string $name): array
+    {
+        $value = $this->getParameter($name);
+
+        if (!is_array($value)) {
+            throw $this->invalidSetting($name, 'an array', $value);
+        }
+
+        return $value;
+    }
+
+    private function invalidSetting(string $name, string $expected, mixed $value): FoundationException
+    {
+        return new FoundationException(
+            sprintf("Invalid '%s' setting: %s is expected, '%s' given.", $name, $expected, get_debug_type($value))
+        );
+    }
+
+    /**
      * @see ArrayAccess
      *
      * @param bool|string|array<mixed, mixed>|null $value
@@ -129,7 +186,13 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        $this->setParameter($offset, $value);
+        if (!is_scalar($offset)) {
+            // Appending ($holder[] = …) used to end in a TypeError: parameters are named.
+            throw new FoundationException(sprintf("A parameter name is required, '%s' given.", get_debug_type($offset)));
+        }
+
+        // Scalars are converted as the string parameter type converted them (no strict_types in this file).
+        $this->setParameter((string) $offset, $value);
     }
 
     /** @see ArrayAccess */
@@ -154,7 +217,7 @@ class ParameterHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * @see \IteratorAggregate
      *
-     * @return \ArrayIterator<string, bool|string|array<mixed, mixed>>
+     * @return \ArrayIterator<string, bool|string|array<mixed, mixed>|null>
      */
     public function getIterator(): \ArrayIterator
     {

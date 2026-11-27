@@ -66,8 +66,10 @@ final class ConvertedResultIteratorTest extends FoundationSessionTestCase
         );
 
         self::assertSame(1, $iterator->count());
-        self::assertSame([1, 2, 3, null], $iterator->current()['array_one']);
-        self::assertSame([null, null], $iterator->current()['array_two']);
+        $row = $iterator->current();
+        self::assertNotNull($row);
+        self::assertSame([1, 2, 3, null], $row['array_one']);
+        self::assertSame([null, null], $row['array_two']);
     }
 
     /**
@@ -82,8 +84,10 @@ final class ConvertedResultIteratorTest extends FoundationSessionTestCase
         );
 
         self::assertSame(1, $iterator->count());
-        self::assertNull($iterator->current()['one']);
-        self::assertSame([null, null], $iterator->current()['two']);
+        $row = $iterator->current();
+        self::assertNotNull($row);
+        self::assertNull($row['one']);
+        self::assertSame([null, null], $row['two']);
     }
 
     /**

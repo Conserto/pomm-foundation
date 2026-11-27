@@ -13,7 +13,10 @@ declare(strict_types=1);
 
 namespace PommProject\Foundation\Converter;
 
+use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\ConverterException;
+use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\PgText;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -48,23 +51,46 @@ class PgBoolean implements ConverterInterface
         return $data === 't';
     }
 
-    /** @see ConverterInterface */
+    /**
+     * @throws ConnectionException|ConverterException|FoundationException
+     * @see ConverterInterface
+     */
     public function toPg(mixed $data, string $type, Session $session): string
     {
-        if ($data === null) {
-            return sprintf("NULL::%s", $type);
-        }
-
-        return sprintf("%s '%s'", $type, $data === true ? "true" : "false");
+        return match (true) {
+            $data === null => sprintf("NULL::%s", $type),
+            is_bool($data) => sprintf("%s '%s'", $type, $data ? "true" : "false"),
+            default => sprintf("%s %s", $type, $session->getConnection()->escapeLiteral($this->toText($data, $type))),
+        };
     }
 
-    /** @see ConverterInterface */
+    /**
+     * @throws ConverterException
+     * @see ConverterInterface
+     */
     public function toPgStandardFormat(mixed $data, string $type, Session $session): ?string
     {
-        if ($data !== null) {
-            return $data === true ? 't' : 'f';
-        }
+        return match (true) {
+            $data === null => null,
+            is_bool($data) => $data ? 't' : 'f',
+            default => $this->toText($data, $type),
+        };
+    }
 
-        return null;
+    /**
+     * Strings are passed unchanged, PostgreSQL accepts or rejects them by its own rules: 't', 'yes', 'on', '1' are
+     * true, 'f', 'no', 'off', '0' false, '' or 'abc' raise an error. Only the PHP true used to give true: everything
+     * else was silently written as false.
+     *
+     * @throws ConverterException for numbers (PostgreSQL does not store them into a boolean column), arrays and non
+     * Stringable objects.
+     */
+    private function toText(mixed $data, string $type): string
+    {
+        return PgText::of($data) ?? throw new ConverterException(sprintf(
+            "Cannot convert a '%s' value to %s.",
+            get_debug_type($data),
+            $type
+        ));
     }
 }

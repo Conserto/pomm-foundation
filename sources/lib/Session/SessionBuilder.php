@@ -43,6 +43,7 @@ class SessionBuilder
     public function __construct(#[\SensitiveParameter] array $configuration, ?ConverterHolder $converterHolder = null)
     {
         $this->configuration = new ParameterHolder(
+            // @phpstan-ignore argument.type (user configuration: ParameterHolder accessors convert the values, as they always did)
             array_merge(
                 $this->getDefaultConfiguration(),
                 $configuration
@@ -57,6 +58,7 @@ class SessionBuilder
     /** Add a configuration parameter. */
     public function addParameter(string $name, #[\SensitiveParameter] mixed $value): SessionBuilder
     {
+        // @phpstan-ignore argument.type (user configuration: ParameterHolder accessors convert the values, as they always did)
         $this->configuration->setParameter($name, $value);
 
         return $this;
@@ -76,16 +78,16 @@ class SessionBuilder
     final public function buildSession(?string $stamp = null): Session
     {
         $this->preConfigure();
-        $dsn = $this
-            ->configuration->mustHave('dsn')->getParameter('dsn');
-
-        $connectionConfiguration = $this->configuration
+        $this->configuration
+            ->mustHave('dsn')
             ->mustHave('connection:configuration')
-            ->getParameter('connection:configuration');
+            ->mustHave('connection:persist');
 
-        $persist = $this->configuration
-            ->mustHave('connection:persist')
-            ->getParameter('connection:persist');
+        // Same order as createConnection()'s parameters, so the first invalid setting reported is unchanged.
+        $dsn = $this->configuration->getString('dsn');
+        $persist = $this->configuration->getBool('connection:persist');
+        /** @var array<string, mixed> $connectionConfiguration keys are setting names */
+        $connectionConfiguration = $this->configuration->getArray('connection:configuration');
 
         $session = $this->createSession(
             $this->createConnection($dsn, $persist, $connectionConfiguration),
@@ -119,7 +121,11 @@ class SessionBuilder
             ];
     }
 
-    /** If any computation to the configuration must be done before each session creation, it goes here. */
+    /**
+     * If any computation to the configuration must be done before each session creation, it goes here.
+     *
+     * @phpstan-impure extension hook: overrides have side effects, calling parent::preConfigure() is meaningful
+     */
     protected function preConfigure(): SessionBuilder
     {
         return $this;
@@ -143,7 +149,23 @@ class SessionBuilder
     {
         $sessionClass = $this->configuration->getParameter('class:session', Session::class);
 
-        return new $sessionClass($connection, $clientHolder, $stamp);
+        if (!is_string($sessionClass)) {
+            // Instantiating a non string used to be an Error.
+            throw new FoundationException(
+                sprintf("The 'class:session' setting must be a class name, '%s' given.", get_debug_type($sessionClass))
+            );
+        }
+
+        $session = new $sessionClass($connection, $clientHolder, $stamp);
+
+        if (!$session instanceof Session) {
+            // Used to be a TypeError on the return type.
+            throw new FoundationException(
+                sprintf("The 'class:session' setting must name a %s subclass, '%s' given.", Session::class, $sessionClass)
+            );
+        }
+
+        return $session;
     }
 
     /** Instantiate ClientHolder. */
@@ -152,13 +174,21 @@ class SessionBuilder
         return new ClientHolder();
     }
 
-    /** Session configuration once created. All pooler registration stuff goes here. */
+    /**
+     * Session configuration once created. All pooler registration stuff goes here.
+     *
+     * @phpstan-impure extension hook: overrides have side effects, calling parent::postConfigure() is meaningful
+     */
     protected function postConfigure(Session $session): SessionBuilder
     {
         return $this;
     }
 
-    /** Converter initialization at startup. If new converters are to be registered, it goes here. */
+    /**
+     * Converter initialization at startup. If new converters are to be registered, it goes here.
+     *
+     * @phpstan-impure extension hook: overrides have side effects, calling parent::initializeConverterHolder() is meaningful
+     */
     protected function initializeConverterHolder(ConverterHolder $converterHolder): SessionBuilder
     {
         return $this;

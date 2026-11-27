@@ -15,6 +15,23 @@
  * Fix the database password leaking into exception messages: ConnectionConfigurator now masks it (user:****@host) in its four DSN error messages, including on malformed DSNs; Connection masks the whole password value on connection failure (a URL-decoded password containing spaces was only partially masked)
  * QueryManagerInterface::query(): document the return type as \Iterator<int, array<string, mixed>> (one associative array per row, as every Foundation query manager returns); docblock only
  * VanillaSessionTestCase / FoundationSessionTestCase: sessions built with buildSession() are shut down after each test (final #[After] hook, no parent::tearDown() call needed), closing their connections. They used to stay open until a garbage collection, and the suite came close to PostgreSQL's connection limit. A session built with buildSession() therefore lives for one test and must not be shared between tests (static property, #[Depends])
+ * PHPStan: level 10 (maximum, up from 6), on sources/lib and sources/tests; docblocks typed (query results, configuration, Inspector results)
+ * declare(strict_types=1) where proven safe; values PHP coerced implicitly are converted explicitly, with the same result
+ * Error paths that ended in a PHP TypeError / Error now raise a Pomm exception (ConverterException, FoundationException, ConnectionException) naming the faulty value or setting
+ * Accessors that ended in a TypeError before a connection or without a value now return one: SqlException::getSQLErrorState() / getSQLErrorSeverity() / getSqlErrorMessage() return '', Connection::getTransactionStatus() returns PGSQL_TRANSACTION_UNKNOWN, getNotification() returns null, ResultIterator::count() is never negative
+ * ParameterHolder: new typed accessors getString() / getBool() / getArray()
+ * ConverterClient::toPgStandardFormat() returns ?string: null instead of a TypeError when the converter has nothing to write
+ * Fix SimpleQueryManager failing with a TypeError on a null typed parameter (`$*::int4`): null is sent as SQL NULL
+ * Fix PgFloat reading NaN / Infinity / -Infinity as 0.0; writing them uses PostgreSQL's spelling (no PHP 8.6 warning)
+ * Fix PgFloat losing digits: floats were written with 14 significant digits (PHP's precision setting), so 1/3 was stored 0.33333333333333. float4 / float8 are now written with the digits needed to read them back (at most 17); numeric and any other type, such as a domain, with 15, as PostgreSQL's float8 to numeric cast (0.1 + 0.2 gives 0.3). The precision setting no longer applies
+ * Fix PgInterval: negative intervals could not be read, and inverted DateIntervals were written as positive
+ * PgTimestamp: a value DateTime cannot hold ('infinity') raises a ConverterException instead of a DateMalformedStringException
+ * Fix SQL injection in PgJson::toPg() and PgFloat::toPg(): a string was written between quotes unescaped. It is now escaped by the connection, as PgString does; PgFloat writes numbers directly, without the connection. Parameterized queries were not affected
+ * PgJson::toPg() writes the given type (`jsonb '…'`) instead of always `json '…'`; the stored value is the same
+ * Fix PgBoolean writing '1', 't', 'true', 'yes', 'on' as false
+ * Fix PgArray writing an element 'NULL' as SQL NULL, braces as a nested array, and a backslash as an escape character (a\b was stored ab); sub-arrays (int4[][]) were quoted as strings, and an element its converter returned null for was left empty ({1,,3}). Reading is unchanged: a quoted "NULL" element still gives null, and arrays with several dimensions cannot be read
+ * Fix PgComposite writing a field holding a quote or a backslash unescaped, which PostgreSQL misread. Reading such a field back is still not supported
+ * BC BREAK - The integer, boolean and date converters follow PostgreSQL instead of PHP: strings are passed unchanged and PostgreSQL accepts or rejects them; floats are rounded half to even into integers (they were truncated); booleans into integers or dates and numbers into booleans or dates raise a ConverterException. Values that were silently altered ('abc' stored as 0, 'yes' as false, '2024-02-30' as 2024-03-01) now fail. See UPGRADE-5.0.md section 8
 
 == VERSION 4.0.5
 
