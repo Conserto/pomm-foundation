@@ -11,7 +11,7 @@
 
  * PHP 8.4+ required (upstream targeted PHP 8.1).
  * Rector-driven modernization of type declarations and PHP 8.x syntax.
- * Extra converters and enum compatibility: `PgBackedEnum`, enum-aware `PgString` / `PgInteger` / `PgFloat`.
+ * Extra converters and enum compatibility: `PgEnum` (backed and pure enums), enum-aware `PgString` / `PgInteger` / `PgFloat`.
  * Active CI on PHP 8.4 and 8.5.
  * See [CHANGELOG](CHANGELOG) for the detailed release history.
 

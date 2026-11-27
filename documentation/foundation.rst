@@ -382,6 +382,26 @@ This way, it is possible to add custom converters or converters for database spe
             ;
     }
 
+Every PostgreSQL enum type needs a registered converter, otherwise reading it raises a ``ConverterException`` (``No converter registered for type 'status'.``). Register it with ``String`` to read its labels as strings, or map it to a PHP enum with ``PgEnum``: a label maps to the case with the same value for a backed enum, to the case with the same name for a pure enum. Arrays of the type (``status[]``) are then handled automatically. When writing, ``PgEnum`` accepts a case of the enum or its raw value (backing value or case name), so code that writes raw values keeps working once the converter is registered. An unknown label or value raises a ``ConverterException``.
+
+Declare the type both with and without its schema: query results give the type name without schema (``status``), while model structures may use the qualified name (``public.status``):
+
+.. code:: php
+
+    <?php
+    //…
+    function postConfigure(Session $session)
+    {
+        $session
+            ->getPoolerForType('converter')
+            ->getConverterHolder()
+            ->registerConverter('Status', new PgEnum(Status::class), ['status', 'public.status'])
+            ->registerConverter('Level', new PgEnum(Level::class), ['level', 'public.level'])
+            ->addTypeToConverter('String', 'mood')  // ← read as strings
+            ->addTypeToConverter('String', 'public.mood')
+            ;
+    }
+
 Even though the converters coming with Foundation cover a broad range of PostgreSQL’s types, it is possible to write custom converters as long as they implement ``ConverterInterface``. Be aware that the format of the data coming from Postgres may be configuration dependent (dates, money, number etc.). Default converters fit the default configuration set in the `Session builder`_.
 
 
