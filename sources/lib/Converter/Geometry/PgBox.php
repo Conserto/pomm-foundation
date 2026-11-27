@@ -14,8 +14,6 @@ namespace PommProject\Foundation\Converter\Geometry;
 use PommProject\Foundation\Converter\ConverterInterface;
 use PommProject\Foundation\Converter\Type\Box;
 use PommProject\Foundation\Converter\TypeConverter;
-use PommProject\Foundation\Exception\ConverterException;
-use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -35,25 +33,15 @@ class PgBox extends TypeConverter
     }
 
     /**
-     * @param string $type
-     * @throws ConverterException
-     * @see ConverterInterface
+     * Kept for its untyped $type parameter: the file has no strict_types, so a Stringable type name is still accepted,
+     * and a null type still writes box, as before.
+     *
+     * @param ?string $type
+     * @see TypeConverter
      */
+    #[\Override]
     public function toPg(mixed $data, $type, Session $session): string
     {
-        if ($data === null) {
-            return sprintf("NULL::%s", PgTypeName::quote($type));
-        }
-
-        $data = $this->checkData($data);
-
-        if (!$data instanceof \Stringable) {
-            throw new ConverterException(
-                sprintf("Unable to transform a '%s' instance to string.", $data::class),
-                0
-            );
-        }
-
-        return sprintf("box%s", $data);
+        return parent::toPg($data, $type ?? 'box', $session);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PommProject's Foundation package.
  *
@@ -16,7 +18,6 @@ use PommProject\Foundation\Converter\ConverterInterface;
 use PommProject\Foundation\Converter\Type\Circle;
 use PommProject\Foundation\Converter\TypeConverter;
 use PommProject\Foundation\Exception\FoundationException;
-use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
 /**
@@ -31,6 +32,25 @@ class PgCircle extends TypeConverter
 {
     protected ?ConverterClient $pointConverter = null;
 
+    public function __construct(?string $className = null)
+    {
+        if (new \ReflectionMethod($this, 'getPointConverter')->getDeclaringClass()->getName() !== self::class) {
+            // Silenced like Symfony's deprecations: reported by debug tools and deprecation handlers, not in production.
+            @trigger_error(
+                sprintf(
+                    'Since 5.0, "%s::getPointConverter()" is deprecated and will be removed in 6.0, and toPg() no longer'
+                    . ' calls it: "%s" overrides it. To change how the center is written, override Point::__toString() or'
+                    . ' toPg().',
+                    self::class,
+                    static::class
+                ),
+                E_USER_DEPRECATED
+            );
+        }
+
+        parent::__construct($className);
+    }
+
     /**
      * Circle class name
      *
@@ -42,35 +62,18 @@ class PgCircle extends TypeConverter
     }
 
     /**
-     * @throws FoundationException
-     * @see ConverterInterface
-     */
-    public function toPg(mixed $data, string $type, Session $session): string
-    {
-        if ($data === null) {
-            return sprintf("NULL::%s", PgTypeName::quote($type));
-        }
-
-        /** @var Circle $data */
-        $data = $this->checkData($data);
-
-        return
-            sprintf(
-                "%s(%s,%s)",
-                PgTypeName::quote($type),
-                $this->getPointConverter($session)
-                    ->toPg($data->center, 'point'),
-                $data->radius
-            );
-    }
-
-    /**
      * Cache the point converter.
      *
+     * @deprecated since 5.0, no longer used by PgCircle, will be removed in 6.0
      * @throws FoundationException
      */
     protected function getPointConverter(Session $session): ConverterClient
     {
+        @trigger_error(
+            sprintf('Since 5.0, "%s::getPointConverter()" is deprecated and will be removed in 6.0.', self::class),
+            E_USER_DEPRECATED
+        );
+
         if (!$this->pointConverter instanceof ConverterClient) {
             /** @var ConverterClient $converterClient */
             $converterClient = $session->getClientUsingPooler('converter', 'point');

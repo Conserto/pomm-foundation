@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Pomm's Foundation package.
  *
@@ -14,6 +16,7 @@ namespace PommProject\Foundation\Converter;
 use PommProject\Foundation\Exception\ConnectionException;
 use PommProject\Foundation\Exception\ConverterException;
 use PommProject\Foundation\Exception\FoundationException;
+use PommProject\Foundation\Internal\FloatText;
 use PommProject\Foundation\Internal\PgTypeName;
 use PommProject\Foundation\Session\Session;
 
@@ -46,13 +49,7 @@ class PgFloat implements ConverterInterface
             return null;
         }
 
-        // A (float) cast turns PostgreSQL's special values into 0.0.
-        return match ($data) {
-            'NaN' => \NAN,
-            'Infinity' => \INF,
-            '-Infinity' => -\INF,
-            default => (float) $data,
-        };
+        return FloatText::read($data);
     }
 
     /**
@@ -106,19 +103,7 @@ class PgFloat implements ConverterInterface
      */
     private function floatToText(float $data, string $type): string
     {
-        if (!in_array($type, self::FLOAT_TYPES, true)) {
-            return sprintf('%.15h', $data);
-        }
-
-        for ($digits = 15; $digits < 17; ++$digits) {
-            $text = sprintf('%.' . $digits . 'h', $data);
-
-            if ((float) $text === $data) {
-                return $text;
-            }
-        }
-
-        return sprintf('%.17h', $data);
+        return in_array($type, self::FLOAT_TYPES, true) ? FloatText::write($data) : sprintf('%.15h', $data);
     }
 
     /**

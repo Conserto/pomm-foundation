@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace PommProject\Foundation\Converter\Type;
 
+use PommProject\Foundation\Internal\FloatText;
+
 /**
  * PHP representation of PostgreSQL circle type.
  *
@@ -26,28 +28,24 @@ class Circle implements \Stringable
     public float $radius;
 
     /**
-     * Create a circle from a description string.
+     * Create a circle from a description string, in one of the forms PostgreSQL reads: <(x,y),r>, ((x,y),r), (x,y),r,
+     * x,y,r or <x,y,r>.
      *
      * @throws \InvalidArgumentException
      */
     public function __construct(string $description)
     {
-        $description = trim($description, ' <>');
-        $elts = preg_split(
-            '/[,\s]*(\([^\)]+\))[,\s]*|[,\s]+/',
-            $description,
-            0,
-            PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
-        );
+        $numbers = FloatText::match($description, '<(N,N),N>', '((N,N),N)', '(N,N),N', '<N,N,N>', 'N,N,N');
 
-        if ($elts === false || count($elts) !== 2) {
+        // PostgreSQL refuses a negative radius.
+        if ($numbers === null || $numbers[2] < 0) {
             throw new \InvalidArgumentException(
-                sprintf("Could not parse circle description '%s'.", $description)
+                sprintf("Could not parse circle description '%s'.", trim($description, ' <>'))
             );
         }
 
-        $this->center = $this->createPointFrom($elts[0]);
-        $this->radius = (float) $elts[1];
+        [$x, $y, $this->radius] = $numbers;
+        $this->center = $this->createPointFrom(sprintf('(%s,%s)', FloatText::write($x), FloatText::write($y)));
     }
 
     /** Create a point from a description. */
@@ -59,6 +57,6 @@ class Circle implements \Stringable
     /** Create a string representation of the Circle. Actually, it dumps a SQL compatible circle representation. */
     public function __toString(): string
     {
-        return sprintf("<%s,%s>", $this->center, $this->radius);
+        return sprintf("<%s,%s>", $this->center, FloatText::write($this->radius));
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PommProject's Foundation package.
  *
@@ -10,6 +12,8 @@
  */
 
 namespace PommProject\Foundation\Converter\Type;
+
+use PommProject\Foundation\Internal\FloatText;
 
 /**
  * PHP type for PostgreSQL's box type.
@@ -28,30 +32,26 @@ class Box implements \Stringable
     /** Create a box from a string description. */
     public function __construct(string $description)
     {
-        $description = trim($description, ' ()');
-        $regex = '/([0-9e\-+\.]+), *([0-9e\-+\.]+) *\), *\( *([0-9e\-+\.]+), *([0-9e\-+\.]+)/';
+        $numbers = FloatText::match($description, '((N,N),(N,N))', '(N,N),(N,N)', '(N,N,N,N)', 'N,N,N,N');
 
-        if (!preg_match($regex, $description, $matches)) {
+        if ($numbers === null) {
             throw new \InvalidArgumentException(
-                sprintf("Could not parse box representation '%s'.", $description)
+                sprintf("Could not parse box representation '%s'.", trim($description, ' ()'))
             );
         }
 
-        $this->topX = (float) $matches[1];
-        $this->topY = (float) $matches[2];
-        $this->bottomX = (float) $matches[3];
-        $this->bottomY = (float) $matches[4];
+        [$this->topX, $this->topY, $this->bottomX, $this->bottomY] = $numbers;
     }
 
-    /** Return a string representation of Box. */
+    /** Return a string representation of Box, with all the digits PostgreSQL needs to read back the same floats. */
     public function __toString(): string
     {
         return sprintf(
             "((%s,%s),(%s,%s))",
-            $this->topX,
-            $this->topY,
-            $this->bottomX,
-            $this->bottomY
+            FloatText::write($this->topX),
+            FloatText::write($this->topY),
+            FloatText::write($this->bottomX),
+            FloatText::write($this->bottomY)
         );
     }
 }

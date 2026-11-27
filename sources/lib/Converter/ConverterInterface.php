@@ -28,8 +28,8 @@ use PommProject\Foundation\Session\Session;
  * Arrays are just declared with 'array[…]' and type cast inline.
  * Example: array[int4 '8',int4 '12']::int4[]
  *
- * Complex types with an existing constructor must use it.
- * Example: circle(point(1.23,2.34), 5.67), hstore('"a" => "b"')
+ * Complex types are written as their text given to the type, which works for a domain too.
+ * Example: circle('<(1.23,2.34),5.67>'), hstore('"a" => "b"')
  *
  * @copyright 2014 - 2015 Grégoire HUBERT
  * @author    Grégoire HUBERT <hubert.greg@gmail.com>
