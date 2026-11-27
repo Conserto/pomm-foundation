@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PommProject's Foundation package.
  *
@@ -14,9 +16,6 @@ namespace PommProject\Foundation\Converter\Geometry;
 use PommProject\Foundation\Converter\ConverterInterface;
 use PommProject\Foundation\Converter\Type\Point;
 use PommProject\Foundation\Converter\TypeConverter;
-use PommProject\Foundation\Exception\ConverterException;
-use PommProject\Foundation\Internal\PgTypeName;
-use PommProject\Foundation\Session\Session;
 
 /**
  * Converter for PostgreSQL point type.
@@ -34,21 +33,5 @@ class PgPoint extends TypeConverter
     public function getTypeClassName(): string
     {
         return Point::class;
-    }
-
-    /**
-     * @throws ConverterException
-     * @see ConverterInterface
-     */
-    public function toPg(mixed $data, string $type, Session $session): string
-    {
-        if ($data === null) {
-            return sprintf("NULL::%s", PgTypeName::quote($type));
-        }
-
-        /** @var Point $data */
-        $data = $this->checkData($data);
-
-        return sprintf("point(%s,%s)", $data->x, $data->y);
     }
 }

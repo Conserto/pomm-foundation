@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of PommProject's Foundation package.
  *
@@ -10,6 +12,8 @@
  */
 
 namespace PommProject\Foundation\Converter\Type;
+
+use PommProject\Foundation\Internal\FloatText;
 
 /**
  * PHP type for PostgreSQL's point type.
@@ -26,21 +30,20 @@ class Point implements \Stringable
     /** Create a point from a string description. */
     public function __construct(string $description)
     {
-        $description = trim($description, ' ()');
+        $numbers = FloatText::match($description, '(N,N)', 'N,N');
 
-        if (!preg_match('/([0-9e\-+\.]+), *([0-9e\-+\.]+)/', $description, $matches)) {
+        if ($numbers === null) {
             throw new \InvalidArgumentException(
-                sprintf("Could not parse point representation '%s'.", $description)
+                sprintf("Could not parse point representation '%s'.", trim($description, ' ()'))
             );
         }
 
-        $this->x = (float) $matches[1];
-        $this->y = (float) $matches[2];
+        [$this->x, $this->y] = $numbers;
     }
 
-    /** Return a string representation of Point. */
+    /** Return a string representation of Point, with all the digits PostgreSQL needs to read back the same floats. */
     public function __toString(): string
     {
-        return sprintf("(%s,%s)", $this->x, $this->y);
+        return sprintf("(%s,%s)", FloatText::write($this->x), FloatText::write($this->y));
     }
 }

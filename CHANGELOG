@@ -40,6 +40,11 @@
  * Fix SQL injection in PgLtree::toPg(), PgHstore::toPg() and TypeConverter::toPg() (ranges): labels, hstore text and range descriptions were written into the literal unescaped. PgHstore relied on a $hs$ delimiter a value could close; range descriptions are only checked to contain a range. They are now escaped by the connection, so these toPg() need an open connection, as PgString always did. Parameterized queries were not affected
  * PgLtree::toPg() writes the given type instead of always `ltree`
  * Fix connection string values holding a space, a quote or a backslash: they were written bare, so a password with a space broke the connection and one such as `x sslmode=disable` added a connection parameter. They are now quoted as libpq reads them; other values are unchanged
+ * BC BREAK - PgPoint / PgBox / PgCircle write the given type, so a domain checks its constraints and a circle domain no longer fails
+ * Fix Point / Box / Circle losing digits (1/3 was stored 0.33333333333333) and writing INF as invalid SQL; Infinity and NaN are read back
+ * BC BREAK - Point / Box / Circle refuse a description holding anything else than their numbers ('(1,2) junk', a radius 'abc' read 0)
+ * Point / Box / Circle read PostgreSQL's usual input forms: x1,y1,x2,y2, ((x,y),r), x,y,r, inf or nan were refused
+ * PgCircle::getPointConverter() is deprecated: PgCircle no longer calls it, and warns a subclass overriding it
  * AGENTS.md: review the staged diff for security flaws (unescaped SQL values, closable delimiters, connection string values, leaked secrets) before every commit
 
 == VERSION 4.0.5
